@@ -1,0 +1,57 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+<!--<item-->
+<!--android:id="@+id/fancy"-->
+<!--android:title="@string/fancy"/>-->
+<!--<item-->
+<!--android:id="@+id/debug"-->
+<!--android:title="@string/debug"/>-->
+<!--<item-->
+<!--android:id="@+id/erode"-->
+<!--android:title="@string/erode"/>-->
+<!--<item-->
+<!--android:id="@+id/dilate"-->
+<!--android:title="@string/dilate"/>-->
+    <item
+        android:id="@+id/sendFeedback"
+        android:title="@string/debug"
+        android:showAsAction="ifRoom"/>
+
+
+<item android:id="@+id/action_settings"
+      android:title="@string/action_settings"
+      android:showAsAction="ifRoom"/>
+
+<!--<item-->
+<!--android:id="@+id/lightgreen"-->
+<!--android:title="@string/lightGreen"-->
+<!--android:icon="@drawable/traffic_light"-->
+<!--android:showAsAction="ifRoom|withText" />-->
+<!--<item-->
+<!--android:id="@+id/thres"-->
+<!--android:title="@string/thres"-->
+<!--android:icon="@drawable/ic_menu_manage"-->
+<!--android:showAsAction="ifRoom|withText"/>-->
+<!--<item-->
+<!--android:id="@+id/unmute_vol"-->
+<!--android:title="@string/unmute_vol"-->
+<!--android:icon="@drawable/ic_audio_vol"-->
+<!--android:showAsAction="ifRoom" />-->
+<!--<item-->
+<!--android:id="@+id/showversion"-->
+<!--android:title="@string/bShowVersion"-->
+<!--android:icon="@drawable/ic_menu_info_details"-->
+<!--android:showAsAction="ifRoom|withText" />-->
+<!--<item-->
+<!--android:id="@+id/misc"-->
+<!--android:title="@string/misc"-->
+<!--android:icon="@drawable/ic_menu_help"-->
+<!--android:showAsAction="ifRoom"/>-->
+<!--<item-->
+<!--android:id="@+id/debug"-->
+<!--android:title="@string/debug"-->
+<!--android:icon="@drawable/debug"-->
+<!--android:showAsAction="ifRoom" />-->
+
+
+</menu>

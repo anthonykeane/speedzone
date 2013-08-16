@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content" android:clickable="false" android:gravity="center_vertical|left" android:orientation="vertical" android:background="#ffffff">
+
+    <ImageButton
+        android:layout_width="325dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton" android:src="@drawable/ico00" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal"/>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/imageView" android:src="@drawable/ico00" android:scaleType="fitXY" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:layout_below="@+id/imageButton" android:layout_alignLeft="@+id/imageButton" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textView" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" android:layout_gravity="center" android:autoText="false"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/textView2" android:layout_above="@+id/textView" android:layout_centerHorizontal="true" android:layout_gravity="center"/>
+
+
+</LinearLayout>
