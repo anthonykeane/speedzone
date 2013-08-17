@@ -24,7 +24,8 @@
 
         >
         <activity
-            android:name="com.anthonykeane.speedzone.MainActivity"
+            android:launchMode="singleInstance"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +34,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.anthonykeane.speedzone.ChatHeadService" >
+        <service android:name=".ChatHeadService" >
         </service>
     </application>
 

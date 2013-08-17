@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,12 +42,23 @@ public class MainActivity extends Activity {
     public RequestParams HTTPrp2 = new RequestParams();
     public JSONObject jHereResult = new JSONObject();
     public JSONObject jThereResult = new JSONObject();
-    public boolean doDebug = false;
+
     public float DistanceToNextSpeedChange = 0;            //any BIG number or zero
     private static String sUUID = "";
     public boolean bCommsLockedOut = false;                   //Lock out comms until last request is serviced
     final public boolean bNotTheService = true;
     private View BigButton;
+    private View ErrorButton;
+                public int iSpeed = 50;
+    public boolean bZoneError = false;
+    public boolean doDebug = true;
+
+   // @Override
+    protected void onNewIntent(){
+    Log.i(TAG, "onNewIntent  ");
+
+    }
+
 
 
     @Override
@@ -55,48 +67,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         BigButton = findViewById(R.id.imageButton);
-//        Button bt = new Button(getApplicationContext());
-//        WindowManager.LayoutParams param = new WindowManager.LayoutParams();
-//        param.flags =WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,PixelFormat.TRANSLUCENT);
-//        param.format = PixelFormat.RGBA_8888;
-//        param.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
-//        param.gravity = Gravity.TOP | Gravity.RIGHT;
-//        param.width = 400;
-//        param.height = 400;
-//        param.alpha = 10;
-//
-//        WindowManager wmgr = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-//        wmgr.addView(bt, param);
-
-
-
-//
-//        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-//                WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
-//                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-//                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.RGBA_8888);
-//
-//        params.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_VERTICAL;
-//        params.width = 400;
-//        params.height = 400;
-//        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//        View myView = inflater.inflate(R.layout.activity_main, null);
-//        myView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                //Log.d(TAG, "touch me");
-//                return false;
-//            }
-//        });
-//
-//        // Add layout to window manager
-//        wm.addView(myView, params);
-//
-
-
-
-
+        ErrorButton = findViewById(R.id.imageButtonError);
 
         // Retreive Settings
         RetreiveSettings();
@@ -107,54 +78,91 @@ public class MainActivity extends Activity {
         //Start the GPS listener
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsListener);
 
+
         new WhatsNewScreen(this).show();
+
+        callWebService();
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
 
 
+        BigButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
 
-//        findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent;
-//                Bundle extras;
-//                intent = new Intent(MainActivity.this, ChatHeadService.class);
-//                intent.putExtra("title", "Ciao");
-//                intent.putExtra("text", "ChatHead");
-//
-//                handler.removeCallbacks(timedGPSqueue);
-//                startService(intent);
-//                finish();
-//            }
-//        });
+                //todo  Send Error to URL
+                bZoneError = true;
+                ImageButton imgerr = (ImageButton) ErrorButton;
+                imgerr.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
+
+        BigButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    // todo Send Error to URL
+                    bZoneError = true;
+                    ImageButton imgerr = (ImageButton) ErrorButton;
+                    imgerr.setVisibility(View.VISIBLE);
+            }
+        });
+
+        ErrorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                    // Send Error to URL
+                    bZoneError = false;
+                    ImageButton imgerr = (ImageButton) ErrorButton;
+                    imgerr.setVisibility(View.INVISIBLE);
+
+            }
+        });
+
 
 
     }
 
     @Override
     public void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause  ");
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
         //Stop the GPS listener
         handler.removeCallbacks(timedGPSqueue);
         locManager.removeUpdates(gpsListener);
-        super.onPause();
+
 
     }
     @Override
     public void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume  ");
 
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);
         //Start the GPS listener
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsListener);
-        super.onResume();
-    }
-    @Override
-    public void onDestroy() {
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();  // Always call the superclass method first
+
+    }
+
+
+        @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy  ");
         handler.removeCallbacks(timedGPSqueue);
         locManager.removeUpdates(gpsListener);
         // Turn Off the GPS
         locManager = null;
-        super.onDestroy();
+;
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -171,12 +179,17 @@ public class MainActivity extends Activity {
                 Intent intent;
                 Bundle extras;
                 intent = new Intent(MainActivity.this, ChatHeadService.class);
-                intent.putExtra("title", "Ciao");
-                intent.putExtra("text", "ChatHead");
+                intent.putExtra("TheOK", true);
+                //intent.putExtra("iCurrentSpeedLimit",iCurrentSpeedLimit);
+                intent.putExtra("iSpeed",iSpeed);
+
+                //intent.putExtra("text", "ChatHead");
 
                 handler.removeCallbacks(timedGPSqueue);
+                moveTaskToBack(true);
                 startService(intent);
-                finish();
+                onStop();
+                //finish();
                 return true;
 
 			case R.id.sendFeedback:
@@ -188,7 +201,6 @@ public class MainActivity extends Activity {
                 return super.onOptionsItemSelected(item);
         }
     }    //MENU CODE END
-
     private void callWebService() {
 
         HTTPrp.put("lat",String.valueOf(gpsListener.getLat()));
@@ -211,240 +223,95 @@ public class MainActivity extends Activity {
             HTTPrp.put("lon", "151.0136");
             HTTPrp.put("ber", "38");
             HTTPrp.put("speed", "99" );
-            HTTPrp.put("UUID", "test");
+            HTTPrp.put("UUID", "test-"+sUUID);
             HTTPrp.put("When", xxx);
         }
 
-        Toast.makeText(this,String.valueOf(gpsListener.getLat()) , Toast.LENGTH_SHORT).show();
-        if((0.0 !=  gpsListener.getLat()) || doDebug)
-        {
-            Toast.makeText(this,"Sending "+delayBetweenGPS_Records , Toast.LENGTH_SHORT).show();
-            client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler()
-            {
+        Toast.makeText(this, String.valueOf(gpsListener.getLat()), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"Sending "+delayBetweenGPS_Records , Toast.LENGTH_SHORT).show();
+        if ((0.0 != gpsListener.getLat()) || doDebug)
+            client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                 @Override
-                public void onFailure(Throwable e,JSONArray errorResponse){
+                public void onFailure(Throwable e, JSONArray errorResponse) {
                     //System.out.println(e);
                     bCommsLockedOut = false;
                 }
+
                 @Override
-                public void onFailure(Throwable e,JSONObject errorResponse){
+                public void onFailure(Throwable e, JSONObject errorResponse) {
                     //System.out.println(e);
                     bCommsLockedOut = false;
                     //Clear teh display if we don't know the value
-                    setGraphicBtnV( (ImageButton) findViewById(R.id.imageButton), 0);
+                    setGraphicBtnV((ImageButton) findViewById(R.id.imageButton), 0);
                     setGraphicBtnV((ImageButton) findViewById(R.id.imageBtnSmall), 0);
                     DistanceToNextSpeedChange = 0;
-    //                img.setScaleX(1);
-    //                img.setScaleY(1);
+                    iSpeed = 50;
                 }
 
                 @Override
-                public void onSuccess(JSONObject response)
-                {
+                public void onSuccess(JSONObject response) {
                     //System.out.println("that");
                     //System.out.println(response);
                     bCommsLockedOut = false;
                     jHereResult = response;
+                    try {
+                        //Calculate Distance
+                        Location me = new Location("");
+                        Location dest = new Location("");
+                        me.setLatitude(jHereResult.getDouble("reLat"));
+                        me.setLongitude(jHereResult.getDouble("reLon"));
+                        dest.setLatitude(jThereResult.getDouble("reLat"));
+                        dest.setLongitude(jThereResult.getDouble("reLon"));
 
-                    try
-                    {
+                        DistanceToNextSpeedChange = me.distanceTo(dest);
                         if (bNotTheService) {
-                            String sdsd =   String.valueOf(response.getString("reSpeedLimit"))+"\n"+  String.valueOf(response.getString("reLon"))+"\n"+  String.valueOf(response.getString("reLat"));
+                            TextView textView = (TextView) findViewById(R.id.textView);
+                            textView.setText(String.valueOf(DistanceToNextSpeedChange) + "\n");
+                        }
+                        //Resize the image based on distance to.
+                        ImageButton img = (ImageButton) findViewById(R.id.imageBtnSmall);
+                        setGraphicBtnV(img, response.getInt("reSpeedLimit"));
+
+                        float anmi = 1 / ((DistanceToNextSpeedChange / 1000) + 1);
+                        img.setScaleX(anmi);
+                        img.setScaleY(anmi);
+
+
+                        if (bNotTheService) {
+                            String sdsd = "\n\n\n\n\n" + String.valueOf(response.getString("reLon")) + " ,  " + String.valueOf(response.getString("reLat"));
                             TextView textView = null;
                             textView = (TextView) findViewById(R.id.textView2);
                             textView.setText(sdsd);
+
+                            img = (ImageButton) findViewById(R.id.imageButton);
+                            iSpeed = response.getInt("reSpeedLimit");
+                            setGraphicBtnV(img, iSpeed);
+
+                            HTTPrp2.put("RE", String.valueOf(response.getString("RE")));
+                            HTTPrp2.put("reSpeedLimit", String.valueOf(response.getString("reSpeedLimit")));
+                            HTTPrp2.put("RdNo", String.valueOf(response.getString("RdNo")));
+                            HTTPrp2.put("rePrescribed", String.valueOf(response.getString("rePrescribed")));
                         }
+//********************************
+                        int iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / iSpeed));
 
+                        Toast.makeText(MainActivity, iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
 
-                        ImageButton img = (ImageButton) findViewById(R.id.imageButton);
-                        int iSpeed = response.getInt("reSpeedLimit");
-                        setGraphicBtnV(img, iSpeed);
-
-                        HTTPrp2.put("RE", String.valueOf(response.getString("RE")));
-                        HTTPrp2.put("reSpeedLimit", String.valueOf(response.getString("reSpeedLimit")));
-                        HTTPrp2.put("RdNo", String.valueOf(response.getString("RdNo")));
-                        HTTPrp2.put("rePrescribed", String.valueOf(response.getString("rePrescribed")));
-
-                        if((DistanceToNextSpeedChange < 300) || (DistanceToNextSpeedChange==0))                         //refresh when close only
-                                client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler()
-                        {
-                            @Override
-                            public void onSuccess(JSONObject response) {
-                                //System.out.println("that");
-                                //System.out.println(response);
-                                jThereResult = response;
-                                try {
-                                    //Calculate Distance
-                                    Location me   = new Location("");
-                                    Location dest = new Location("");
-                                    me.setLatitude(jHereResult.getDouble("reLat"));
-                                    me.setLongitude(jHereResult.getDouble("reLon"));
-                                    dest.setLatitude(jThereResult.getDouble("reLat"));
-                                    dest.setLongitude(jThereResult.getDouble("reLon"));
-
-                                    DistanceToNextSpeedChange  = me.distanceTo(dest);
-                                    if (bNotTheService) {
-                                        TextView textView = (TextView) findViewById(R.id.textView);
-                                        textView.setText(String.valueOf(DistanceToNextSpeedChange)+"\n");
-                                    }
-                                    //Resize the image based on distance to.
-                                    ImageButton img = (ImageButton) findViewById(R.id.imageBtnSmall);
-                                    int iSpeed = response.getInt("reSpeedLimit");
-                                    setGraphicBtnV(img, iSpeed);
-
-                                    float anmi = 1/((DistanceToNextSpeedChange/1000)+1);
-                                    img.setScaleX(anmi);
-                                    img.setScaleY(anmi);
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                        if ((DistanceToNextSpeedChange < 300) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+                            client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(JSONObject response) {
+                                    jThereResult = response;
                                 }
-
-                            }
-                        });
+                            });
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
                 }
             });
-        }
     }
-
-
-
-
-
-
-
-
-
-
-
-//
-//private void callWebService() {
-//    Log.i(TAG, "callWebService  ");
-//    HTTPrp.put("lat",String.valueOf(gpsListener.getLat()));
-//    HTTPrp.put("lon", String.valueOf(gpsListener.getLon() ));
-//    HTTPrp.put("ber", String.valueOf(gpsListener.getBearing() ));
-//    HTTPrp.put("speed", String.valueOf(gpsListener.getSpeed() ));
-//    HTTPrp.put("UUID", sUUID);
-//
-//    Time now = new Time();
-//    now.setToNow();
-//    String xxx = now.format("%Y-%m-%d %H:%m:%S");
-//    HTTPrp.put("When", xxx);
-//
-//
-//
-//
-//    if (doDebug)
-//    {
-//        HTTPrp.put("lat", "-34.069");
-//        HTTPrp.put("lon", "151.0136");
-//        HTTPrp.put("ber", "38");
-//        HTTPrp.put("speed", "99" );
-//        HTTPrp.put("UUID", "test");
-//        HTTPrp.put("When", xxx);
-//    }
-//
-//    //Toast.makeText(this, String.valueOf(gpsListener.getLat()), Toast.LENGTH_SHORT).show();
-//    if((0.0 !=  gpsListener.getLat()) || doDebug)
-//    {
-//        Toast.makeText(this,"Sending "+delayBetweenGPS_Records , Toast.LENGTH_SHORT).show();
-//        client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler()
-//        {
-//
-//            @Override
-//            public void onFailure(Throwable e,JSONArray errorResponse){
-//                System.out.println(e);
-//                bCommsLockedOut = false;
-//            }
-//            @Override
-//            public void onFailure(Throwable e,JSONObject errorResponse){
-//                System.out.println(e);
-//                bCommsLockedOut = false;
-//                //Clear teh display if we don't know the value
-//                setGraphicBtnV( (ImageButton)  BigButton, 0);
-//
-//                DistanceToNextSpeedChange = 0;
-//                //                img.setScaleX(1);
-//                //                img.setScaleY(1);
-//            }
-//
-//            @Override
-//            public void onSuccess(JSONObject response)
-//            {
-//
-//                Log.i(TAG, "HERE onSuccess  " + response);
-//                bCommsLockedOut = false;
-//                jHereResult = response;
-//
-//
-//                try {
-//                    //Calculate Distance between here (whrer i am now and there there the next speed change is
-//                    Location me   = new Location("");
-//                    Location dest = new Location("");
-//                    me.setLatitude(jHereResult.getDouble("reLat"));
-//                    me.setLongitude(jHereResult.getDouble("reLon"));
-//                    dest.setLatitude(jThereResult.getDouble("reLat"));
-//                    dest.setLongitude(jThereResult.getDouble("reLon"));
-//
-//                    DistanceToNextSpeedChange  = me.distanceTo(dest);
-//
-//
-//                    if (bNotTheService) {
-//                        String sdsd =   String.valueOf(response.getString("reSpeedLimit"))+"\n"+  String.valueOf(response.getString("reLon"))+"\n"+  String.valueOf(response.getString("reLat"));
-//                        TextView textView2 = null;
-//                        textView2 = (TextView) findViewById(R.id.textView2);
-//                        textView2.setText(sdsd);
-//
-//                        TextView textView = (TextView) findViewById(R.id.textView);
-//                        textView.setText(String.valueOf(DistanceToNextSpeedChange)+"\n");
-//                        setGraphicBtnV((ImageButton) findViewById(R.id.imageBtnSmall), 0);
-//                        //Resize the image based on distance to.
-//                        ImageButton img = (ImageButton) findViewById(R.id.imageBtnSmall);
-//                        int iSpeed = response.getInt("reSpeedLimit");
-//                        setGraphicBtnV(img, iSpeed);
-//
-//                        float anmi = 1/((DistanceToNextSpeedChange/1000)+1);
-//                        img.setScaleX(anmi);
-//                        img.setScaleY(anmi);
-//                    }
-//
-//
-//
-//                    Log.i(TAG, ".......onSuccess  "+ DistanceToNextSpeedChange);
-//
-//                    ImageButton img = (ImageButton) BigButton;
-//                    int iSpeed = response.getInt("reSpeedLimit");
-//                    setGraphicBtnV(img, iSpeed);
-//
-//                    HTTPrp2.put("RE", String.valueOf(response.getString("RE")));
-//                    HTTPrp2.put("reSpeedLimit", String.valueOf(response.getString("reSpeedLimit")));
-//                    HTTPrp2.put("RdNo", String.valueOf(response.getString("RdNo")));
-//                    HTTPrp2.put("rePrescribed", String.valueOf(response.getString("rePrescribed")));
-//
-//                    if((DistanceToNextSpeedChange < 300) || (DistanceToNextSpeedChange==0))                         //refresh when close only
-//                        client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler()
-//                        {
-//                            @Override
-//                            public void onSuccess(JSONObject response) {
-//
-//                                Log.i(TAG, "THERE onSuccess  "+response);
-//                                jThereResult = response;
-//                            }
-//                        });
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//        });
-//    }
-//}
-
     private Runnable timedGPSqueue;
     {
         timedGPSqueue = new Runnable() {
@@ -483,12 +350,11 @@ public class MainActivity extends Activity {
                 img.setImageResource(R.drawable.b110);
                 break;
             default:
-                img.setImageResource(R.drawable.b00);
+                img.setImageResource(R.drawable.b50);
                 break;
 
         }
     }
-
     private void RetreiveSettings() {
         SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 

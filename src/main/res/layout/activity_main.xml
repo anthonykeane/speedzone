@@ -7,25 +7,28 @@
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageButton" android:src="@drawable/b00" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:layout_margin="0dp" android:adjustViewBounds="false" android:contentDescription="Current Speed" android:layout_centerVertical="true" android:layout_centerHorizontal="true"/>
+        android:id="@+id/imageButton" android:src="@drawable/b50" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:layout_margin="0dp" android:adjustViewBounds="false" android:contentDescription="Current Speed" android:layout_centerVertical="true" android:layout_centerHorizontal="true" android:longClickable="true"/>
+
+    <ImageButton
+        android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/imageButtonError" android:src="@drawable/b00q" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:adjustViewBounds="false" android:contentDescription="Current Speed" android:focusableInTouchMode="false" android:alpha=".7" android:layout_alignBottom="@+id/imageButton" android:layout_centerHorizontal="true" android:visibility="invisible" android:longClickable="true"/>
 
     <ImageButton
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:id="@+id/imageBtnSmall" android:src="@drawable/b00" android:scaleType="centerInside" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed"/>
+        android:id="@+id/imageBtnSmall" android:src="@drawable/s00" android:scaleType="centerInside" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/textView" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" android:layout_gravity="center" android:autoText="false" android:layout_alignParentLeft="true" android:layout_marginLeft="324dp" android:layout_alignParentTop="true" android:layout_marginTop="949dp"/>
+        android:text="---"
+        android:id="@+id/textView" android:layout_gravity="center" android:autoText="false" android:layout_below="@+id/imageButton" android:layout_alignParentRight="true" android:layout_marginTop="23dp" android:textSize="40dp"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Small Text"
-        android:id="@+id/textView2" android:layout_above="@+id/textView" android:layout_centerHorizontal="true" android:layout_gravity="center" android:layout_alignParentLeft="true" android:layout_alignParentTop="true"/>
+        android:id="@+id/textView2" android:layout_gravity="center" android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" android:layout_marginBottom="11dp" android:textSize="20dp"/>
 
     <!--<Button-->
         <!--style="?android:attr/buttonStyleSmall"-->

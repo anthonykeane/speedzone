@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical" android:alpha="1">
+
+    <ImageButton
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/imageButton" android:src="@drawable/s50" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:longClickable="true" android:layout_alignParentLeft="true" android:layout_marginLeft="0dp" android:layout_alignParentTop="true" android:layout_marginTop="0dp"/>
+
+    <ImageButton
+        android:layout_width="100dp" android:layout_height="100dp" android:id="@+id/imageButtonError" android:src="@drawable/s00" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:longClickable="true" android:layout_centerVertical="true" android:layout_centerHorizontal="true" android:alpha=".8" android:visibility="invisible"/>
+
+
+</RelativeLayout>
