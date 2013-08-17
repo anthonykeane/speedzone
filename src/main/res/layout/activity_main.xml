@@ -1,31 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
-              android:layout_height="wrap_content" android:clickable="false" android:gravity="center_vertical|left" android:orientation="vertical" android:background="#ffffff">
+              android:layout_height="fill_parent" android:clickable="false" android:orientation="vertical" android:background="#f000" android:alpha="1" android:gravity="center|clip_horizontal|clip_vertical">
 
     <ImageButton
-        android:layout_width="325dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageButton" android:src="@drawable/ico00" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal"/>
+        android:id="@+id/imageButton" android:src="@drawable/b00" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:layout_margin="0dp" android:adjustViewBounds="false" android:contentDescription="Current Speed" android:layout_centerVertical="true" android:layout_centerHorizontal="true"/>
 
-    <ImageView
+    <ImageButton
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:id="@+id/imageView" android:src="@drawable/ico00" android:scaleType="fitXY" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:layout_below="@+id/imageButton" android:layout_alignLeft="@+id/imageButton" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom"/>
+        android:id="@+id/imageBtnSmall" android:src="@drawable/b00" android:scaleType="centerInside" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/textView" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" android:layout_gravity="center" android:autoText="false"/>
+        android:id="@+id/textView" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" android:layout_gravity="center" android:autoText="false" android:layout_alignParentLeft="true" android:layout_marginLeft="324dp" android:layout_alignParentTop="true" android:layout_marginTop="949dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Small Text"
-        android:id="@+id/textView2" android:layout_above="@+id/textView" android:layout_centerHorizontal="true" android:layout_gravity="center"/>
+        android:id="@+id/textView2" android:layout_above="@+id/textView" android:layout_centerHorizontal="true" android:layout_gravity="center" android:layout_alignParentLeft="true" android:layout_alignParentTop="true"/>
+
+    <!--<Button-->
+        <!--style="?android:attr/buttonStyleSmall"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="New Button"-->
+        <!--android:id="@+id/button1" android:layout_gravity="left|center_vertical"/>-->
 
 
-</LinearLayout>
+</RelativeLayout>
