@@ -52,6 +52,8 @@ public class MainActivity extends Activity {
                 public int iSpeed = 50;
     public boolean bZoneError = false;
     public boolean doDebug = true;
+    private Location me = new Location("");
+    private Location dest = new Location("");
 
    // @Override
     protected void onNewIntent(){
@@ -82,8 +84,7 @@ public class MainActivity extends Activity {
         new WhatsNewScreen(this).show();
 
         callWebService();
-        handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
-
+        //handler.postDelayed(timedGPSqueue, 8);   //Start timer
 
         BigButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -142,6 +143,7 @@ public class MainActivity extends Activity {
         Log.i(TAG, "onResume  ");
 
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);
+        Log.i(TAG, "onResume  START TIMER");
         //Start the GPS listener
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsListener);
 
@@ -208,12 +210,18 @@ public class MainActivity extends Activity {
         HTTPrp.put("ber", String.valueOf(gpsListener.getBearing() ));
         HTTPrp.put("speed", String.valueOf(gpsListener.getSpeed() ));
         HTTPrp.put("UUID", sUUID);
-
+        if (bZoneError){
+            HTTPrp.put("bZoneError","1");
+        }
+        else
+        {
+            HTTPrp.put("bZoneError","0");
+        }
         Time now = new Time();
         now.setToNow();
-        String xxx = now.format("%Y-%m-%d %H:%m:%S");
+        String xxx = now.format("%Y-%m-%d %H:%M:%S");
         HTTPrp.put("When", xxx);
-
+Log.i(TAG, "callWebService  "+ xxx);
 
 
 
@@ -229,7 +237,8 @@ public class MainActivity extends Activity {
 
         Toast.makeText(this, String.valueOf(gpsListener.getLat()), Toast.LENGTH_SHORT).show();
         //Toast.makeText(this,"Sending "+delayBetweenGPS_Records , Toast.LENGTH_SHORT).show();
-        if ((0.0 != gpsListener.getLat()) || doDebug)
+        if ((0.0 != gpsListener.getLat()) || doDebug) {
+
             client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                 @Override
@@ -257,52 +266,69 @@ public class MainActivity extends Activity {
                     jHereResult = response;
                     try {
                         //Calculate Distance
-                        Location me = new Location("");
-                        Location dest = new Location("");
+                        me = new Location("");
+                        dest = new Location("");
                         me.setLatitude(jHereResult.getDouble("reLat"));
                         me.setLongitude(jHereResult.getDouble("reLon"));
-                        dest.setLatitude(jThereResult.getDouble("reLat"));
-                        dest.setLongitude(jThereResult.getDouble("reLon"));
+                        try {
+                            dest.setLatitude(jThereResult.getDouble("reLat"));
+                            dest.setLongitude(jThereResult.getDouble("reLon"));
+                            DistanceToNextSpeedChange = me.distanceTo(dest);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
-                        DistanceToNextSpeedChange = me.distanceTo(dest);
+
                         if (bNotTheService) {
                             TextView textView = (TextView) findViewById(R.id.textView);
                             textView.setText(String.valueOf(DistanceToNextSpeedChange) + "\n");
                         }
                         //Resize the image based on distance to.
                         ImageButton img = (ImageButton) findViewById(R.id.imageBtnSmall);
-                        setGraphicBtnV(img, response.getInt("reSpeedLimit"));
 
-                        float anmi = 1 / ((DistanceToNextSpeedChange / 1000) + 1);
-                        img.setScaleX(anmi);
-                        img.setScaleY(anmi);
+
+                        if (DistanceToNextSpeedChange!=0) {
+                            float anmi = 1 / ((DistanceToNextSpeedChange / 1000) + 1);
+                            img.setScaleX(anmi);
+                            img.setScaleY(anmi);
+                        }
 
 
                         if (bNotTheService) {
-                            String sdsd = "\n\n\n\n\n" + String.valueOf(response.getString("reLon")) + " ,  " + String.valueOf(response.getString("reLat"));
+                            String sdsd = "\n\n\n\n\n" + String.valueOf(jHereResult.getString("reLon")) + " ,  " + String.valueOf(response.getString("reLat"));
                             TextView textView = null;
                             textView = (TextView) findViewById(R.id.textView2);
                             textView.setText(sdsd);
 
                             img = (ImageButton) findViewById(R.id.imageButton);
-                            iSpeed = response.getInt("reSpeedLimit");
+                            iSpeed = jHereResult.getInt("reSpeedLimit");
                             setGraphicBtnV(img, iSpeed);
 
-                            HTTPrp2.put("RE", String.valueOf(response.getString("RE")));
-                            HTTPrp2.put("reSpeedLimit", String.valueOf(response.getString("reSpeedLimit")));
-                            HTTPrp2.put("RdNo", String.valueOf(response.getString("RdNo")));
-                            HTTPrp2.put("rePrescribed", String.valueOf(response.getString("rePrescribed")));
+                            HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
+                            HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
+                            HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
+                            HTTPrp2.put("rePrescribed", String.valueOf(jHereResult.getString("rePrescribed")));
                         }
 //********************************
                         int iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / iSpeed));
 
-                        Toast.makeText(MainActivity, iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
-
+                        //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "onSuccess  "+iSecondsToSpeedChange+" iSecondsToSpeedChange ");
                         if ((DistanceToNextSpeedChange < 300) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(JSONObject response) {
                                     jThereResult = response;
+                                    ImageButton img = (ImageButton) findViewById(R.id.imageBtnSmall);
+                                    try {
+                                        setGraphicBtnV(img, jThereResult.getInt("reSpeedLimit"));
+                                        dest.setLatitude(jThereResult.getDouble("reLat"));
+                                        dest.setLongitude(jThereResult.getDouble("reLon"));
+                                        DistanceToNextSpeedChange = me.distanceTo(dest);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
                                 }
                             });
                     } catch (JSONException e) {
@@ -311,15 +337,24 @@ public class MainActivity extends Activity {
 
                 }
             });
+        }
     }
     private Runnable timedGPSqueue;
     {
         timedGPSqueue = new Runnable() {
+            int iCommsLockedOutCount;
             @Override
             public void run() {
+                Log.i(TAG, "run  "+ bCommsLockedOut);
+                iCommsLockedOutCount++;
+                if (!bCommsLockedOut || iCommsLockedOutCount>6) {
+                    callWebService();    // only send comms is last comm is returned.
+                    bCommsLockedOut = true;
+                    iCommsLockedOutCount = 0;
 
-                if (!bCommsLockedOut) callWebService();    // only send comms is last comm is returned.
+                }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
+                Log.i(TAG, "run  REPEAT TIMER");
             }
         };
     }

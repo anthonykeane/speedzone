@@ -258,7 +258,7 @@ public class ChatHeadService extends Service {
 
 	public void removeChatHead(View chatHead) {
         Log.i(TAG, "removeChatHead  4");
-        Toast.makeText(this,"RENOVING " , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"RENOVING " , Toast.LENGTH_SHORT).show();
         chatHeads.remove(chatHead);
         try {
             windowManager.removeView(chatHead);
@@ -272,7 +272,7 @@ public class ChatHeadService extends Service {
 	@Override
 	public void onDestroy() {
         Log.i(TAG, "onDestroy  5");
-        Toast.makeText(this,"DISTROYING " , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"DISTROYING " , Toast.LENGTH_SHORT).show();
         handler.removeCallbacks(timedGPSqueue);
         try {
 
@@ -299,7 +299,7 @@ public class ChatHeadService extends Service {
 
         Time now = new Time();
         now.setToNow();
-        String xxx = now.format("%Y-%m-%d %H:%m:%S");
+        String xxx = now.format("%Y-%m-%d %H:%M:%S");
         HTTPrp.put("When", xxx);
 
 
