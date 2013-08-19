@@ -12,5 +12,10 @@
     <ImageButton
         android:layout_width="100dp" android:layout_height="100dp" android:id="@+id/imageButtonError" android:src="@drawable/s00" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:longClickable="true" android:layout_centerVertical="true" android:layout_centerHorizontal="true" android:alpha=".8" android:visibility="invisible"/>
 
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/imageViewDebug" android:layout_alignParentTop="true" android:layout_alignRight="@+id/imageButton" android:src="@drawable/debug" android:clickable="true" android:visibility="visible"/>
+
 
 </RelativeLayout>

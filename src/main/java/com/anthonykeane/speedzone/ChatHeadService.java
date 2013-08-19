@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,7 +16,7 @@ import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.ImageView;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -37,8 +38,10 @@ public class ChatHeadService extends Service {
     private static final String TAG = "ChatHead::Service";
     private View BigButton;
     private View ErrorButton;
+    private View DebugImage;
     private boolean bZoneError = false;
-
+    private Location me = new Location("");
+    private Location dest = new Location("");
 
 
 
@@ -58,6 +61,7 @@ public class ChatHeadService extends Service {
     private static String sUUID = "";
     public boolean bCommsLockedOut = false;                   //Lock out comms until last request is serviced
     public int iSpeed = 0;
+    public int fFiveValAvgSpeed=60;
     public boolean doDebug = false;
 
     @Override
@@ -72,12 +76,20 @@ public class ChatHeadService extends Service {
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 		inflater = LayoutInflater.from(this);
 		chatHeads = new ArrayList<View>();
+Log.i(TAG, "onCreate  ");
 
 
         // Retreive Settings
         RetreiveSettings();
 
-        // Turn on teh GPS.     set up GPS
+
+    }
+
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+Log.i(TAG, "onStartCommand  ");
+
+        // Turn on tht GPS.     set up GPS
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
         //Start the GPS listener
@@ -86,12 +98,10 @@ public class ChatHeadService extends Service {
         callWebService();
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
 
-    }
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
 
         boolean bOK = false;
+
         try {
             bOK = intent.getBooleanExtra("TheOK",false);
             doDebug = intent.getBooleanExtra("doDebug",false);
@@ -111,19 +121,26 @@ public class ChatHeadService extends Service {
         {
             Log.i(TAG, "onStartCommand  NOT ***********"+bOK);
         }
-            final View chatHead = inflater.inflate(R.layout.chat_head, null);
 
-            //TextView txt_title = (TextView) chatHead.findViewById(R.id.txt_title);
-            //TextView txt_text = (TextView) chatHead.findViewById(R.id.txt_text);
 
-            //txt_title.setText(intent.getStringExtra("title"));
-            //txt_text.setText(intent.getStringExtra("text"));
-            BigButton = chatHead.findViewById(R.id.imageButton);
-            ErrorButton = chatHead.findViewById(R.id.imageButtonError);
+        final View chatHead = inflater.inflate(R.layout.chat_head, null);
 
-            ImageButton img = (ImageButton) BigButton;
-            // got iSpeed above
-            setGraphicBtnV( (ImageButton)  BigButton, iSpeed);
+        //TextView txt_title = (TextView) chatHead.findViewById(R.id.txt_title);
+        //TextView txt_text = (TextView) chatHead.findViewById(R.id.txt_text);
+
+        //txt_title.setText(intent.getStringExtra("title"));
+        //txt_text.setText(intent.getStringExtra("text"));
+        BigButton = chatHead.findViewById(R.id.imageButton);
+        ErrorButton = chatHead.findViewById(R.id.imageButtonError);
+        DebugImage = chatHead.findViewById(R.id.imageViewDebug);
+
+        ImageView imgBug = (ImageView) DebugImage;
+        if (doDebug) imgBug.setVisibility(View.VISIBLE);
+        else imgBug.setVisibility(View.INVISIBLE);
+
+        ImageButton img = (ImageButton) BigButton;
+        // got iSpeed above
+        setGraphicBtnV( (ImageButton)  BigButton, iSpeed);
 
 
         BigButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -189,64 +206,109 @@ public class ChatHeadService extends Service {
             }
         });
 
-            final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
 
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_PHONE,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                    PixelFormat.TRANSLUCENT);
 
-            params.gravity = Gravity.CENTER;
-            // retrieve last position of chathead
-            params.x = Integer.parseInt(LoadSetting("params.x"));
-            params.y = Integer.parseInt(LoadSetting("params.y"));
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
 
-            BigButton.setOnTouchListener(new View.OnTouchListener() {
-                private int didwemove;
-                private int initialX;
-                private int initialY;
-                private float initialTouchX;
-                private float initialTouchY;
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
 
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    // to dispatch click / long click event,
-                    // you must pass the event to it's default callback View.onTouchEvent
-                    boolean defaultResult = v.onTouchEvent(event);
+        params.gravity = Gravity.CENTER;
+        // retrieve last position of chathead
+        params.x = Integer.parseInt(LoadSetting("params.x"));
+        params.y = Integer.parseInt(LoadSetting("params.y"));
 
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            initialX = params.x;
-                            didwemove = params.x;
+        BigButton.setOnTouchListener(new View.OnTouchListener() {
+            private int didwemove;
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
 
-                            initialY = params.y;
-                            initialTouchX = event.getRawX();
-                            initialTouchY = event.getRawY();
-                            //return true;
-                            bYouMovedIt = false;
-                            Log.i(TAG, String.valueOf(bYouMovedIt));
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            SaveSetting("params.x",String.valueOf(params.x));
-                            SaveSetting("params.y",String.valueOf(params.y));
-                            //return true;
-                            break;
-                        case MotionEvent.ACTION_MOVE:
-                            params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                            params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                            windowManager.updateViewLayout(chatHead, params);
-                            Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
-                            bYouMovedIt = params.x != didwemove;
-                            //return true;
-                            break;
-                    }
-                    return false;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // to dispatch click / long click event,
+                // you must pass the event to it's default callback View.onTouchEvent
+                boolean defaultResult = v.onTouchEvent(event);
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = params.x;
+                        didwemove = params.x;
+
+                        initialY = params.y;
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        //return true;
+                        bYouMovedIt = false;
+                        Log.i(TAG, String.valueOf(bYouMovedIt));
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        SaveSetting("params.x",String.valueOf(params.x));
+                        SaveSetting("params.y",String.valueOf(params.y));
+                        //return true;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
+                        windowManager.updateViewLayout(chatHead, params);
+                        Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
+                        bYouMovedIt = params.x != didwemove;
+                        //return true;
+                        break;
                 }
-            });
+                return false;
+            }
+        });
 
-            addChatHead(chatHead, params);
-        //}
+        ErrorButton.setOnTouchListener(new View.OnTouchListener() {
+            private int didwemove;
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // to dispatch click / long click event,
+                // you must pass the event to it's default callback View.onTouchEvent
+                boolean defaultResult = v.onTouchEvent(event);
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = params.x;
+                        didwemove = params.x;
+
+                        initialY = params.y;
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        //return true;
+                        bYouMovedIt = false;
+                        Log.i(TAG, String.valueOf(bYouMovedIt));
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        SaveSetting("params.x",String.valueOf(params.x));
+                        SaveSetting("params.y",String.valueOf(params.y));
+                        //return true;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
+                        windowManager.updateViewLayout(chatHead, params);
+                        Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
+                        bYouMovedIt = params.x != didwemove;
+                        //return true;
+                        break;
+                }
+                return false;
+            }
+        });
+
+        addChatHead(chatHead, params);
+
 		return super.onStartCommand(intent, flags, startId);
 
 	}
@@ -258,12 +320,19 @@ public class ChatHeadService extends Service {
 
 	public void removeChatHead(View chatHead) {
         Log.i(TAG, "removeChatHead  4");
+
+        try { // Turn Off the GPS
+            locManager.removeUpdates(gpsListener); // Turn Off the GPS
+        } catch (Exception e) {e.printStackTrace(); }
+        if (locManager!=null){locManager = null;}
+
         //Toast.makeText(this,"RENOVING " , Toast.LENGTH_SHORT).show();
         chatHeads.remove(chatHead);
         try {
             windowManager.removeView(chatHead);
         } catch (Exception e) {
-            e.printStackTrace();
+            //todo catch
+            //e.printStackTrace();
         }
         onDestroy();
 
@@ -274,112 +343,121 @@ public class ChatHeadService extends Service {
         Log.i(TAG, "onDestroy  5");
         //Toast.makeText(this,"DISTROYING " , Toast.LENGTH_SHORT).show();
         handler.removeCallbacks(timedGPSqueue);
-        try {
 
-            if (locManager != null) { locManager.removeUpdates(gpsListener);}
-            // Turn Off the GPS
-            locManager = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        try { // Turn Off the GPS
+            locManager.removeUpdates(gpsListener); // Turn Off the GPS
+        } catch (Exception e) {e.printStackTrace(); }
+        if (locManager!=null){locManager = null;}
+
+
+
         for (View chatHead : chatHeads) {
 			removeChatHead(chatHead);
 		}
         super.onDestroy();
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void callWebService() {
         Log.i(TAG, "callWebService  ");
-        HTTPrp.put("lat",String.valueOf(gpsListener.getLat()));
-        HTTPrp.put("lon", String.valueOf(gpsListener.getLon() ));
-        HTTPrp.put("ber", String.valueOf(gpsListener.getBearing() ));
-        HTTPrp.put("speed", String.valueOf(gpsListener.getSpeed() ));
+        HTTPrp.put("lat", String.valueOf(LocListener.getLat()));
+        HTTPrp.put("lon", String.valueOf(LocListener.getLon()));
+        HTTPrp.put("ber", String.valueOf(LocListener.getBearing()));
+        HTTPrp.put("speed", String.valueOf(LocListener.getSpeed()));
         HTTPrp.put("UUID", sUUID);
-
+        if (bZoneError) {
+            HTTPrp.put("bZoneError", "1");
+        } else {
+            HTTPrp.put("bZoneError", "0");
+        }
         Time now = new Time();
         now.setToNow();
         String xxx = now.format("%Y-%m-%d %H:%M:%S");
         HTTPrp.put("When", xxx);
+        Log.i(TAG, "callWebService  " + xxx);
 
-
-
-
-        if (doDebug)
-        {
+        if (doDebug) {
             HTTPrp.put("lat", "-34.069");
             HTTPrp.put("lon", "151.0136");
             HTTPrp.put("ber", "38");
-            HTTPrp.put("speed", "99" );
-            HTTPrp.put("UUID", "test-"+ sUUID);
+            HTTPrp.put("speed", "99");
+            HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
         }
 
         //Toast.makeText(this, String.valueOf(gpsListener.getLat()), Toast.LENGTH_SHORT).show();
-        if((0.0 !=  gpsListener.getLat()) || doDebug)
-        {
-            Toast.makeText(this,"Sending "+delayBetweenGPS_Records , Toast.LENGTH_SHORT).show();
-            client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler()
-            {
+        if ((0.0 != LocListener.getLat()) || doDebug) {
+            client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                 @Override
-                public void onFailure(Throwable e,JSONArray errorResponse){
+                public void onFailure(Throwable e, JSONArray errorResponse) {
                     System.out.println(e);
                     bCommsLockedOut = false;
                 }
+
                 @Override
-                public void onFailure(Throwable e,JSONObject errorResponse){
+                public void onFailure(Throwable e, JSONObject errorResponse) {
                     System.out.println(e);
                     bCommsLockedOut = false;
                     //Clear teh display if we don't know the value
-                    setGraphicBtnV( (ImageButton)  BigButton, 0);
+                    setGraphicBtnV((ImageButton) BigButton, 0);
 
-                    DistanceToNextSpeedChange = 0;
-                    //                img.setScaleX(1);
-                    //                img.setScaleY(1);
+                    if (LocListener.getSpeed()>=40) {
+                        DistanceToNextSpeedChange = 0;
+                        iSpeed = 50;
+                    }
                 }
 
                 @Override
-                public void onSuccess(JSONObject response)
-                {
-
-                    Log.i(TAG, "THAT onSuccess  " + response);
+                public void onSuccess(JSONObject response) {
                     bCommsLockedOut = false;
                     jHereResult = response;
-                    try
-                    {
+                    try {
+                        //Calculate Distance
+                        me = new Location("");
+                        dest = new Location("");
+                        me.setLatitude(jHereResult.getDouble("reLat"));
+                        me.setLongitude(jHereResult.getDouble("reLon"));
+                        try {
+                            dest.setLatitude(jThereResult.getDouble("reLat"));
+                            dest.setLongitude(jThereResult.getDouble("reLon"));
+                            DistanceToNextSpeedChange = me.distanceTo(dest);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
-                        ImageButton img = (ImageButton) BigButton;;
-                        int iSpeed = response.getInt("reSpeedLimit");
+
+
+
+
+
+                        ImageButton img = (ImageButton) BigButton;
+                        iSpeed = jHereResult.getInt("reSpeedLimit");
                         setGraphicBtnV(img, iSpeed);
 
-                        HTTPrp2.put("RE", String.valueOf(response.getString("RE")));
-                        HTTPrp2.put("reSpeedLimit", String.valueOf(response.getString("reSpeedLimit")));
-                        HTTPrp2.put("RdNo", String.valueOf(response.getString("RdNo")));
-                        HTTPrp2.put("rePrescribed", String.valueOf(response.getString("rePrescribed")));
+                        HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
+                        HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
+                        HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
+                        HTTPrp2.put("rePrescribed", String.valueOf(jHereResult.getString("rePrescribed")));
+                        fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed*4)+ LocListener.getSpeed())/5);
+                        int iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3600 / fFiveValAvgSpeed ));
 
-                        if((DistanceToNextSpeedChange < 300) || (DistanceToNextSpeedChange==0))                         //refresh when close only
-                            client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler()
-                            {
+                        //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
+                        if ((iSecondsToSpeedChange < 300) || (DistanceToNextSpeedChange < 3000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+                            client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(JSONObject response) {
-                                    System.out.println("that");
-                                    Log.i(TAG, "onSuccess  "+response);
-//                                    jThereResult = response;
-//                                    try {
-//                                        //Calculate Distance
-//                                        Location me   = new Location("");
-//                                        Location dest = new Location("");
-//                                        me.setLatitude(jHereResult.getDouble("reLat"));
-//                                        me.setLongitude(jHereResult.getDouble("reLon"));
-//                                        dest.setLatitude(jThereResult.getDouble("reLat"));
-//                                        dest.setLongitude(jThereResult.getDouble("reLon"));
-//
-//                                        DistanceToNextSpeedChange  = me.distanceTo(dest);
-//
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
+                                    jThereResult = response;
+                                    //ImageButton img = (ImageButton) findViewById(R.id.imageBtnSmall);
+                                    try {
+                                        //setGraphicBtnV(img, jThereResult.getInt("reSpeedLimit"));
+                                        dest.setLatitude(jThereResult.getDouble("reLat"));
+                                        dest.setLongitude(jThereResult.getDouble("reLon"));
+                                        DistanceToNextSpeedChange = me.distanceTo(dest);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
 
                                 }
                             });
@@ -431,7 +509,7 @@ public class ChatHeadService extends Service {
 
         sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
 
-        if (sUUID==""){
+        if (sUUID.equals("")){
             sUUID= randomUUID().toString();
             SaveSetting(getString(R.string.myUUID), sUUID);
         }

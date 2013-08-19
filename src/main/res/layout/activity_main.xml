@@ -27,8 +27,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Small Text"
+        android:text="----"
         android:id="@+id/textView2" android:layout_gravity="center" android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" android:layout_marginBottom="11dp" android:textSize="20dp"/>
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageViewDebug" android:src="@drawable/debug" android:visibility="visible" android:layout_alignTop="@+id/imageButton" android:layout_alignRight="@+id/imageButton"/>
 
     <!--<Button-->
         <!--style="?android:attr/buttonStyleSmall"-->
