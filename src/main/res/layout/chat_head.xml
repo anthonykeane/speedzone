@@ -13,9 +13,12 @@
         android:layout_width="100dp" android:layout_height="100dp" android:id="@+id/imageButtonError" android:src="@drawable/s00" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:longClickable="true" android:layout_centerVertical="true" android:layout_centerHorizontal="true" android:alpha=".8" android:visibility="invisible"/>
 
     <ImageView
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:id="@+id/imageViewDebug" android:layout_alignParentTop="true" android:layout_alignRight="@+id/imageButton" android:src="@drawable/debug" android:clickable="true" android:visibility="visible"/>
+
+    <ImageView
+        android:layout_width="20dp" android:layout_height="20dp" android:id="@+id/imageViewTimeout" android:src="@drawable/stat_notify_wifi_in_range" android:visibility="visible" android:layout_alignParentTop="true" android:layout_alignParentLeft="true"/>
 
 
 </RelativeLayout>

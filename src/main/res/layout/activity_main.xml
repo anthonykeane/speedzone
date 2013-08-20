@@ -30,10 +30,20 @@
         android:text="----"
         android:id="@+id/textView2" android:layout_gravity="center" android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" android:layout_marginBottom="11dp" android:textSize="20dp"/>
 
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/imageViewDebug" android:src="@drawable/debug" android:visibility="visible" android:layout_alignTop="@+id/imageButton" android:layout_alignRight="@+id/imageButton"/>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" android:layout_alignParentStart="false" android:layout_centerHorizontal="true" android:gravity="center" android:layout_alignBottom="@+id/imageButton" android:layout_marginBottom="25dp">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/imageViewTimeout" android:src="@drawable/stat_notify_wifi_in_range" android:visibility="visible" android:layout_centerHorizontal="true" android:layout_alignParentEnd="false"/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/imageViewDebug" android:src="@drawable/debug" android:visibility="visible" android:layout_centerHorizontal="true" android:layout_alignParentEnd="false" android:adjustViewBounds="false"/>
+    </LinearLayout>
 
     <!--<Button-->
         <!--style="?android:attr/buttonStyleSmall"-->
