@@ -37,12 +37,13 @@ public class MainActivity extends Activity implements LocationListener {
     private static final String TAG = "ChatHead::Activity";
     private static final String TAGd = "ChatHead::Activity_focus";
 
+    private static final int intentSettings = 1;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
-
+    private static final int intentTTS = 3;
 
     //GPS delay stuff
 
@@ -91,6 +92,7 @@ public class MainActivity extends Activity implements LocationListener {
     public boolean bDebug = false;
     public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
     public boolean bCommsTimedOut = true;
+    private boolean bMute = true;
 
 
     @Override
@@ -183,8 +185,17 @@ public class MainActivity extends Activity implements LocationListener {
             appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
         }
 
-        //String xxx = appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "00"); //must be at least 2 char long
-        //debugVerbosity = Long.parseLong(xxx.substring(1), 16);
+
+        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
+        bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
+//        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
+//        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
+//        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
+//        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
+//        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
+//        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
+
+
     }
 
     private void callWebService() {
@@ -587,6 +598,35 @@ public class MainActivity extends Activity implements LocationListener {
             }
             //finish();
             return true;
+
+
+            case R.id.settings:
+                // Settings Menu
+//                if (isTablet(this)){
+//
+                Intent i = new Intent(this, PreferencesActivity.class);
+                startActivityForResult(i, intentSettings);
+//
+//                }
+//                else
+//
+//                {
+//                    Intent i = new Intent(this, PreferencesActivitySingle.class);
+//                    startActivityForResult(i, intentSettings);
+//                }
+//
+                RetreiveSettings();
+//                SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+//                bMute = appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false);
+//                doDebug = appSharedPrefs.getBoolean(getString(R.string.settings_displayKey), false);
+//                alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
+
+
+                return true;
+
+
+
+
 
             case R.id.sendFeedback:
                 bDebug = !bDebug;

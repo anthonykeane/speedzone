@@ -1,9 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+
+
+
+    <!--<string name="settings_aboutAltruisticEngineersTitle">Altruistic Engineers Community</string>-->
+    <!--<string name="settings_aboutAltruisticEngineersSummary">Community is about using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>-->
+    <!--<string name="settings_aboutAltruisticTranslatorsTitle">Altruistic Translators Community</string>-->
+    <!--<string name="settings_aboutAltruisticTranslatorsSummary">using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>-->
+    <!--<string name="settings_abouturl2">jakjdahsd asdlkhjdd alksjdlkajla dsas dasda aweoifhjofs</string>-->
+    <!--<string name="settings_abouturl3">jakjdahsd asdlkhjdd alksjdlkajla dsas dasda aweoifhjofs</string>-->
+    <string name="settings_alertOnGreenLightEnabledTitle">Enable Alert On Green Light</string>
+    <string name="settings_alertOnGreenLightEnabledSummary">Touch a red traffic light and you will be notified when it changes</string>
+    <!--<string name="settings_user_ttsSignFoundTitle">Sign Detected Alert</string>-->
+    <!--<string name="settings_user_ttsSignFoundSummary">This is what is announced when a sign is detected</string>-->
+    <!--<string name="settings_user_ttsSaluteTitle">Launch Application Alert</string>-->
+    <!--<string name="settings_user_ttsSaluteSummary">This is what is announced when the application is launched\nLeave blank to disable.</string>-->
+    <!--<string name="settings_FeedbackTitle">Send Anonymous Feedback</string>-->
+    <!--<string name="settings_FeedbackSummary">This allows you to send feedback through the Google Play Store, none of your personal details are sent.</string>-->
+    <!--<string name="sendFeedback">Send Feedback</string>-->
+
+
+    <string name="settings_displayKey">doDebug</string>
+    <string name="settings_alertOnGreenLightEnabledKey">alertOnGreenLightEnabled</string>
+    <string name="settings_userEmailKey">userEmail</string>
+    <string name="settings_userPrivacyKey">userPrivacy</string>
+    <string name="settings_ttsSaluteKey">ttsSaluteKey</string>
+
+    <!--<string name="settings_debugVerbosityTitle">Debug Display</string>-->
+    <!--<string name="settings_debugVerbositySummary">Select how much debug detailed you want to see.</string>-->
+
+    <string name="android:versionName">SpeedZone</string>
+
+
+    <!--Shared Preferences -->
+    <!--Keys-->
+
+
+    <string name="settings_debugVerbosityKey">debugVerbosity</string>
+    <string name="settings_VersionKey">settings_VersionKey</string>
+    <string name="settings_ttsSignFoundKey">ttsSignFoundKey</string>
+
+    <string name="settings_bExperimentalKey">bExperimental</string>
+
+    <!--titles and Summarys-->
+    <string name="settings_Settings_title">Settings</string>
+    <string name="settings_Settings_Summery">Choose your sound and display settings</string>
+
+    <string name="settings_Features_title">Features</string>
+    <string name="settings_Features_Summary">Choose enable or disable features</string>
+
+    <string name="settings_Options_title">Options</string>
+    <string name="settings_Options_Summary">Customise how the application interacts</string>
+
+    <string name="settings_Reference_title">Reference</string>
+    <string name="settings_Reference_Summary">Choose your Reference</string>
+
+    <string name="settings_aboutTitle">About</string>
+    <string name="settings_aboutSummary">Find out more about the developers</string>
+
+    <string name="settings_userPrivacyTitle">Privacy Statement</string>
+    <string name="settings_userPrivacySummary">We respect your right to anonymity</string>
+
+    <string name="settings_debugVerbosityTitle">Debug Display</string>
+    <string name="settings_debugVerbositySummary">Select how much debug detailed you want to see.</string>
+
+    <string name="settings_displayTitle">Display</string>
+    <string name="settings_displaySummary">Do you want to see the debug display</string>
+
+    <string name="settings_soundTitle">Sound</string>
+    <string name="settings_soundSummary">Do you want to hear when a sign is detected? \n(does not turn off sound on Green Light Detection)</string>
+
+
+    <string name="settings_userEmailTitle">Optional BCC Email address</string>
+    <string name="settings_userEmailSummary">Add your email address to have yourself BCC on all data sent to Server</string>
+
+    <string name="settings_userVersionTitle">Application Version</string>
+    <string name="settings_userVersionSummary">This is the version number</string>
+
+    <string name="settings_user_ttsSignFoundTitle">Sign Detected Alert</string>
+    <string name="settings_user_ttsSignFoundSummary">This is what is announced when a sign is detected</string>
+
+    <string name="settings_user_ttsSaluteTitle">Launch Application Alert</string>
+    <string name="settings_user_ttsSaluteSummary">This is what is announced when the application is launched\nLeave blank to disable.</string>
+
+    <string name="settings_FeedbackTitle">Send Anonymous Feedback</string>
+    <string name="settings_FeedbackSummary">This allows you to send feedback through the Google Play Store, none of your personal details are sent.</string>
+
+    <string name="settings_bExperimentalTitle">Experimental.</string>
+    <string name="settings_bExperimentalSummary">Enable experimental camera settings,turn off is performance reduces.</string>
+
+    <string name="settings_aboutAltruisticEngineersTitle">Altruistic Engineers Community</string>
+    <string name="settings_aboutAltruisticEngineersSummary">Community is about using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>
+
+    <string name="settings_aboutAltruisticTranslatorsTitle">Altruistic Translators Community</string>
+    <string name="settings_aboutAltruisticTranslatorsSummary">using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>
+
+
+
+
+    <string name="settings_aboutAltruisticEngineersUrl">https://plus.google.com/u/0/communities/105872240007781184868</string>
+    <string name="settings_aboutAltruisticTranslatorsUrl">https://plus.google.com/u/0/communities/105559111385953530486</string>
+
+
+
+    <!--MENU-->
+    <string name="sendFeedback">Send Feedback</string>
+
+
+    <string name="bMenu">TouchMe</string>
+
+    <!--MISC    -->
+    <string name="disabled">\u0020Disabled</string>
+    <string name="enabled">&#160;Enabled</string>
+    <string name="disable">Disable&#160;</string>
+    <string name="enable">Enable&#160;</string>
+    <string name="lightGreen">Detection</string>
+    <string name="bShowVersion">Show Version</string>
+    <string name="ttsSalute">OK, here we go!</string>
+    <string name="ttslightGreen">I think the traffic is about to move!</string>
+    <string name="ttsSignFound">Detected!</string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <string name="app_name">SpeedZone</string>
-    <string name="action_settings">Float</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="menu_float">Float</string>
+
 
     <string name="getSpeedURL">http://220.233.25.75/mydb2.php</string>
     <string name="getNextSpeedURL">http://220.233.25.75/mynext.php</string>
@@ -26,4 +168,7 @@
     <string name="MyNextWeb">http://220.233.25.75/mynext.php</string>
     <string name="MyDbWeb">http://220.233.25.75/mydb.php</string>
     <string name="myUUID">UUID</string>
+    <string name="settings_soundKey">settings_soundKey</string>
+    <string name="settings_debugKey">settings_debugKey</string>
+    <item name="settings" type="id">Settings</item>
 </resources>
