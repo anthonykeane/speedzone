@@ -627,6 +627,7 @@ public class MainActivity extends Activity implements LocationListener {
         updateTimeoutIcon();
         updateDebugIcon();
 
+
     }
 
     @Override
