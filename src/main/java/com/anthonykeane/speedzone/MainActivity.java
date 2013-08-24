@@ -626,8 +626,6 @@ public class MainActivity extends Activity implements LocationListener {
         callWebService();
         updateTimeoutIcon();
         updateDebugIcon();
-
-
     }
 
     @Override
