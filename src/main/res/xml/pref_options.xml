@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/settings_Options_title">
+        <EditTextPreference
+            android:key="@string/settings_userEmailKey"
+            android:title="@string/settings_userEmailTitle"
+            android:summary="@string/settings_userEmailSummary"
+
+            android:dialogTitle="@string/settings_userEmailTitle"
+            android:inputType="textEmailAddress"
+            android:dialogMessage="@string/settings_userEmailSummary"
+            android:defaultValue=""/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

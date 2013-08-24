@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceScreen
+        android:title="@string/settings_userPrivacyTitle"
+        android:summary="@string/settings_userPrivacyTitle"/>
+
+        <!--android:="@string/settings_userPrivacyStatment"/>-->
+
+    <!--<PreferenceScreen android:title="Advanced Options">-->
+
+    <!--<CheckBoxPreference-->
+    <!--android:key="Advanced_Option"-->
+    <!--android:title="Advanced Option"-->
+    <!--android:defaultValue="true"-->
+    <!--android:summary="SUMMARY_Advanced_Option"/>-->
+
+    <!--</PreferenceScreen>-->
+
+
+    <!--<PreferenceCategory android:title="@string/sendFeedback">-->
+    <!--<PreferenceScreen-->
+    <!--android:title="@string/settings_FeedbackTitle"-->
+    <!--android:summary="@string/settings_FeedbackSummary">-->
+    <!--<intent android:action="SendFeedBackActivity"/>-->
+
+
+    <!--</PreferenceScreen>-->
+    <!--</PreferenceCategory>-->
+
+
+
+</PreferenceScreen>

@@ -21,7 +21,7 @@
     <!--<string name="sendFeedback">Send Feedback</string>-->
 
 
-    <string name="settings_displayKey">doDebug</string>
+    <string name="settings_displayKey">bDebug</string>
     <string name="settings_alertOnGreenLightEnabledKey">alertOnGreenLightEnabled</string>
     <string name="settings_userEmailKey">userEmail</string>
     <string name="settings_userPrivacyKey">userPrivacy</string>
@@ -65,11 +65,11 @@
     <string name="settings_debugVerbosityTitle">Debug Display</string>
     <string name="settings_debugVerbositySummary">Select how much debug detailed you want to see.</string>
 
-    <string name="settings_displayTitle">Display</string>
-    <string name="settings_displaySummary">Do you want to see the debug display</string>
+    <string name="settings_debugTitle">Debug</string>
+    <string name="settings_debugSummary">Would you like to enable debugging?</string>
 
     <string name="settings_soundTitle">Sound</string>
-    <string name="settings_soundSummary">Do you want to hear when a sign is detected? \n(does not turn off sound on Green Light Detection)</string>
+    <string name="settings_soundSummary">Would you like to hear new posted speed, as you move between zones?</string>
 
 
     <string name="settings_userEmailTitle">Optional BCC Email address</string>
@@ -81,8 +81,8 @@
     <string name="settings_user_ttsSignFoundTitle">Sign Detected Alert</string>
     <string name="settings_user_ttsSignFoundSummary">This is what is announced when a sign is detected</string>
 
-    <string name="settings_user_ttsSaluteTitle">Launch Application Alert</string>
-    <string name="settings_user_ttsSaluteSummary">This is what is announced when the application is launched\nLeave blank to disable.</string>
+    <string name="settings_user_ttsSaluteTitle">Launch Greeting</string>
+    <string name="settings_user_ttsSaluteSummary">This is what is spoken when the application is launched\nLeave blank to disable.</string>
 
     <string name="settings_FeedbackTitle">Send Anonymous Feedback</string>
     <string name="settings_FeedbackSummary">This allows you to send feedback through the Google Play Store, none of your personal details are sent.</string>

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.*;
@@ -27,6 +28,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static java.util.UUID.randomUUID;
 
@@ -50,16 +53,32 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
 
+
+//    < click here
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
+    private static final int intentTTS = 3;
+    private String ttsSalute;
 
+    SharedPreferences appSharedPrefs;
 
     //GPS delay stuff
 
     private Location locCurrent = new Location("");
     private Location locLast = new Location("");
 
+    private TextToSpeech mTts;
 
     public static final int delayBetweenGPS_Records = 10000;    //every 500mS log Geo date in Queue.
     public static final long minTime = 3000;                   // don't update GPS if time < 3000mS
@@ -102,6 +121,8 @@ public class ChatHeadService extends Service implements LocationListener {
     public boolean bDebug = false;
     public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
     public boolean bCommsTimedOut = true;
+    private boolean bMute = false;
+
 
 
     @Override
@@ -116,31 +137,47 @@ public class ChatHeadService extends Service implements LocationListener {
         if (locManager!=null){locManager = null;}
 
         removeChatHeads();
+
+
+
+        //When you are done using TTS, be a good citizen and tell it "you won't be needing its services anymore"
+        try {
+            mTts.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void updateDebugIcon() {
-        if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
-        else{ vImageViewDebug.setVisibility(View.GONE); }
+    @Override
+    public void onLocationChanged(Location location) {
+
+
+        locLast = locCurrent;
+        locCurrent = location;
+        Log.i("GPS", "onLocationChanged  ");
+        if (iNotCommsLockedOut ==0){
+            callWebService();
+        }
+
+
+
     }
 
-    private void updateTimeoutIcon() {
-        if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
-        else{ vImageViewTimeout.setVisibility(View.GONE); }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
     }
 
-    private final Runnable timedGPSqueue; {
-        timedGPSqueue = new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "run  ");
-                if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
-                    callWebService();
-                }
-                handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
-                Log.i(TAG, "run  REPEAT TIMER                                  *");
-            }
-        };
+    @Override
+    public void onProviderEnabled(String provider) {
+
     }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
 
     private void setDisplay(int tmp) {
         setGraphicBtnV(vImageButton, tmp);
@@ -184,26 +221,13 @@ public class ChatHeadService extends Service implements LocationListener {
         }
     }
 
-    private void RetreiveSettings() {
-        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-
-        sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
-
-        if (sUUID.equals("")){
-            sUUID= randomUUID().toString();
-            appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
-        }
-
-        //String xxx = appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "00"); //must be at least 2 char long
-        //debugVerbosity = Long.parseLong(xxx.substring(1), 16);
-    }
-
     private void callWebService() {
 
         //todo
         Time now = new Time();
         now.setToNow();
         String xxx = now.format("%Y-%m-%d %H:%M:%S");
+        Log.i(TAG, "callWebService  " + xxx + "                     *");
 
         HTTPrp.put("When", xxx);
         HTTPrp.put("UUID", sUUID);
@@ -218,8 +242,6 @@ public class ChatHeadService extends Service implements LocationListener {
             HTTPrp.put("bZoneError", "0");
         }
 
-
-        Log.i(TAG, "callWebService  " + xxx + "                     *");
 
         if (bDebug) {
             HTTPrp.put("lat", "-34.069");
@@ -279,6 +301,18 @@ public class ChatHeadService extends Service implements LocationListener {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+
+
+
+                            if(!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit")))
+                            {
+                                try {
+                                    mTts.speak("the Speed is now "+ String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
 
 
                             iSpeed = jHereResult.getInt("reSpeedLimit");
@@ -376,59 +410,136 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
 
+    public void createTextToSpeech(final Context context, final Locale locale)
+    {
+        mTts = new TextToSpeech(context, new TextToSpeech.OnInitListener()
+        {
+            @Override
+            public void onInit(int status)
+            {
+                if (status == TextToSpeech.SUCCESS)
+                {
+                    Locale defaultOrPassedIn = locale;
+                    if (locale == null)
+                    {
+                        defaultOrPassedIn = Locale.getDefault();
+                    }
+                    // check if language is available
+                    switch (mTts.isLanguageAvailable(defaultOrPassedIn))
+                    {
+                        case TextToSpeech.LANG_AVAILABLE:
+                        case TextToSpeech.LANG_COUNTRY_AVAILABLE:
+                        case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
+                            Log.d(TAG, "SUPPORTED");
+                            mTts.setLanguage(locale);
+                            //pass the tts back to the main
+                            //activity for use
+                            break;
+                        case TextToSpeech.LANG_MISSING_DATA:
+                            Log.d(TAG, "MISSING_DATA");
+                            Log.d(TAG, "require data...");
+                            Intent installIntent = new Intent();
+                            installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                            context.startActivity(installIntent);
+                            break;
+                        case TextToSpeech.LANG_NOT_SUPPORTED:
+                            Log.d(TAG, "NOT SUPPORTED");
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    private final Runnable timedGPSqueue; {
+        timedGPSqueue = new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "run  ");
+                if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
+                    callWebService();
+                }
+                handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
+                Log.i(TAG, "run  REPEAT TIMER                                  *");
+            }
+        };
+    }
+
+    private void RetreiveSettings() {
 
 
-    @Override
-    public void onLocationChanged(Location location) {
+        sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
 
-
-        locLast = locCurrent;
-        locCurrent = location;
-        Log.i("GPS", "onLocationChanged  ");
-        if (iNotCommsLockedOut ==0){
-            callWebService();
+        if (sUUID.equals("")){
+            sUUID= randomUUID().toString();
+            appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
         }
+        Map<String, ?> xx = appSharedPrefs.getAll();
 
 
+        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
+        bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
+//        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
+//        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
+        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
+//        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
+//        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
+//        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
+
+        updateDebugIcon();
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    private void initTextToSpeach() {
+        //Sound TTS
+        Intent checkIntent = new Intent();
+       // checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+       // startActivityForResult(checkIntent, intentTTS);
+// success, create the TTS instance
+        mTts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                mTts.setLanguage(Locale.US);
+                //mTts.setLanguage(Locale.getDefault());
+                if (!bMute)
+                {
+                    try {
+                        mTts.speak("hello", TextToSpeech.QUEUE_FLUSH, null);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
 
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
+    private void updateTimeoutIcon() {
+//        if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
+//        else{ vImageViewTimeout.setVisibility(View.GONE); }
     }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-
-
-
+    private void updateDebugIcon() {
+//        if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
+//        else{ vImageViewDebug.setVisibility(View.GONE); }
+    }
 
 
 
@@ -485,7 +596,6 @@ public class ChatHeadService extends Service implements LocationListener {
 
         callWebService();
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
-
 
 
         boolean bOK = false;
@@ -634,7 +744,9 @@ public class ChatHeadService extends Service implements LocationListener {
                         params.y = initialY + (int) (event.getRawY() - initialTouchY);
                         windowManager.updateViewLayout(chatHead, params);
                         Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
-                        bYouMovedIt = params.x != didwemove;
+
+
+                        bYouMovedIt = ((StrictMath.abs(params.x - didwemove)>10))?true:false;
                         //return true;
                         break;
                 }
@@ -685,6 +797,8 @@ public class ChatHeadService extends Service implements LocationListener {
             }
         });
 
+
+        createTextToSpeech(this, Locale.getDefault());
         addChatHead(chatHead, params);
 
         return super.onStartCommand(intent, flags, startId);

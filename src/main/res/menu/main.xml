@@ -12,18 +12,21 @@
 <!--<item-->
 <!--android:id="@+id/dilate"-->
 <!--android:title="@string/dilate"/>-->
-    <item
-        android:id="@+id/sendFeedback"
-        android:title="@string/debug"
-        />
 
+    <!--<item-->
+        <!--android:id="@+id/menu_sendFeedback"-->
+        <!--android:title="@string/sendFeedback"-->
+        <!--/>-->
 
-<item android:id="@+id/action_settings"
+<item android:id="@+id/menu_float"
       android:title="@string/menu_float"
+      android:icon="@drawable/ic_float"
       android:showAsAction="ifRoom"/>
 
 
     <item android:id="@+id/settings"
+          android:showAsAction="ifRoom"
+          android:icon="@drawable/ic_sysbar_quicksettings"
           android:title="@string/settings_Settings_title"/>
 
 <!--<item-->
@@ -51,11 +54,11 @@
 <!--android:title="@string/misc"-->
 <!--android:icon="@drawable/ic_menu_help"-->
 <!--android:showAsAction="ifRoom"/>-->
-<!--<item-->
-<!--android:id="@+id/debug"-->
-<!--android:title="@string/debug"-->
-<!--android:icon="@drawable/debug"-->
-<!--android:showAsAction="ifRoom" />-->
+    <item
+        android:id="@+id/menu_debug"
+        android:title="@string/debug"
+    android:icon="@drawable/debug"
+    android:showAsAction="ifRoom" />
 
 
 </menu>

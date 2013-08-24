@@ -12,11 +12,13 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +28,9 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Locale;
+import java.util.Map;
 
 import static java.util.UUID.randomUUID;
 
@@ -40,16 +45,31 @@ public class MainActivity extends Activity implements LocationListener {
     private static final int intentSettings = 1;
 
 
+//    < click here
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
     private static final int intentTTS = 3;
+    private String ttsSalute;
+
+    SharedPreferences appSharedPrefs;
 
     //GPS delay stuff
 
     private Location locCurrent = new Location("");
     private Location locLast = new Location("");
 
+    private TextToSpeech mTts;
 
     public static final int delayBetweenGPS_Records = 10000;    //every 500mS log Geo date in Queue.
     public static final long minTime = 3000;                   // don't update GPS if time < 3000mS
@@ -92,7 +112,8 @@ public class MainActivity extends Activity implements LocationListener {
     public boolean bDebug = false;
     public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
     public boolean bCommsTimedOut = true;
-    private boolean bMute = true;
+    private boolean bMute = false;
+
 
 
     @Override
@@ -107,31 +128,47 @@ public class MainActivity extends Activity implements LocationListener {
         if (locManager!=null){locManager = null;}
 
         removeChatHeads();
+
+
+
+        //When you are done using TTS, be a good citizen and tell it "you won't be needing its services anymore"
+        try {
+            mTts.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void updateDebugIcon() {
-        if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
-        else{ vImageViewDebug.setVisibility(View.GONE); }
+    @Override
+    public void onLocationChanged(Location location) {
+
+
+        locLast = locCurrent;
+        locCurrent = location;
+        Log.i("GPS", "onLocationChanged  ");
+        if (iNotCommsLockedOut ==0){
+            callWebService();
+        }
+
+
+
     }
 
-    private void updateTimeoutIcon() {
-        if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
-        else{ vImageViewTimeout.setVisibility(View.GONE); }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
     }
 
-    private final Runnable timedGPSqueue; {
-        timedGPSqueue = new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "run  ");
-                if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
-                    callWebService();
-                }
-                handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
-                Log.i(TAG, "run  REPEAT TIMER                                  *");
-            }
-        };
+    @Override
+    public void onProviderEnabled(String provider) {
+
     }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
 
     private void setDisplay(int tmp) {
         setGraphicBtnV(vImageButton, tmp);
@@ -175,35 +212,13 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
-    private void RetreiveSettings() {
-        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-
-        sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
-
-        if (sUUID.equals("")){
-            sUUID= randomUUID().toString();
-            appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
-        }
-
-
-        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
-        bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
-//        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
-//        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
-//        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
-//        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
-//        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
-//        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
-
-
-    }
-
     private void callWebService() {
 
         //todo
         Time now = new Time();
         now.setToNow();
         String xxx = now.format("%Y-%m-%d %H:%M:%S");
+        Log.i(TAG, "callWebService  " + xxx + "                     *");
 
         HTTPrp.put("When", xxx);
         HTTPrp.put("UUID", sUUID);
@@ -218,8 +233,6 @@ public class MainActivity extends Activity implements LocationListener {
             HTTPrp.put("bZoneError", "0");
         }
 
-
-        Log.i(TAG, "callWebService  " + xxx + "                     *");
 
         if (bDebug) {
             HTTPrp.put("lat", "-34.069");
@@ -279,6 +292,18 @@ public class MainActivity extends Activity implements LocationListener {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+
+
+
+                            if(!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit")))
+                            {
+                                try {
+                                    mTts.speak("the Speed is now "+ String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
 
 
                             iSpeed = jHereResult.getInt("reSpeedLimit");
@@ -367,6 +392,7 @@ public class MainActivity extends Activity implements LocationListener {
                         iNotCommsLockedOut--;
                         if (iNotCommsLockedOut<=0) iNotCommsLockedOut = 0;
                         updateTimeoutIcon();
+                        if(bCommsTimedOut) { setDisplay(0);    }
                         Log.i(TAGd, "                       onFinish  ");
                     }
                 });
@@ -376,58 +402,112 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
 
+    public void createTextToSpeech(final Context context, final Locale locale)
+    {
+        mTts = new TextToSpeech(context, new TextToSpeech.OnInitListener()
+        {
+            @Override
+            public void onInit(int status)
+            {
+                if (status == TextToSpeech.SUCCESS)
+                {
+                    Locale defaultOrPassedIn = locale;
+                    if (locale == null)
+                    {
+                        defaultOrPassedIn = Locale.getDefault();
+                    }
+                    // check if language is available
+                    switch (mTts.isLanguageAvailable(defaultOrPassedIn))
+                    {
+                        case TextToSpeech.LANG_AVAILABLE:
+                        case TextToSpeech.LANG_COUNTRY_AVAILABLE:
+                        case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
+                            Log.d(TAG, "SUPPORTED");
+                            mTts.setLanguage(locale);
+                            //pass the tts back to the main
+                            //activity for use
+                            break;
+                        case TextToSpeech.LANG_MISSING_DATA:
+                            Log.d(TAG, "MISSING_DATA");
+                            Log.d(TAG, "require data...");
+                            Intent installIntent = new Intent();
+                            installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                            context.startActivity(installIntent);
+                            break;
+                        case TextToSpeech.LANG_NOT_SUPPORTED:
+                            Log.d(TAG, "NOT SUPPORTED");
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    private final Runnable timedGPSqueue; {
+        timedGPSqueue = new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "run  ");
+                if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
+                    callWebService();
+                }
+                handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
+                Log.i(TAG, "run  REPEAT TIMER                                  *");
+            }
+        };
+    }
 
 
-    @Override
-    public void onLocationChanged(Location location) {
+    private void RetreiveSettings() {
 
 
-        locLast = locCurrent;
-        locCurrent = location;
-        Log.i("GPS", "onLocationChanged  ");
-        if (iNotCommsLockedOut ==0){
-            callWebService();
+        sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
+
+        if (sUUID.equals("")){
+            sUUID= randomUUID().toString();
+            appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
         }
+        Map<String, ?> xx = appSharedPrefs.getAll();
 
 
+        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
+        bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
+//        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
+//        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
+        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
+//        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
+//        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
+//        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
 
+        updateDebugIcon();
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    private void updateTimeoutIcon() {
+        if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
+        else{ vImageViewTimeout.setVisibility(View.GONE); }
     }
 
-    @Override
-    public void onProviderEnabled(String provider) {
 
+
+
+    private void updateDebugIcon() {
+        if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
+        else{ vImageViewDebug.setVisibility(View.GONE); }
     }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
 
 
     private void updateDebugText() throws JSONException {
@@ -453,11 +533,16 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        new WhatsNewScreen(this).show();
+
 
 //
 //
         setContentView(R.layout.activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+        createTextToSpeech(this, Locale.getDefault());
+
+        new WhatsNewScreen(this).show();
 
 
         vImageButton = findViewById(R.id.imageButton);
@@ -469,6 +554,19 @@ public class MainActivity extends Activity implements LocationListener {
         // Receive Settings
         RetreiveSettings();
 
+        // Use instance field for listener
+        // It will not be gc'd as long as this instance is kept referenced
+        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                RetreiveSettings();
+                Log.i(TAG, "onSharedPreferenceChanged  ");
+            }
+        };
+
+        appSharedPrefs.registerOnSharedPreferenceChangeListener(listener);
+
+
+
         // Turn on teh GPS.     set up GPS
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
@@ -477,7 +575,6 @@ public class MainActivity extends Activity implements LocationListener {
 
 
 
-        callWebService();
         //handler.postDelayed(timedGPSqueue, 8);   //Start timer
 
         vImageButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -520,13 +617,81 @@ public class MainActivity extends Activity implements LocationListener {
         });
 
 
+//        try {
+//            mTts.speak(ttsSalute, TextToSpeech.QUEUE_FLUSH, null);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        callWebService();
         updateTimeoutIcon();
         updateDebugIcon();
 
     }
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
 
+        switch (item.getItemId()) {
+            case R.id.menu_float:
+
+                //if(isMyServiceRunning())
+            {
+                Intent intent;
+                Bundle extras;
+                intent = new Intent(MainActivity.this, ChatHeadService.class);
+                intent.putExtra("TheOK", true);
+                Log.i(TAG, "bDebug is  "+bDebug);
+                intent.putExtra("bCommsTimedOut", bDebug);
+                intent.putExtra("", bCommsTimedOut);
+                intent.putExtra("iSpeed",iSpeed);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                handler.removeCallbacks(timedGPSqueue);
+                moveTaskToBack(true);
+                startService(intent);
+                //onStop();
+            }
+            //finish();
+            return true;
+
+
+            case R.id.settings:
+                // Settings Menu
+
+//                if (isTablet(this)){
+//
+//                Intent i = new Intent(this, PreferencesActivity.class);
+//                startActivityForResult(i, intentSettings);
+//
+//                }
+//                else
+//
+//                {
+                Intent i = new Intent(this, PreferencesActivitySingle.class);
+                startActivityForResult(i, intentSettings);
+//                }
+//
+                return true;
+
+
+            case R.id.menu_debug:
+                bDebug = !bDebug;
+                updateDebugIcon();
+                callWebService();
+                Toast.makeText(this, String.valueOf(bDebug), Toast.LENGTH_SHORT).show();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }    //MENU CODE END
 
     @Override
     public void onPause() {
@@ -561,87 +726,6 @@ public class MainActivity extends Activity implements LocationListener {
         return false;
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();  // Always call the superclass method first
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
-
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-
-                //if(isMyServiceRunning())
-            {
-                Intent intent;
-                Bundle extras;
-                intent = new Intent(MainActivity.this, ChatHeadService.class);
-                intent.putExtra("TheOK", true);
-                Log.i(TAG, "bDebug is  "+bDebug);
-                intent.putExtra("bCommsTimedOut", bDebug);
-                intent.putExtra("", bCommsTimedOut);
-                intent.putExtra("iSpeed",iSpeed);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                handler.removeCallbacks(timedGPSqueue);
-                moveTaskToBack(true);
-                startService(intent);
-                //onStop();
-            }
-            //finish();
-            return true;
-
-
-            case R.id.settings:
-                // Settings Menu
-//                if (isTablet(this)){
-//
-                Intent i = new Intent(this, PreferencesActivity.class);
-                startActivityForResult(i, intentSettings);
-//
-//                }
-//                else
-//
-//                {
-//                    Intent i = new Intent(this, PreferencesActivitySingle.class);
-//                    startActivityForResult(i, intentSettings);
-//                }
-//
-                RetreiveSettings();
-//                SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-//                bMute = appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false);
-//                doDebug = appSharedPrefs.getBoolean(getString(R.string.settings_displayKey), false);
-//                alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
-
-
-                return true;
-
-
-
-
-
-            case R.id.sendFeedback:
-                bDebug = !bDebug;
-                updateDebugIcon();
-
-                Toast.makeText(this, String.valueOf(bDebug), Toast.LENGTH_SHORT).show();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }    //MENU CODE END
-
-
-
     /*
     Dummy in Service
     private void setDebugText(int t, String sdsd){}
@@ -659,6 +743,16 @@ public class MainActivity extends Activity implements LocationListener {
 //        ImageButton img = (ImageButton) vImageBtnSmall;
 //        img.setScaleX(anmi);
 //        img.setScaleY(anmi);
+    }
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case intentSettings:
+                // Retreive Settings
+               // RetreiveSettings();
+                break;
+        }
     }
 
 

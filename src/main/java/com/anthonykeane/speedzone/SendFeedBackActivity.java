@@ -23,7 +23,7 @@ public class SendFeedBackActivity extends PreferenceActivity {
     }
 
 
-    @SuppressWarnings("unused")
+
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void sendFeedback() {
         try {
