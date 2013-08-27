@@ -214,7 +214,6 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void callWebService() {
 
-        //todo
         Time now = new Time();
         now.setToNow();
         String xxx = now.format("%Y-%m-%d %H:%M:%S");
@@ -589,7 +588,7 @@ public class MainActivity extends Activity implements LocationListener {
             @Override
             public boolean onLongClick(View v) {
 
-                //todo  Send Error to URL
+                //Send human reported speed error to server
                 bZoneError = true;
                 ImageButton imgerr = (ImageButton) vErrorButton;
                 imgerr.setVisibility(View.VISIBLE);
