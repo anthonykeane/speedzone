@@ -64,14 +64,14 @@
             <!--android:dialogMessage="@string/settings_userEmailSummary"-->
             <!--android:defaultValue=""/>-->
 
-        <EditTextPreference
-            android:key="@string/settings_ttsSignFoundKey"
-            android:title="@string/settings_user_ttsSignFoundTitle"
-            android:summary="@string/settings_user_ttsSignFoundSummary"
-            android:dialogTitle="@string/settings_user_ttsSignFoundTitle"
-            android:inputType="text"
-            android:dialogMessage="@string/settings_user_ttsSignFoundSummary"
-            android:defaultValue="@string/ttsSignFound"/>
+        <!--<EditTextPreference-->
+            <!--android:key="@string/settings_ttsSignFoundKey"-->
+            <!--android:title="@string/settings_user_ttsSignFoundTitle"-->
+            <!--android:summary="@string/settings_user_ttsSignFoundSummary"-->
+            <!--android:dialogTitle="@string/settings_user_ttsSignFoundTitle"-->
+            <!--android:inputType="text"-->
+            <!--android:dialogMessage="@string/settings_user_ttsSignFoundSummary"-->
+            <!--android:defaultValue="@string/ttsSignFound"/>-->
 
         <EditTextPreference
             android:key="@string/settings_ttsSaluteKey"
@@ -127,15 +127,21 @@
     <!--</PreferenceScreen>-->
 
 
-    <EditTextPreference
-        android:key="@string/settings_VersionKey"
-        android:title="@string/settings_userVersionTitle"
-        android:summary="@string/settings_userVersionSummary"
-        android:dialogTitle="@string/settings_userVersionTitle"
-        android:inputType="text"
-        android:dialogMessage="@string/settings_userVersionSummary"
-        android:editable="false"
-        android:defaultValue=""/>
+    <!--<com.anthonykeane.speedzone.SeekBarPreference-->
+        <!--android:key="customPref"-->
+        <!--android:defaultValue="32"-->
+        <!--android:title="@string/settings_aboutTitle"-->
+        <!--android:summary="@string/settings_aboutSummary"/>-->
+
+    <!--<EditTextPreference-->
+        <!--android:key="@string/settings_VersionKey"-->
+        <!--android:title="@string/settings_userVersionTitle"-->
+        <!--android:summary="@string/settings_userVersionSummary"-->
+        <!--android:dialogTitle="@string/settings_userVersionTitle"-->
+        <!--android:inputType="text"-->
+        <!--android:dialogMessage="@string/settings_userVersionSummary"-->
+        <!--android:editable="false"-->
+        <!--android:defaultValue=""/>-->
 
 
     <!--<PreferenceCategory android:title="@string/sendFeedback">-->

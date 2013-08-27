@@ -37,7 +37,7 @@
         <ImageButton
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:id="@+id/imageBtnSmall" android:src="@drawable/berror" android:scaleType="centerInside" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"/>
+            android:id="@+id/imageBtnSmall" android:src="@drawable/b60" android:scaleType="centerInside" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"/>
 
         <ImageView
             android:layout_width="50dp"

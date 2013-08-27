@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements LocationListener {
     public int iSecondsToSpeedChange = 0;
     private static String sUUID = "";
 
-    private LocationManager locManager;
+    private static LocationManager locManager;
     private View vImageButton;
     private View vErrorButton;
     private View vImageBtnSmall;
@@ -111,7 +111,7 @@ public class MainActivity extends Activity implements LocationListener {
     public boolean bZoneError = false;
     public boolean bDebug = false;
     public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
-    public boolean bCommsTimedOut = true;
+    public boolean bCommsTimedOut = false;
     private boolean bMute = false;
 
 
@@ -246,7 +246,8 @@ public class MainActivity extends Activity implements LocationListener {
         //HTTPrp.put("ber", "133");
 
         //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
-        if ((0.0 != locCurrent.getLatitude()) || bDebug) {
+        if ((0.0 != locCurrent.getLatitude()) || bDebug)
+        {
 
             if(iNotCommsLockedOut == 0)
             {
@@ -256,7 +257,12 @@ public class MainActivity extends Activity implements LocationListener {
                     public void onFailure(Throwable e, JSONArray errorResponse) {
                         System.out.println(e);
                         Log.i(TAGd, "onFailure  ");
-
+                        //Clear the display if we don't know the value
+                        // Skip is too slow to matter
+                        //if (locCurrent.getSpeed() >= 40)
+                        {
+                            setDisplay(0);
+                        }
                         bCommsTimedOut = false;
                     }
 
@@ -267,7 +273,8 @@ public class MainActivity extends Activity implements LocationListener {
                         bCommsTimedOut = false;
                         //Clear the display if we don't know the value
                         // Skip is too slow to matter
-                        if (locCurrent.getSpeed() >= 40) {
+                        //if (locCurrent.getSpeed() >= 40)
+                        {
                             setDisplay(0);
                         }
                     }
@@ -452,7 +459,8 @@ public class MainActivity extends Activity implements LocationListener {
                     callWebService();
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
-                Log.i(TAG, "run  REPEAT TIMER                                  *");
+                noGPS((locCurrent.getAccuracy()<0.5));
+                Log.i(TAG, "run  REPEAT TIMER  "+ locCurrent.getAccuracy());
             }
         };
     }
@@ -493,7 +501,7 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
+//////////MAIN - END  OF COMMON CODE////////////////////////////////////////////////////////////////////////////////////
 
 
     private void updateTimeoutIcon() {
@@ -738,6 +746,22 @@ public class MainActivity extends Activity implements LocationListener {
         textView.setText(s);
     }
 
+    private void noGPS(boolean bNoGps)  {
+
+            try {
+                if (bNoGps){
+                    setDebugText(itextView, "GPS signal Lost");
+                }
+                else
+                {
+                    setDebugText(itextView, "");
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+    }
+
     private void setDisplayScale(float anmi) {
 //        ImageButton img = (ImageButton) vImageBtnSmall;
 //        img.setScaleX(anmi);
@@ -787,7 +811,11 @@ public class MainActivity extends Activity implements LocationListener {
 // use speed; CREATE TABLE tblSpeedZone (RE varchar(22) , reLat float , reLon float , reBearing int , reSpeedLimit int , RdNo varchar(7),  rePrescribed bool, reRoadName nvarchar(50));
 
 // awk -F';' '{print $1 "," $6 ","     $7","   $8","  $9"," $11"," $13","     $15;}'  reid_definitions.txt > /etc/tblSpeedZone.txt
-//
+// "reLat"      ,"reLon","RLID","Filename","RDNO","LKNO","rePrescribed","reBearing","reSpeedLimit","CWAY_CODE"
+//    9             10      11       12       13     14      15               16         17
+//,"-36.09","146.91354579700","20000002229503000050","0000002\2295C1C\000050","0000002","2295","0","64","110","C"
+
+
 
 // ALTER TABLE `tblSpeedZone` ADD INDEX( `reLat`, `reLon`)
 

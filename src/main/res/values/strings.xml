@@ -69,7 +69,7 @@
     <string name="settings_debugSummary">Would you like to enable debugging?</string>
 
     <string name="settings_soundTitle">Sound</string>
-    <string name="settings_soundSummary">Would you like to hear new posted speed, as you move between zones?</string>
+    <string name="settings_soundSummary">Would you like to hear new posted speeds, as you move between zones?</string>
 
 
     <string name="settings_userEmailTitle">Optional BCC Email address</string>
@@ -79,10 +79,10 @@
     <string name="settings_userVersionSummary">This is the version number</string>
 
     <string name="settings_user_ttsSignFoundTitle">Sign Detected Alert</string>
-    <string name="settings_user_ttsSignFoundSummary">This is what is announced when a sign is detected</string>
+    <string name="settings_user_ttsSignFoundSummary">This is spoken is announced when a sign is detected</string>
 
     <string name="settings_user_ttsSaluteTitle">Launch Greeting</string>
-    <string name="settings_user_ttsSaluteSummary">This is what is spoken when the application is launched\nLeave blank to disable.</string>
+    <string name="settings_user_ttsSaluteSummary">This is spoken when the application is launched\nLeave blank to disable.</string>
 
     <string name="settings_FeedbackTitle">Send Anonymous Feedback</string>
     <string name="settings_FeedbackSummary">This allows you to send feedback through the Google Play Store, none of your personal details are sent.</string>

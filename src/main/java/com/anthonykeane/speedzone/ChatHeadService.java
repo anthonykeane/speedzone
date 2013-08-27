@@ -49,9 +49,6 @@ public class ChatHeadService extends Service implements LocationListener {
     private static final String TAG = "ChatHead::Service";
     private static final String TAGd = "ChatHead::Service_focus";
 
-//88888888888888888888888888888888888888888888888888888888888888888888888
-
-
 
 
 //    < click here
@@ -99,7 +96,7 @@ public class ChatHeadService extends Service implements LocationListener {
     public int iSecondsToSpeedChange = 0;
     private static String sUUID = "";
 
-    private LocationManager locManager;
+    private static LocationManager locManager;
     private View vImageButton;
     private View vErrorButton;
     private View vImageBtnSmall;
@@ -120,7 +117,7 @@ public class ChatHeadService extends Service implements LocationListener {
     public boolean bZoneError = false;
     public boolean bDebug = false;
     public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
-    public boolean bCommsTimedOut = true;
+    public boolean bCommsTimedOut = false;
     private boolean bMute = false;
 
 
@@ -255,7 +252,8 @@ public class ChatHeadService extends Service implements LocationListener {
         //HTTPrp.put("ber", "133");
 
         //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
-        if ((0.0 != locCurrent.getLatitude()) || bDebug) {
+        if ((0.0 != locCurrent.getLatitude()) || bDebug)
+        {
 
             if(iNotCommsLockedOut == 0)
             {
@@ -265,7 +263,12 @@ public class ChatHeadService extends Service implements LocationListener {
                     public void onFailure(Throwable e, JSONArray errorResponse) {
                         System.out.println(e);
                         Log.i(TAGd, "onFailure  ");
-
+                        //Clear the display if we don't know the value
+                        // Skip is too slow to matter
+                        //if (locCurrent.getSpeed() >= 40)
+                        {
+                            setDisplay(0);
+                        }
                         bCommsTimedOut = false;
                     }
 
@@ -276,7 +279,8 @@ public class ChatHeadService extends Service implements LocationListener {
                         bCommsTimedOut = false;
                         //Clear the display if we don't know the value
                         // Skip is too slow to matter
-                        if (locCurrent.getSpeed() >= 40) {
+                        //if (locCurrent.getSpeed() >= 40)
+                        {
                             setDisplay(0);
                         }
                     }
@@ -401,6 +405,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         iNotCommsLockedOut--;
                         if (iNotCommsLockedOut<=0) iNotCommsLockedOut = 0;
                         updateTimeoutIcon();
+                        if(bCommsTimedOut) { setDisplay(0);    }
                         Log.i(TAGd, "                       onFinish  ");
                     }
                 });
@@ -460,7 +465,8 @@ public class ChatHeadService extends Service implements LocationListener {
                     callWebService();
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
-                Log.i(TAG, "run  REPEAT TIMER                                  *");
+                noGPS((locCurrent.getAccuracy()<0.5));
+                Log.i(TAG, "run  REPEAT TIMER  "+ locCurrent.getAccuracy());
             }
         };
     }
@@ -500,8 +506,9 @@ public class ChatHeadService extends Service implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
+/////////END  OF COMMON CODE////////////////////////////////////////////////////////////////////////////////////
 
+    private void noGPS(boolean x){}
 
     private void initTextToSpeach() {
         //Sound TTS
@@ -569,7 +576,8 @@ public class ChatHeadService extends Service implements LocationListener {
         inflater = LayoutInflater.from(this);
         chatHeads = new ArrayList<View>();
         Log.i(TAG, "onCreate  ");
-
+        // Retreive Settings
+        RetreiveSettings();
 
     }
 
@@ -585,8 +593,7 @@ public class ChatHeadService extends Service implements LocationListener {
         vImageViewDebug = chatHead.findViewById( R.id.imageViewDebug);
         vImageViewTimeout = chatHead.findViewById(R.id.imageViewTimeout);
 
-        // Retreive Settings
-        RetreiveSettings();
+
 
         // Turn on tht GPS.     set up GPS
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
