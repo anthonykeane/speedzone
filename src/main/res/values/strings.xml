@@ -165,8 +165,8 @@
     <string name="misc">Misc</string>
     <string name="mute_vol">Mute</string>
     <string name="unmute_vol">Unmute</string>
-    <string name="MyNextWeb">http://220.233.25.75/mynext.php</string>
-    <string name="MyDbWeb">http://220.233.25.75/mydb.php</string>
+    <string name="MyNextWeb">http://220.233.25.75/speed/mynext.php</string>
+    <string name="MyDbWeb">http://220.233.25.75/speed/mydb.php</string>
     <string name="myUUID">UUID</string>
     <string name="settings_soundKey">settings_soundKey</string>
     <string name="settings_debugKey">settings_debugKey</string>

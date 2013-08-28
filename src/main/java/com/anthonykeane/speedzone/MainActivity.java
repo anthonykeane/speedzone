@@ -79,6 +79,8 @@ public class MainActivity extends Activity implements LocationListener {
 
    // public final LocListener gpsListener = new LocListener();    // used by GPS
 
+    public int iNeedToResetDisplay = 0;
+
     public final AsyncHttpClient client = new AsyncHttpClient();
     public final RequestParams HTTPrp = new RequestParams();
     public final RequestParams HTTPrp2 = new RequestParams();
@@ -171,46 +173,84 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     private void setDisplay(int tmp) {
-        setGraphicBtnV(vImageButton, tmp);
-        setGraphicBtnV(vImageBtnSmall, tmp);
+        setGraphicBtnV(vImageButton, tmp,false);
+        setGraphicBtnV(vImageBtnSmall, tmp, true);
         DistanceToNextSpeedChange = tmp;
         iSpeed = tmp;
     }
 
-    public void setGraphicBtnV(View x, int iSpeed) {
+    public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
         ImageButton img = (ImageButton) x;
-        switch (iSpeed){
-            case 40:
-                img.setImageResource(R.drawable.b40);
-                break;
-            case 50:
-                img.setImageResource(R.drawable.b50);
-                break;
-            case 60:
-                img.setImageResource(R.drawable.b60);
-                break;
-            case 70:
-                img.setImageResource(R.drawable.b70);
-                break;
-            case 80:
-                img.setImageResource(R.drawable.b80);
-                break;
-            case 90:
-                img.setImageResource(R.drawable.b90);
-                break;
-            case 100:
-                img.setImageResource(R.drawable.b100);
-                break;
-            case 110:
-                img.setImageResource(R.drawable.b110);
-                break;
-            default:
-                img.setImageResource(R.drawable.b50);
-                break;
+
+
+        if (bSmall){
+            switch (iSpeed){
+                case 40:
+                    img.setImageResource(R.drawable.b40);
+                    break;
+                case 50:
+                    img.setImageResource(R.drawable.b50);
+                    break;
+                case 60:
+                    img.setImageResource(R.drawable.b60);
+                    break;
+                case 70:
+                    img.setImageResource(R.drawable.b70);
+                    break;
+                case 80:
+                    img.setImageResource(R.drawable.b80);
+                    break;
+                case 90:
+                    img.setImageResource(R.drawable.b90);
+                    break;
+                case 100:
+                    img.setImageResource(R.drawable.b100);
+                    break;
+                case 110:
+                    img.setImageResource(R.drawable.b110);
+                    break;
+                default:
+                    img.setImageResource(R.drawable.b50);
+                    break;
+
+            }
+        }
+        else{
+            switch (iSpeed){
+                case 40:
+                    img.setImageResource(R.drawable.s40);
+                    break;
+                case 50:
+                    img.setImageResource(R.drawable.s50);
+                    break;
+                case 60:
+                    img.setImageResource(R.drawable.s60);
+                    break;
+                case 70:
+                    img.setImageResource(R.drawable.s70);
+                    break;
+                case 80:
+                    img.setImageResource(R.drawable.s80);
+                    break;
+                case 90:
+                    img.setImageResource(R.drawable.s90);
+                    break;
+                case 100:
+                    img.setImageResource(R.drawable.s100);
+                    break;
+                case 110:
+                    img.setImageResource(R.drawable.s110);
+                    break;
+                default:
+                    img.setImageResource(R.drawable.s50);
+                    break;
+
+            }
 
         }
     }
+
 
     private void callWebService() {
 
@@ -241,7 +281,7 @@ public class MainActivity extends Activity implements LocationListener {
             HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
         }
-
+//     -34.069 151.0136
         //HTTPrp.put("ber", "133");
 
         //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
@@ -260,7 +300,7 @@ public class MainActivity extends Activity implements LocationListener {
                         // Skip is too slow to matter
                         //if (locCurrent.getSpeed() >= 40)
                         {
-                            setDisplay(0);
+                            NeedToResetDisplay();
                         }
                         bCommsTimedOut = false;
                     }
@@ -274,7 +314,7 @@ public class MainActivity extends Activity implements LocationListener {
                         // Skip is too slow to matter
                         //if (locCurrent.getSpeed() >= 40)
                         {
-                            setDisplay(0);
+                            NeedToResetDisplay();
                         }
                     }
 
@@ -313,7 +353,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
                             iSpeed = jHereResult.getInt("reSpeedLimit");
-                            setGraphicBtnV(vImageButton, iSpeed);
+                            setGraphicBtnV(vImageButton, iSpeed, false);
 
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
@@ -348,7 +388,7 @@ public class MainActivity extends Activity implements LocationListener {
                                             DistanceToNextSpeedChange = me.distanceTo(dest);
                                             if (bThisIsMainActivity) {
 
-                                                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"));
+                                                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
                                                 //Resize the image based on distance to.
                                                 float anmi = 0;
                                                 if (DistanceToNextSpeedChange != 0) {
@@ -487,6 +527,16 @@ public class MainActivity extends Activity implements LocationListener {
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
 
         updateDebugIcon();
+    }
+
+
+    public void NeedToResetDisplay() {
+        iNeedToResetDisplay++;
+        if (iNeedToResetDisplay>3){
+            setDisplay(0);
+            iNeedToResetDisplay = 0;
+
+        }
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -654,7 +704,8 @@ public class MainActivity extends Activity implements LocationListener {
                 Bundle extras;
                 intent = new Intent(MainActivity.this, ChatHeadService.class);
                 intent.putExtra("TheOK", true);
-                Log.i(TAG, "bDebug is  "+bDebug);
+                intent.putExtra(sUUID, "");
+                Log.i(TAG, "bDebug is  " + bDebug);
                 intent.putExtra("bCommsTimedOut", bDebug);
                 intent.putExtra("", bCommsTimedOut);
                 intent.putExtra("iSpeed",iSpeed);

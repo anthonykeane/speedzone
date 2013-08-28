@@ -85,6 +85,8 @@ public class ChatHeadService extends Service implements LocationListener {
 
     // public final LocListener gpsListener = new LocListener();    // used by GPS
 
+    public int iNeedToResetDisplay = 0;
+
     public final AsyncHttpClient client = new AsyncHttpClient();
     public final RequestParams HTTPrp = new RequestParams();
     public final RequestParams HTTPrp2 = new RequestParams();
@@ -220,7 +222,6 @@ public class ChatHeadService extends Service implements LocationListener {
 
     private void callWebService() {
 
-        //todo
         Time now = new Time();
         now.setToNow();
         String xxx = now.format("%Y-%m-%d %H:%M:%S");
@@ -248,7 +249,7 @@ public class ChatHeadService extends Service implements LocationListener {
             HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
         }
-
+//     -34.069 151.0136
         //HTTPrp.put("ber", "133");
 
         //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
@@ -267,7 +268,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         // Skip is too slow to matter
                         //if (locCurrent.getSpeed() >= 40)
                         {
-                            setDisplay(0);
+                            NeedToResetDisplay();
                         }
                         bCommsTimedOut = false;
                     }
@@ -281,7 +282,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         // Skip is too slow to matter
                         //if (locCurrent.getSpeed() >= 40)
                         {
-                            setDisplay(0);
+                            NeedToResetDisplay();
                         }
                     }
 
@@ -321,12 +322,12 @@ public class ChatHeadService extends Service implements LocationListener {
 
                             iSpeed = jHereResult.getInt("reSpeedLimit");
                             setGraphicBtnV(vImageButton, iSpeed);
-
+                            HTTPrp2.put("reMainRoad", String.valueOf(jHereResult.getString("reMainRoad")));
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
                             HTTPrp2.put("rePrescribed", String.valueOf(jHereResult.getString("rePrescribed")));
-                            fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
+                            fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 2) + locCurrent.getSpeed()) / 3);
                             iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
 
 
@@ -339,9 +340,9 @@ public class ChatHeadService extends Service implements LocationListener {
                             }
 
 
-                            if ((iSecondsToSpeedChange < 30) || (DistanceToNextSpeedChange < 600) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+                            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
-                                Log.i(TAG, "onSuccess  Getting Speec change");
+                                Log.i(TAG, "onSuccess  Getting Speed change");
                                 client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(JSONObject response) {
@@ -471,6 +472,7 @@ public class ChatHeadService extends Service implements LocationListener {
         };
     }
 
+
     private void RetreiveSettings() {
 
 
@@ -493,6 +495,16 @@ public class ChatHeadService extends Service implements LocationListener {
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
 
         updateDebugIcon();
+    }
+
+
+    public void NeedToResetDisplay() {
+        iNeedToResetDisplay++;
+        if (iNeedToResetDisplay>3){
+            setDisplay(0);
+            iNeedToResetDisplay = 0;
+
+        }
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -536,16 +548,16 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
     private void updateTimeoutIcon() {
-//        if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
-//        else{ vImageViewTimeout.setVisibility(View.GONE); }
+        if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
+        else{ vImageViewTimeout.setVisibility(View.GONE); }
     }
 
 
 
 
     private void updateDebugIcon() {
-//        if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
-//        else{ vImageViewDebug.setVisibility(View.GONE); }
+        if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
+        else{ vImageViewDebug.setVisibility(View.GONE); }
     }
 
 
@@ -577,7 +589,7 @@ public class ChatHeadService extends Service implements LocationListener {
         chatHeads = new ArrayList<View>();
         Log.i(TAG, "onCreate  ");
         // Retreive Settings
-        RetreiveSettings();
+        //RetreiveSettings();
 
     }
 
@@ -609,12 +621,14 @@ public class ChatHeadService extends Service implements LocationListener {
 
         try {
             bOK = intent.getBooleanExtra("TheOK",false);
+            sUUID = intent.getStringExtra("sUUID");
             bDebug = intent.getBooleanExtra("bDebug",false);
             Log.i(TAG, "bDebug is  "+bDebug);
             updateDebugIcon();
             bCommsTimedOut = intent.getBooleanExtra("bCommsTimedOut",false);
             Log.i(TAG, "bCommsTimedOut is  "+bCommsTimedOut);
             updateTimeoutIcon();
+            updateDebugIcon();
             iSpeed =  intent.getIntExtra("iSpeed", 50);
         } catch (Exception e) {
             e.printStackTrace();
@@ -749,7 +763,11 @@ public class ChatHeadService extends Service implements LocationListener {
                     case MotionEvent.ACTION_MOVE:
                         params.x = initialX + (int) (event.getRawX() - initialTouchX);
                         params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(chatHead, params);
+                        try {
+                            windowManager.updateViewLayout(chatHead, params);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
 
 
