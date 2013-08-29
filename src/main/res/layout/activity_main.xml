@@ -27,7 +27,7 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" android:layout_alignParentStart="false" android:layout_centerHorizontal="true" android:gravity="center" android:layout_alignBottom="@+id/imageButton">
+        android:layout_height="wrap_content" android:layout_alignParentStart="false" android:layout_centerHorizontal="true" android:gravity="center" android:layout_alignBottom="@+id/imageButton" android:layout_marginBottom="20dp">
 
         <ImageView
             android:layout_width="50dp"

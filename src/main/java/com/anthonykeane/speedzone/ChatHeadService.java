@@ -179,46 +179,86 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
     private void setDisplay(int tmp) {
-        setGraphicBtnV(vImageButton, tmp);
-        setGraphicBtnV(vImageBtnSmall, tmp);
+        setGraphicBtnV(vImageButton, tmp,false);
+        setGraphicBtnV(vImageBtnSmall, tmp, true);
         DistanceToNextSpeedChange = tmp;
         iSpeed = tmp;
     }
 
-    public void setGraphicBtnV(View x, int iSpeed) {
+    public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
+
+        if (!bThisIsMainActivity) bSmall = true;
         ImageButton img = (ImageButton) x;
-        switch (iSpeed){
-            case 40:
-                img.setImageResource(R.drawable.b40);
-                break;
-            case 50:
-                img.setImageResource(R.drawable.b50);
-                break;
-            case 60:
-                img.setImageResource(R.drawable.b60);
-                break;
-            case 70:
-                img.setImageResource(R.drawable.b70);
-                break;
-            case 80:
-                img.setImageResource(R.drawable.b80);
-                break;
-            case 90:
-                img.setImageResource(R.drawable.b90);
-                break;
-            case 100:
-                img.setImageResource(R.drawable.b100);
-                break;
-            case 110:
-                img.setImageResource(R.drawable.b110);
-                break;
-            default:
-                img.setImageResource(R.drawable.b50);
-                break;
+
+
+        if (!bSmall){
+            switch (iSpeed){
+                case 40:
+                    img.setImageResource(R.drawable.b40);
+                    break;
+                case 50:
+                    img.setImageResource(R.drawable.b50);
+                    break;
+                case 60:
+                    img.setImageResource(R.drawable.b60);
+                    break;
+                case 70:
+                    img.setImageResource(R.drawable.b70);
+                    break;
+                case 80:
+                    img.setImageResource(R.drawable.b80);
+                    break;
+                case 90:
+                    img.setImageResource(R.drawable.b90);
+                    break;
+                case 100:
+                    img.setImageResource(R.drawable.b100);
+                    break;
+                case 110:
+                    img.setImageResource(R.drawable.b110);
+                    break;
+                default:
+                    img.setImageResource(R.drawable.b50);
+                    break;
+
+            }
+        }
+        else{
+            switch (iSpeed){
+                case 40:
+                    img.setImageResource(R.drawable.s40);
+                    break;
+                case 50:
+                    img.setImageResource(R.drawable.s50);
+                    break;
+                case 60:
+                    img.setImageResource(R.drawable.s60);
+                    break;
+                case 70:
+                    img.setImageResource(R.drawable.s70);
+                    break;
+                case 80:
+                    img.setImageResource(R.drawable.s80);
+                    break;
+                case 90:
+                    img.setImageResource(R.drawable.s90);
+                    break;
+                case 100:
+                    img.setImageResource(R.drawable.s100);
+                    break;
+                case 110:
+                    img.setImageResource(R.drawable.s110);
+                    break;
+                default:
+                    img.setImageResource(R.drawable.s50);
+                    break;
+
+            }
 
         }
     }
+
 
     private void callWebService() {
 
@@ -321,13 +361,14 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
                             iSpeed = jHereResult.getInt("reSpeedLimit");
-                            setGraphicBtnV(vImageButton, iSpeed);
-                            HTTPrp2.put("reMainRoad", String.valueOf(jHereResult.getString("reMainRoad")));
+                            setGraphicBtnV(vImageButton, iSpeed, false);
+
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
+                            HTTPrp2.put("reMainRoad", String.valueOf(jHereResult.getString("reMainRoad")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
                             HTTPrp2.put("rePrescribed", String.valueOf(jHereResult.getString("rePrescribed")));
-                            fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 2) + locCurrent.getSpeed()) / 3);
+                            fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
                             iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
 
 
@@ -340,10 +381,10 @@ public class ChatHeadService extends Service implements LocationListener {
                             }
 
 
-                            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+                            if ((iSecondsToSpeedChange < 30) || (DistanceToNextSpeedChange < 600) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
-                                Log.i(TAG, "onSuccess  Getting Speed change");
-                                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                                Log.i(TAG, "onSuccess  Getting Speec change");
+                                client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(JSONObject response) {
                                         Log.i(TAG, "onSuccess MyNextWeb  ");
@@ -356,7 +397,7 @@ public class ChatHeadService extends Service implements LocationListener {
                                             DistanceToNextSpeedChange = me.distanceTo(dest);
                                             if (bThisIsMainActivity) {
 
-                                                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"));
+                                                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
                                                 //Resize the image based on distance to.
                                                 float anmi = 0;
                                                 if (DistanceToNextSpeedChange != 0) {
@@ -518,7 +559,7 @@ public class ChatHeadService extends Service implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
-/////////END  OF COMMON CODE////////////////////////////////////////////////////////////////////////////////////
+/////////END  OF COMMON CODE//////////////////////////////////////////////////////////////////
 
     private void noGPS(boolean x){}
 
@@ -649,7 +690,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         // got iSpeed above
-        setGraphicBtnV(vImageButton, iSpeed);
+        setGraphicBtnV(vImageButton, iSpeed, true);
 
 
         vImageButton.setOnLongClickListener(new View.OnLongClickListener() {

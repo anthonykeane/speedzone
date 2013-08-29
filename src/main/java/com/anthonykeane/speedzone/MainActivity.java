@@ -181,10 +181,11 @@ public class MainActivity extends Activity implements LocationListener {
 
     public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
+        if (!bThisIsMainActivity) bSmall = true;
         ImageButton img = (ImageButton) x;
 
 
-        if (bSmall){
+        if (!bSmall){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.b40);
@@ -274,9 +275,9 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         if (bDebug) {
-            HTTPrp.put("lat", "-34.069");
-            HTTPrp.put("lon", "151.0136");
-            HTTPrp.put("ber", "38");
+            HTTPrp.put("lat", "-33.71013");
+            HTTPrp.put("lon", "150.94951");
+            HTTPrp.put("ber", "100");
             HTTPrp.put("speed", "99");
             HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
@@ -312,7 +313,7 @@ public class MainActivity extends Activity implements LocationListener {
                         bCommsTimedOut = false;
                         //Clear the display if we don't know the value
                         // Skip is too slow to matter
-                        //if (locCurrent.getSpeed() >= 40)
+                        if (locCurrent.getSpeed() >= 20)
                         {
                             NeedToResetDisplay();
                         }
@@ -356,6 +357,7 @@ public class MainActivity extends Activity implements LocationListener {
                             setGraphicBtnV(vImageButton, iSpeed, false);
 
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
+                            HTTPrp2.put("reMainRoad", String.valueOf(jHereResult.getString("reMainRoad")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
                             HTTPrp2.put("rePrescribed", String.valueOf(jHereResult.getString("rePrescribed")));
@@ -372,10 +374,10 @@ public class MainActivity extends Activity implements LocationListener {
                             }
 
 
-                            if ((iSecondsToSpeedChange < 30) || (DistanceToNextSpeedChange < 600) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+                            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
                                 Log.i(TAG, "onSuccess  Getting Speec change");
-                                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                                client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(JSONObject response) {
                                         Log.i(TAG, "onSuccess MyNextWeb  ");
@@ -397,7 +399,8 @@ public class MainActivity extends Activity implements LocationListener {
                                                 }
                                                 final float v = (anmi > 1) ? 1 : anmi;
                                                 setDisplayScale((v<0.3)? (float) 0.3 :v);
-
+                                                fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
+                                                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
                                                 updateDebugText();
                                             }
 

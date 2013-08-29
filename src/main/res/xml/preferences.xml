@@ -73,15 +73,24 @@
             <!--android:dialogMessage="@string/settings_user_ttsSignFoundSummary"-->
             <!--android:defaultValue="@string/ttsSignFound"/>-->
 
-        <EditTextPreference
-            android:key="@string/settings_ttsSaluteKey"
-            android:summary="@string/settings_user_ttsSaluteSummary"
-            android:title="@string/settings_user_ttsSaluteTitle"
-            android:dialogTitle="@string/settings_user_ttsSaluteTitle"
-            android:dialogMessage="@string/settings_user_ttsSaluteSummary"
-            android:inputType="text"
-            android:defaultValue="@string/ttsSalute"/>
+        <!--<EditTextPreference-->
+            <!--android:key="@string/settings_ttsSaluteKey"-->
+            <!--android:summary="@string/settings_user_ttsSaluteSummary"-->
+            <!--android:title="@string/settings_user_ttsSaluteTitle"-->
+            <!--android:dialogTitle="@string/settings_user_ttsSaluteTitle"-->
+            <!--android:dialogMessage="@string/settings_user_ttsSaluteSummary"-->
+            <!--android:inputType="text"-->
+            <!--android:defaultValue="@string/ttsSalute"/>-->
     </PreferenceCategory>
+
+
+
+    <PreferenceScreen
+        android:title="@string/settings_userPrivacyTitle"
+        android:summary="@string/settings_userPrivacySummary"/>
+
+
+
 
     <PreferenceCategory android:title="@string/settings_aboutTitle">
         <PreferenceScreen
@@ -111,10 +120,6 @@
 
     </PreferenceCategory>
 
-
-    <PreferenceScreen
-        android:title="@string/settings_userPrivacyTitle"
-        android:summary="@string/settings_userPrivacySummary"/>
 
     <!--<PreferenceScreen android:title="Advanced Options">-->
 
