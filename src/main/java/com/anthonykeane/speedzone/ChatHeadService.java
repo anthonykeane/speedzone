@@ -79,7 +79,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     public static final int delayBetweenGPS_Records = 10000;    //every 500mS log Geo date in Queue.
     public static final long minTime = 3000;                   // don't update GPS if time < 3000mS
-    public static final float minDistanceGPS = 30;              // don't update GPS if distance < 30M
+    public static final float minDistanceGPS = 10;              // don't update GPS if distance < 30M
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -187,7 +187,6 @@ public class ChatHeadService extends Service implements LocationListener {
 
     public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
-
         if (!bThisIsMainActivity) bSmall = true;
         ImageButton img = (ImageButton) x;
 
@@ -282,9 +281,9 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         if (bDebug) {
-            HTTPrp.put("lat", "-34.069");
-            HTTPrp.put("lon", "151.0136");
-            HTTPrp.put("ber", "38");
+            HTTPrp.put("lat", "-33.71013");
+            HTTPrp.put("lon", "150.94951");
+            HTTPrp.put("ber", "100");
             HTTPrp.put("speed", "99");
             HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
@@ -320,7 +319,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         bCommsTimedOut = false;
                         //Clear the display if we don't know the value
                         // Skip is too slow to matter
-                        //if (locCurrent.getSpeed() >= 40)
+                        if (locCurrent.getSpeed() >= 20)
                         {
                             NeedToResetDisplay();
                         }
@@ -363,11 +362,13 @@ public class ChatHeadService extends Service implements LocationListener {
                             iSpeed = jHereResult.getInt("reSpeedLimit");
                             setGraphicBtnV(vImageButton, iSpeed, false);
 
+                            HTTPrp2.put("reMainRoad", oneTo1(String.valueOf(jHereResult.getString("reMainRoad"))));
+                            HTTPrp2.put("rePrescribed",  oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));;
+
+
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
-                            HTTPrp2.put("reMainRoad", String.valueOf(jHereResult.getString("reMainRoad")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
-                            HTTPrp2.put("rePrescribed", String.valueOf(jHereResult.getString("rePrescribed")));
                             fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
                             iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
 
@@ -381,7 +382,7 @@ public class ChatHeadService extends Service implements LocationListener {
                             }
 
 
-                            if ((iSecondsToSpeedChange < 30) || (DistanceToNextSpeedChange < 600) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+                            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
                                 Log.i(TAG, "onSuccess  Getting Speec change");
                                 client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
@@ -406,7 +407,8 @@ public class ChatHeadService extends Service implements LocationListener {
                                                 }
                                                 final float v = (anmi > 1) ? 1 : anmi;
                                                 setDisplayScale((v<0.3)? (float) 0.3 :v);
-
+                                                fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
+                                                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
                                                 updateDebugText();
                                             }
 
@@ -453,6 +455,15 @@ public class ChatHeadService extends Service implements LocationListener {
                 });
             }
 
+        }
+    }
+
+    private String oneTo1(String x) {
+        if(x.equals("\u0001")){
+            return "1";
+        }
+        else {
+            return "0";
         }
     }
 

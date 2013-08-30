@@ -73,7 +73,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     public static final int delayBetweenGPS_Records = 10000;    //every 500mS log Geo date in Queue.
     public static final long minTime = 3000;                   // don't update GPS if time < 3000mS
-    public static final float minDistanceGPS = 30;              // don't update GPS if distance < 30M
+    public static final float minDistanceGPS = 10;              // don't update GPS if distance < 30M
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -356,11 +356,13 @@ public class MainActivity extends Activity implements LocationListener {
                             iSpeed = jHereResult.getInt("reSpeedLimit");
                             setGraphicBtnV(vImageButton, iSpeed, false);
 
+                            HTTPrp2.put("reMainRoad", oneTo1(String.valueOf(jHereResult.getString("reMainRoad"))));
+                            HTTPrp2.put("rePrescribed",  oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));;
+
+
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
-                            HTTPrp2.put("reMainRoad", String.valueOf(jHereResult.getString("reMainRoad")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
-                            HTTPrp2.put("rePrescribed", String.valueOf(jHereResult.getString("rePrescribed")));
                             fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
                             iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
 
@@ -447,6 +449,15 @@ public class MainActivity extends Activity implements LocationListener {
                 });
             }
 
+        }
+    }
+
+    private String oneTo1(String x) {
+        if(x.equals("\u0001")){
+           return "1";
+        }
+        else {
+            return "0";
         }
     }
 
