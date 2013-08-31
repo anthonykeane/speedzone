@@ -29,7 +29,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import static java.util.UUID.randomUUID;
 
@@ -65,8 +64,8 @@ public class ChatHeadService extends Service implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
-    private static final int intentTTS = 3;
-    private String ttsSalute;
+    //private static final int intentTTS = 3;
+    //private String ttsSalute;
 
     SharedPreferences appSharedPrefs;
 
@@ -105,15 +104,17 @@ public class ChatHeadService extends Service implements LocationListener {
     private View vImageViewDebug;
     private View vImageViewTimeout;
 
+
     public static final int itextView = R.id.textView;
     public static final int itextView2 = R.id.textView2;
+
 
     public int iSpeed = 50;
     public int fFiveValAvgSpeed=60;
 
     private Location me = new Location("");
     private Location dest = new Location("");
-    private static Context context;
+    //private static Context context;
 
     //Flags
     public boolean bZoneError = false;
@@ -132,7 +133,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
         try { // Turn Off the GPS
             locManager.removeUpdates(this); // Turn Off the GPS
-        } catch (Exception e) {e.printStackTrace(); }
+        } catch (Exception e) {Log.i(TAG, "onDestroy - GPS is already null"); }
         if (locManager!=null){locManager = null;}
 
         removeChatHeads();
@@ -231,7 +232,8 @@ public class ChatHeadService extends Service implements LocationListener {
             }
         }
 
-        if (bSmall && bThisIsMainActivity){
+        if ((bSmall && bThisIsMainActivity)
+                || (!bThisIsMainActivity && (locCurrent.getAccuracy()<0.5))  ){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.g40);
@@ -264,7 +266,7 @@ public class ChatHeadService extends Service implements LocationListener {
             }
         }
 
-        if (!bThisIsMainActivity){
+        if (!bThisIsMainActivity && !(locCurrent.getAccuracy()<0.5)){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);
@@ -321,7 +323,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
 
-        if (bDebug) {
+        if ((0.0 == locCurrent.getLatitude()) && bDebug) {
             HTTPrp.put("lat", "-33.71013");
             HTTPrp.put("lon", "150.94951");
             HTTPrp.put("ber", "100");
@@ -381,7 +383,7 @@ public class ChatHeadService extends Service implements LocationListener {
                                 dest.setLongitude(jThereResult.getDouble("reLon"));
                                 DistanceToNextSpeedChange = me.distanceTo(dest);
                             } catch (JSONException e) {
-                                e.printStackTrace();
+                                Log.i(TAG, "onSuccess - No value for reLat");
                             }
 
 
@@ -497,7 +499,8 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            Log.i(TAG, "doStuff - no value for Lat");
         }
     }
 
@@ -577,14 +580,14 @@ public class ChatHeadService extends Service implements LocationListener {
             sUUID= randomUUID().toString();
             appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
         }
-        Map<String, ?> xx = appSharedPrefs.getAll();
+        //Map<String, ?> xx = appSharedPrefs.getAll();
 
 
         bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
         bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
 //        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
 //        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
-        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
+//        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
 //        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
 //        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
@@ -619,7 +622,15 @@ public class ChatHeadService extends Service implements LocationListener {
 
     }
 
-    private void noGPS(boolean x){}
+    private void noGPS(boolean bNoGps)  {
+
+        try {
+            setGraphicBtnV(vImageButton, jHereResult.getInt("reSpeedLimit"), bNoGps);
+        } catch (JSONException e) {
+            Log.i(TAG, "noGPS - No value for reSpeedLimit ");
+        }
+    }
+
 
     private void initTextToSpeach() {
         //Sound TTS
@@ -673,10 +684,16 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
     private void updateDebugText() throws JSONException {
-        String x = String.valueOf(DistanceToNextSpeedChange) + "  "+ String.valueOf(iSecondsToSpeedChange) + "\n";
-        setDebugText(itextView ,x);
-        x = "\n\n\n\n\n" + String.valueOf(jHereResult.getString("reLon")) + " ,  " + String.valueOf(jHereResult.getString("reLat")+" ,  " + String.valueOf(jHereResult.getString("reBearing")));
-        setDebugText(itextView2, x);
+        if (bDebug) {
+            String x = String.valueOf(DistanceToNextSpeedChange) + "  " + String.valueOf(iSecondsToSpeedChange) + "\n";
+            setDebugText(itextView, x);
+            x = "\n\n\n\n\n" + String.valueOf(jHereResult.getString("reLon")) + " ,  " + String.valueOf(jHereResult.getString("reLat") + " ,  " + String.valueOf(jHereResult.getString("reBearing")));
+            setDebugText(itextView2, x);
+        } else {
+            setDebugText(itextView, "");
+            setDebugText(itextView2, "");
+        }
+
     }
 
     @Override
@@ -698,12 +715,14 @@ public class ChatHeadService extends Service implements LocationListener {
 
         final View chatHead = inflater.inflate(R.layout.chat_head, null);
 
-        vImageButton = chatHead.findViewById(R.id.imageButton);
-        vErrorButton = chatHead.findViewById( R.id.imageButtonError);
-        vImageBtnSmall = chatHead.findViewById(R.id.imageBtnSmall);
-        vImageViewDebug = chatHead.findViewById( R.id.imageViewDebug);
-        vImageViewTimeout = chatHead.findViewById(R.id.imageViewTimeout);
-
+        if (chatHead != null)
+        {
+            vImageButton = chatHead.findViewById(R.id.imageButton);
+            vErrorButton = chatHead.findViewById( R.id.imageButtonError);
+            vImageBtnSmall = chatHead.findViewById(R.id.imageBtnSmall);
+            vImageViewDebug = chatHead.findViewById( R.id.imageViewDebug);
+            vImageViewTimeout = chatHead.findViewById(R.id.imageViewTimeout);
+        }
 
 
         // Turn on tht GPS.     set up GPS
@@ -716,7 +735,7 @@ public class ChatHeadService extends Service implements LocationListener {
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
 
 
-        boolean bOK = false;
+        boolean bOK;
 
         try {
             bOK = intent.getBooleanExtra("TheOK",false);
@@ -840,7 +859,8 @@ public class ChatHeadService extends Service implements LocationListener {
             public boolean onTouch(View v, MotionEvent event) {
                 // to dispatch click / long click event,
                 // you must pass the event to it's default callback View.onTouchEvent
-                boolean defaultResult = v.onTouchEvent(event);
+
+                //boolean defaultResult = v.onTouchEvent(event);
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
@@ -889,7 +909,7 @@ public class ChatHeadService extends Service implements LocationListener {
             public boolean onTouch(View v, MotionEvent event) {
                 // to dispatch click / long click event,
                 // you must pass the event to it's default callback View.onTouchEvent
-                boolean defaultResult = v.onTouchEvent(event);
+                //boolean defaultResult = v.onTouchEvent(event);
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:

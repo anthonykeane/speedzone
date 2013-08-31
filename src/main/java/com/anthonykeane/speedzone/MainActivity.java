@@ -37,7 +37,6 @@ import org.json.JSONObject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
-import java.util.Map;
 
 import static java.util.UUID.randomUUID;
 
@@ -50,7 +49,8 @@ public class MainActivity extends Activity implements LocationListener {
     private static final String TAGd = "ChatHead::Activity_focus";
 
     private static final int intentSettings = 1;
-
+    private View vImageViewTimeout;
+    public static final int itextViewGPSlost = R.id.textViewGPSlost;
 
 //    < click here
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,8 +66,8 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
-    private static final int intentTTS = 3;
-    private String ttsSalute;
+    //private static final int intentTTS = 3;
+    //private String ttsSalute;
 
     SharedPreferences appSharedPrefs;
 
@@ -84,7 +84,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private final Handler handler = new Handler();                // used for timers
 
-   // public final LocListener gpsListener = new LocListener();    // used by GPS
+    // public final LocListener gpsListener = new LocListener();    // used by GPS
 
     public int iNeedToResetDisplay = 0;
 
@@ -104,17 +104,17 @@ public class MainActivity extends Activity implements LocationListener {
     private View vErrorButton;
     private View vImageBtnSmall;
     private View vImageViewDebug;
-    private View vImageViewTimeout;
 
     public static final int itextView = R.id.textView;
     public static final int itextView2 = R.id.textView2;
+
 
     public int iSpeed = 50;
     public int fFiveValAvgSpeed=60;
 
     private Location me = new Location("");
     private Location dest = new Location("");
-    private static Context context;
+    //private static Context context;
 
     //Flags
     public boolean bZoneError = false;
@@ -159,13 +159,11 @@ public class MainActivity extends Activity implements LocationListener {
 
             // if params of locaton unchanged skip
 
-            if ((int)locLast.getSpeed() != (int)locCurrent.getSpeed()
-                && (int)(locLast.getBearing()/6) != (int)(locCurrent.getBearing()/6)){
+            if ((int) locLast.getSpeed() != (int) locCurrent.getSpeed()
+                    && (int) (locLast.getBearing() / 6) != (int) (locCurrent.getBearing() / 6)) {
                 callWebService();
             }
             doStuff();
-
-
         }
 
 
@@ -324,7 +322,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
 
-        if (bDebug) {
+        if ((0.0 == locCurrent.getLatitude()) && bDebug) {
             HTTPrp.put("lat", "-33.71013");
             HTTPrp.put("lon", "150.94951");
             HTTPrp.put("ber", "100");
@@ -341,7 +339,6 @@ public class MainActivity extends Activity implements LocationListener {
 
             if(iNotCommsLockedOut == 0)
             {
-
                 client.post(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                     @Override
@@ -385,7 +382,7 @@ public class MainActivity extends Activity implements LocationListener {
                                 dest.setLongitude(jThereResult.getDouble("reLon"));
                                 DistanceToNextSpeedChange = me.distanceTo(dest);
                             } catch (JSONException e) {
-                                e.printStackTrace();
+                                Log.i(TAG, "onSuccess - No value for reLat");
                             }
 
 
@@ -393,12 +390,12 @@ public class MainActivity extends Activity implements LocationListener {
                                 try {
                                     mTts.speak("the Speed is now " + String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    Log.i(TAG, "onSuccess - No value for reSpeedLimit");
                                 }
                             }
 
 
-                            iSpeed = jHereResult.getInt("reSpeedLimit"); //this is used to detect zone change for voice anouncement
+                            iSpeed = jHereResult.getInt("reSpeedLimit");
                             setGraphicBtnV(vImageButton, iSpeed, false);
 
                             HTTPrp2.put("reMainRoad", oneTo1(String.valueOf(jHereResult.getString("reMainRoad"))));
@@ -465,9 +462,11 @@ public class MainActivity extends Activity implements LocationListener {
                         // Completed the request (either success or failure)
                         toggleRadioButton();
                         iNotCommsLockedOut--;
-                        if (iNotCommsLockedOut<=0) iNotCommsLockedOut = 0;
+                        if (iNotCommsLockedOut <= 0) iNotCommsLockedOut = 0;
                         updateTimeoutIcon();
-                        if(bCommsTimedOut) { setDisplay(0);    }
+                        if (bCommsTimedOut) {
+                            setDisplay(0);
+                        }
                         Log.i(TAGd, "                       onFinish  ");
                     }
                 });
@@ -505,7 +504,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private String oneTo1(String x) {
         if(x.equals("\u0001")){
-           return "1";
+            return "1";
         }
         else {
             return "0";
@@ -579,14 +578,14 @@ public class MainActivity extends Activity implements LocationListener {
             sUUID= randomUUID().toString();
             appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
         }
-        Map<String, ?> xx = appSharedPrefs.getAll();
+        //Map<String, ?> xx = appSharedPrefs.getAll();
 
 
         bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
         bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
 //        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
 //        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
-        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
+//        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
 //        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
 //        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
@@ -604,6 +603,8 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -615,7 +616,18 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
-//////////MAIN - END  OF COMMON CODE////////////////////////////////////////////////////////////////////////////////////
+//////////MAIN - END  OF COMMON CODE//////////////////////////////////////////////////////////
+
+
+    private void noGPS(boolean bNoGps)  {
+
+    TextView textView = (TextView) findViewById(itextViewGPSlost);
+    if (bNoGps) {
+        textView.setVisibility(View.VISIBLE);
+    } else {
+        textView.setVisibility(View.GONE);
+    }
+}
 
 
     private void toggleRadioButton() {
@@ -639,24 +651,30 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     private void updateDebugText() throws JSONException {
-        String x ="";
 //        if (DistanceToNextSpeedChange>=60){
 //            x = String.valueOf((int)(DistanceToNextSpeedChange/1000)+1) + "Km           or       "+ String.valueOf((int) (iSecondsToSpeedChange/60)+1) + "Min\n";
 //        }
 //        else{
 //            x = String.valueOf((int)DistanceToNextSpeedChange) + "M           or       "+ String.valueOf((int) (iSecondsToSpeedChange)) + "Sec\n";
 //        }
-        x = String.valueOf((int)DistanceToNextSpeedChange) + "M           or       "+ String.valueOf((int) (iSecondsToSpeedChange)) + "Sec\n";
-        setDebugText(itextView ,x);
-        x = String.valueOf(jHereResult.getString("reLon")) + " ,  " + String.valueOf(jHereResult.getString("reLat")+" ,  " + String.valueOf(jHereResult.getString("reBearing")));
-        setDebugText(itextView2, x);
+
+        if (bDebug) {
+            String x = String.valueOf(DistanceToNextSpeedChange) + "  " + String.valueOf(iSecondsToSpeedChange) + "\n";
+            setDebugText(itextView, x);
+            x = "\n\n\n\n\n" + String.valueOf(jHereResult.getString("reLon")) + " ,  " + String.valueOf(jHereResult.getString("reLat") + " ,  " + String.valueOf(jHereResult.getString("reBearing")));
+            setDebugText(itextView2, x);
+        } else {
+            setDebugText(itextView, "");
+            setDebugText(itextView2, "");
+        }
+
     }
 
 
     //todo
-    public static Context getAppContext() {
-        return context;
-    }
+//    public static Context getAppContext() {
+//        return context;
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -804,8 +822,8 @@ public class MainActivity extends Activity implements LocationListener {
                 intent.putExtra("TheOK", true);
                 intent.putExtra(sUUID, "");
                 Log.i(TAG, "bDebug is  " + bDebug);
-                intent.putExtra("bCommsTimedOut", bDebug);
-                intent.putExtra("", bCommsTimedOut);
+                intent.putExtra("bDebug", bDebug);
+                intent.putExtra("bCommsTimedOut", bCommsTimedOut);
                 intent.putExtra("iSpeed",iSpeed);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 handler.removeCallbacks(timedGPSqueue);
@@ -844,6 +862,11 @@ public class MainActivity extends Activity implements LocationListener {
             case R.id.menu_debug:
                 bDebug = !bDebug;
                 updateDebugIcon();
+                try {
+                    updateDebugText();
+                } catch (JSONException e) {
+                    Log.i(TAG, "onOptionsItemSelected - No Value for reLon");
+                }
                 callWebService();
                 Toast.makeText(this, String.valueOf(bDebug), Toast.LENGTH_SHORT).show();
                 return true;
@@ -899,21 +922,6 @@ public class MainActivity extends Activity implements LocationListener {
         textView.setText(s);
     }
 
-    private void noGPS(boolean bNoGps)  {
-
-            try {
-                if (bNoGps){
-                    setDebugText(itextView, "GPS signal Lost");
-                }
-                else
-                {
-                    setDebugText(itextView, "");
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-    }
 
     private void setDisplayScale(float anmi) {
 //        ImageButton img = (ImageButton) vImageBtnSmall;

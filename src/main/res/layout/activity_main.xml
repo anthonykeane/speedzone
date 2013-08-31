@@ -51,6 +51,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/radioButton" android:checked="true" android:layout_alignParentTop="true" android:layout_alignParentRight="true"/>
 
+    <TextView
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GPS Signal Lost" android:id="@+id/textViewGPSlost" android:layout_gravity="center" android:autoText="true" android:textSize="35dp" android:phoneNumber="true" android:gravity="center" android:background="@color/black_overlay" android:textColor="@color/holo_orange_light" android:layout_alignParentStart="true" android:singleLine="false" android:password="false" android:layout_alignParentBottom="true" android:layout_alignRight="@+id/textView"/>
+
     <!--<Button-->
         <!--style="?android:attr/buttonStyleSmall"-->
         <!--android:layout_width="wrap_content"-->
