@@ -122,7 +122,7 @@ public class MainActivity extends Activity implements LocationListener {
     public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
     public boolean bCommsTimedOut = false;
     private boolean bMute = false;
-
+    private int iDistanceOffset = 50;
 
 
     @Override
@@ -163,8 +163,7 @@ public class MainActivity extends Activity implements LocationListener {
                 && (int)(locLast.getBearing()/6) != (int)(locCurrent.getBearing()/6)){
                 callWebService();
             }
-
-
+            doStuff();
 
 
         }
@@ -328,7 +327,7 @@ public class MainActivity extends Activity implements LocationListener {
         if (bDebug) {
             HTTPrp.put("lat", "-33.71013");
             HTTPrp.put("lon", "150.94951");
-            HTTPrp.put("ber", "280");
+            HTTPrp.put("ber", "100");
             HTTPrp.put("speed", "99");
             HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
@@ -365,8 +364,7 @@ public class MainActivity extends Activity implements LocationListener {
                         bCommsTimedOut = false;
                         //Clear the display if we don't know the value
                         // Skip is too slow to matter
-                        if (locCurrent.getSpeed() >= 20)
-                        {
+                        if (locCurrent.getSpeed() >= 20) {
                             NeedToResetDisplay();
                         }
                     }
@@ -375,15 +373,13 @@ public class MainActivity extends Activity implements LocationListener {
                     public void onSuccess(JSONObject response) {
                         bCommsTimedOut = false;
                         Log.i(TAGd, "           onSuccess  ");
-
-
                         jHereResult = response;
                         try {
                             //Calculate Distance
                             me = new Location("");
                             dest = new Location("");
-                            me.setLatitude(jHereResult.getDouble("reLat"));
-                            me.setLongitude(jHereResult.getDouble("reLon"));
+                            me.setLatitude(locCurrent.getLatitude());
+                            me.setLongitude(locCurrent.getLongitude());
                             try {
                                 dest.setLatitude(jThereResult.getDouble("reLat"));
                                 dest.setLongitude(jThereResult.getDouble("reLon"));
@@ -393,23 +389,20 @@ public class MainActivity extends Activity implements LocationListener {
                             }
 
 
-
-                            if(!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit")))
-                            {
+                            if (!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit"))) {
                                 try {
-                                    mTts.speak("the Speed is now "+ String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
+                                    mTts.speak("the Speed is now " + String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
 
 
-
-                            iSpeed = jHereResult.getInt("reSpeedLimit");
+                            iSpeed = jHereResult.getInt("reSpeedLimit"); //this is used to detect zone change for voice anouncement
                             setGraphicBtnV(vImageButton, iSpeed, false);
 
                             HTTPrp2.put("reMainRoad", oneTo1(String.valueOf(jHereResult.getString("reMainRoad"))));
-                            HTTPrp2.put("rePrescribed",  oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));
+                            HTTPrp2.put("rePrescribed", oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));
 
 
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
@@ -431,37 +424,14 @@ public class MainActivity extends Activity implements LocationListener {
                             if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
                                 Log.i(TAG, "onSuccess  Getting Speec change");
-                                client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(JSONObject response) {
                                         Log.i(TAG, "onSuccess MyNextWeb  ");
                                         bCommsTimedOut = false;
                                         jThereResult = response;
 
-                                        try {
-                                            dest.setLatitude(jThereResult.getDouble("reLat"));
-                                            dest.setLongitude(jThereResult.getDouble("reLon"));
-                                            DistanceToNextSpeedChange = me.distanceTo(dest);
-                                            if (bThisIsMainActivity) {
-
-                                                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
-                                                //Resize the image based on distance to.
-                                                float anmi = 0;
-                                                if (DistanceToNextSpeedChange != 0) {
-                                                    anmi = 1 / ((DistanceToNextSpeedChange + 1) / 1000);
-
-                                                }
-                                                final float v = (anmi > 1) ? 1 : anmi;
-                                                setDisplayScale((v<0.3)? (float) 0.3 :v);
-                                                fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                                                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange  / fFiveValAvgSpeed));
-                                                updateDebugText();
-                                            }
-
-
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
+                                        doStuff();
 
                                     }
 
@@ -503,6 +473,33 @@ public class MainActivity extends Activity implements LocationListener {
                 });
             }
 
+        }
+    }
+
+    private void doStuff() {
+        try {
+            dest.setLatitude(jThereResult.getDouble("reLat"));
+            dest.setLongitude(jThereResult.getDouble("reLon"));
+            DistanceToNextSpeedChange = me.distanceTo(dest) - iDistanceOffset;
+            if (bThisIsMainActivity) {
+
+                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
+                //Resize the image based on distance to.
+//                float anmi = 0;
+//                if (DistanceToNextSpeedChange != 0) {
+//                    anmi = 1 / ((DistanceToNextSpeedChange + 1) / 1000);
+//
+//                }
+//                final float v = (anmi > 1) ? 1 : anmi;
+//                setDisplayScale((v<0.3)? (float) 0.3 :v);
+                fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
+                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
+                updateDebugText();
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -561,12 +558,12 @@ public class MainActivity extends Activity implements LocationListener {
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "run  ");
+                noGPS((locCurrent.getAccuracy() < 0.5));
                 if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebService();
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
-                noGPS((locCurrent.getAccuracy()<0.5));
+
                 Log.i(TAG, "run  REPEAT TIMER  "+ locCurrent.getAccuracy());
             }
         };
@@ -665,7 +662,7 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        //client.setTimeout(2000);
 //
 //
         setContentView(R.layout.activity_main);
