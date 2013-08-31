@@ -233,7 +233,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
         if ((bSmall && bThisIsMainActivity)
-                || (!bThisIsMainActivity && (locCurrent.getAccuracy()>15))  ){
+                || (!bThisIsMainActivity && (locCurrent.getAccuracy()>15) && (locCurrent.getAccuracy()!=0.0)) ) {
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.g40);
@@ -266,7 +266,7 @@ public class MainActivity extends Activity implements LocationListener {
             }
         }
 
-        if (!bThisIsMainActivity && !(locCurrent.getAccuracy()>15)){
+        if (!bThisIsMainActivity && (locCurrent.getAccuracy()<=15)  && (locCurrent.getAccuracy()!=0.0)) {
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);

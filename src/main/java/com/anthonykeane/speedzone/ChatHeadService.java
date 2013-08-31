@@ -104,7 +104,6 @@ public class ChatHeadService extends Service implements LocationListener {
     private View vImageViewDebug;
     private View vImageViewTimeout;
 
-
     public static final int itextView = R.id.textView;
     public static final int itextView2 = R.id.textView2;
 
@@ -323,7 +322,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
 
-        if ((locCurrent.getAccuracy()>=15) && bDebug) {
+        if (   ((locCurrent.getAccuracy()>=15) || (locCurrent.getAccuracy()==0.0))  && bDebug) {
             HTTPrp.put("lat", "-33.71013");
             HTTPrp.put("lon", "150.94951");
             HTTPrp.put("ber", "100");
@@ -335,7 +334,7 @@ public class ChatHeadService extends Service implements LocationListener {
         //HTTPrp.put("ber", "133");
 
         //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
-        if ((locCurrent.getAccuracy()<15)  || bDebug)
+        if ((locCurrent.getAccuracy()<15) && (locCurrent.getAccuracy()!=0.0)  || bDebug)
         {
 
             if(iNotCommsLockedOut == 0)
@@ -391,7 +390,7 @@ public class ChatHeadService extends Service implements LocationListener {
                                 try {
                                     mTts.speak("the Speed is now " + String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
                                 } catch (Exception e) {
-                                    Log.i(TAG, "onSuccess  TTS gaf");;
+                                    Log.i(TAG, "onSuccess - No value for reSpeedLimit");
                                 }
                             }
 
@@ -503,7 +502,6 @@ public class ChatHeadService extends Service implements LocationListener {
             Log.i(TAG, "doStuff - no value for Lat");
         }
     }
-
     private String oneTo1(String x) {
         if(x.equals("\u0001")){
             return "1";
