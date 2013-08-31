@@ -49,7 +49,6 @@ public class MainActivity extends Activity implements LocationListener {
     private static final String TAGd = "ChatHead::Activity_focus";
 
     private static final int intentSettings = 1;
-    private View vImageViewTimeout;
     public static final int itextViewGPSlost = R.id.textViewGPSlost;
 
 //    < click here
@@ -104,6 +103,7 @@ public class MainActivity extends Activity implements LocationListener {
     private View vErrorButton;
     private View vImageBtnSmall;
     private View vImageViewDebug;
+    private View vImageViewTimeout;
 
     public static final int itextView = R.id.textView;
     public static final int itextView2 = R.id.textView2;
@@ -133,7 +133,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         try { // Turn Off the GPS
             locManager.removeUpdates(this); // Turn Off the GPS
-        } catch (Exception e) {e.printStackTrace(); }
+        } catch (Exception e) {Log.i(TAG, "onDestroy - GPS is already null"); }
         if (locManager!=null){locManager = null;}
 
         removeChatHeads();
@@ -232,7 +232,8 @@ public class MainActivity extends Activity implements LocationListener {
             }
         }
 
-        if (bSmall && bThisIsMainActivity){
+        if ((bSmall && bThisIsMainActivity)
+                || (!bThisIsMainActivity && (locCurrent.getAccuracy()>15))  ){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.g40);
@@ -265,7 +266,7 @@ public class MainActivity extends Activity implements LocationListener {
             }
         }
 
-        if (!bThisIsMainActivity){
+        if (!bThisIsMainActivity && !(locCurrent.getAccuracy()>15)){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);
@@ -322,7 +323,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
 
-        if ((0.0 == locCurrent.getLatitude()) && bDebug) {
+        if (   ((locCurrent.getAccuracy()>=15) || (locCurrent.getAccuracy()==0.0))  && bDebug) {
             HTTPrp.put("lat", "-33.71013");
             HTTPrp.put("lon", "150.94951");
             HTTPrp.put("ber", "100");
@@ -334,12 +335,12 @@ public class MainActivity extends Activity implements LocationListener {
         //HTTPrp.put("ber", "133");
 
         //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
-        if ((0.0 != locCurrent.getLatitude()) || bDebug)
+        if ((locCurrent.getAccuracy()<15) && (locCurrent.getAccuracy()!=0.0)  || bDebug)
         {
 
             if(iNotCommsLockedOut == 0)
             {
-                client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
+                client.post(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                     @Override
                     public void onFailure(Throwable e, JSONArray errorResponse) {
@@ -421,7 +422,7 @@ public class MainActivity extends Activity implements LocationListener {
                             if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
                                 Log.i(TAG, "onSuccess  Getting Speec change");
-                                client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(JSONObject response) {
                                         Log.i(TAG, "onSuccess MyNextWeb  ");
@@ -602,8 +603,6 @@ public class MainActivity extends Activity implements LocationListener {
 
         }
     }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -233,7 +233,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
         if ((bSmall && bThisIsMainActivity)
-                || (!bThisIsMainActivity && (locCurrent.getAccuracy()<0.5))  ){
+                || (!bThisIsMainActivity && (locCurrent.getAccuracy()>15) && (locCurrent.getAccuracy()!=0.0)) ) {
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.g40);
@@ -266,7 +266,7 @@ public class ChatHeadService extends Service implements LocationListener {
             }
         }
 
-        if (!bThisIsMainActivity && !(locCurrent.getAccuracy()<0.5)){
+        if (!bThisIsMainActivity && (locCurrent.getAccuracy()<=15)  && (locCurrent.getAccuracy()!=0.0)) {
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);
