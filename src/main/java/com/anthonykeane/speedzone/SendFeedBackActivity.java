@@ -18,7 +18,7 @@ public class SendFeedBackActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sendFeedback();
-        finish();
+        //finish();
 
     }
 

@@ -60,5 +60,10 @@
     android:icon="@drawable/debug"
     android:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/menu_feedback"
+        android:title="@string/sendFeedback"
+        android:showAsAction="ifRoom" />
+
 
 </menu>

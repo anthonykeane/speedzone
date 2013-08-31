@@ -187,11 +187,11 @@ public class ChatHeadService extends Service implements LocationListener {
 
     public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
-        if (!bThisIsMainActivity) bSmall = true;
+
         ImageButton img = (ImageButton) x;
 
 
-        if (!bSmall){
+        if (!bSmall && bThisIsMainActivity){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.b40);
@@ -223,7 +223,41 @@ public class ChatHeadService extends Service implements LocationListener {
 
             }
         }
-        else{
+
+        if (bSmall && bThisIsMainActivity){
+            switch (iSpeed){
+                case 40:
+                    img.setImageResource(R.drawable.g40);
+                    break;
+                case 50:
+                    img.setImageResource(R.drawable.g50);
+                    break;
+                case 60:
+                    img.setImageResource(R.drawable.g60);
+                    break;
+                case 70:
+                    img.setImageResource(R.drawable.g70);
+                    break;
+                case 80:
+                    img.setImageResource(R.drawable.g80);
+                    break;
+                case 90:
+                    img.setImageResource(R.drawable.g90);
+                    break;
+                case 100:
+                    img.setImageResource(R.drawable.g100);
+                    break;
+                case 110:
+                    img.setImageResource(R.drawable.g110);
+                    break;
+                default:
+                    img.setImageResource(R.drawable.g50);
+                    break;
+
+            }
+        }
+
+        if (!bThisIsMainActivity){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);
@@ -363,14 +397,14 @@ public class ChatHeadService extends Service implements LocationListener {
                             setGraphicBtnV(vImageButton, iSpeed, false);
 
                             HTTPrp2.put("reMainRoad", oneTo1(String.valueOf(jHereResult.getString("reMainRoad"))));
-                            HTTPrp2.put("rePrescribed",  oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));;
+                            HTTPrp2.put("rePrescribed",  oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));
 
 
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
                             fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                            iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
+                            iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
 
 
                             //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
@@ -406,9 +440,9 @@ public class ChatHeadService extends Service implements LocationListener {
 
                                                 }
                                                 final float v = (anmi > 1) ? 1 : anmi;
-                                                setDisplayScale((v<0.3)? (float) 0.3 :v);
+                                                setDisplayScale((v < 0.3) ? (float) 0.3 : v);
                                                 fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                                                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
+                                                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
                                                 updateDebugText();
                                             }
 
@@ -570,7 +604,6 @@ public class ChatHeadService extends Service implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
-/////////END  OF COMMON CODE//////////////////////////////////////////////////////////////////
 
     private void noGPS(boolean x){}
 
@@ -823,7 +856,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
 
 
-                        bYouMovedIt = ((StrictMath.abs(params.x - didwemove)>10))?true:false;
+                        bYouMovedIt = ((StrictMath.abs(params.x - didwemove) > 10));
                         //return true;
                         break;
                 }

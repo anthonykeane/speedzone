@@ -44,8 +44,8 @@
                 android:value=".MainActivity"/>
         </activity>
         <activity android:name=".PreferencesActivitySingle"/>
-        <activity android:name=".PreferencesActivity"></activity>
-
+        <activity android:name=".PreferencesActivity"/>
+        <activity android:name=".SendFeedBackActivity"/>
 
         <service android:name=".ChatHeadService" >
         </service>

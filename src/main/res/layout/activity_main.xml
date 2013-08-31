@@ -37,7 +37,7 @@
         <ImageButton
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:id="@+id/imageBtnSmall" android:src="@drawable/serror" android:scaleType="fitCenter" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed"/>
+            android:id="@+id/imageBtnSmall" android:src="@drawable/gerror" android:scaleType="fitCenter" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed"/>
 
         <ImageView
             android:layout_width="50dp"
@@ -45,6 +45,11 @@
             android:id="@+id/imageViewDebug" android:src="@drawable/debug" android:visibility="visible" android:layout_centerHorizontal="true" android:layout_alignParentEnd="false" android:adjustViewBounds="false" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"/>
 
     </LinearLayout>
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioButton" android:checked="true" android:layout_alignParentTop="true" android:layout_alignParentRight="true"/>
 
     <!--<Button-->
         <!--style="?android:attr/buttonStyleSmall"-->

@@ -171,4 +171,5 @@
     <string name="settings_soundKey">settings_soundKey</string>
     <string name="settings_debugKey">settings_debugKey</string>
     <item name="settings" type="id">Settings</item>
+    <item name="menu_feedback" type="id">menu_feedback</item>
 </resources>

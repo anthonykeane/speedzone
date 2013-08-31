@@ -1,15 +1,19 @@
 package com.anthonykeane.speedzone;
 
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.ApplicationErrorReport;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
@@ -20,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.loopj.android.http.AsyncHttpClient;
@@ -29,6 +34,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Locale;
 import java.util.Map;
 
@@ -72,8 +79,8 @@ public class MainActivity extends Activity implements LocationListener {
     private TextToSpeech mTts;
 
     public static final int delayBetweenGPS_Records = 10000;    //every 500mS log Geo date in Queue.
-    public static final long minTime = 3000;                   // don't update GPS if time < 3000mS
-    public static final float minDistanceGPS = 10;              // don't update GPS if distance < 30M
+    public static final long minTime = 1000;                   // don't update GPS if time < mS
+    public static final float minDistanceGPS = 0;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -149,7 +156,17 @@ public class MainActivity extends Activity implements LocationListener {
         locCurrent = location;
         Log.i("GPS", "onLocationChanged  ");
         if (iNotCommsLockedOut ==0){
-            callWebService();
+
+            // if params of locaton unchanged skip
+
+            if ((int)locLast.getSpeed() != (int)locCurrent.getSpeed()
+                && (int)(locLast.getBearing()/6) != (int)(locCurrent.getBearing()/6)){
+                callWebService();
+            }
+
+
+
+
         }
 
 
@@ -181,11 +198,11 @@ public class MainActivity extends Activity implements LocationListener {
 
     public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
-        if (!bThisIsMainActivity) bSmall = true;
+
         ImageButton img = (ImageButton) x;
 
 
-        if (!bSmall){
+        if (!bSmall && bThisIsMainActivity){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.b40);
@@ -217,7 +234,41 @@ public class MainActivity extends Activity implements LocationListener {
 
             }
         }
-        else{
+
+        if (bSmall && bThisIsMainActivity){
+            switch (iSpeed){
+                case 40:
+                    img.setImageResource(R.drawable.g40);
+                    break;
+                case 50:
+                    img.setImageResource(R.drawable.g50);
+                    break;
+                case 60:
+                    img.setImageResource(R.drawable.g60);
+                    break;
+                case 70:
+                    img.setImageResource(R.drawable.g70);
+                    break;
+                case 80:
+                    img.setImageResource(R.drawable.g80);
+                    break;
+                case 90:
+                    img.setImageResource(R.drawable.g90);
+                    break;
+                case 100:
+                    img.setImageResource(R.drawable.g100);
+                    break;
+                case 110:
+                    img.setImageResource(R.drawable.g110);
+                    break;
+                default:
+                    img.setImageResource(R.drawable.g50);
+                    break;
+
+            }
+        }
+
+        if (!bThisIsMainActivity){
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);
@@ -277,7 +328,7 @@ public class MainActivity extends Activity implements LocationListener {
         if (bDebug) {
             HTTPrp.put("lat", "-33.71013");
             HTTPrp.put("lon", "150.94951");
-            HTTPrp.put("ber", "100");
+            HTTPrp.put("ber", "280");
             HTTPrp.put("speed", "99");
             HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
@@ -291,6 +342,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             if(iNotCommsLockedOut == 0)
             {
+
                 client.post(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                     @Override
@@ -357,14 +409,14 @@ public class MainActivity extends Activity implements LocationListener {
                             setGraphicBtnV(vImageButton, iSpeed, false);
 
                             HTTPrp2.put("reMainRoad", oneTo1(String.valueOf(jHereResult.getString("reMainRoad"))));
-                            HTTPrp2.put("rePrescribed",  oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));;
+                            HTTPrp2.put("rePrescribed",  oneTo1(String.valueOf(jHereResult.getString("rePrescribed"))));
 
 
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
                             fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                            iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
+                            iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
 
 
                             //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
@@ -402,7 +454,7 @@ public class MainActivity extends Activity implements LocationListener {
                                                 final float v = (anmi > 1) ? 1 : anmi;
                                                 setDisplayScale((v<0.3)? (float) 0.3 :v);
                                                 fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                                                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange * 3.6 / fFiveValAvgSpeed));
+                                                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange  / fFiveValAvgSpeed));
                                                 updateDebugText();
                                             }
 
@@ -432,6 +484,7 @@ public class MainActivity extends Activity implements LocationListener {
                     @Override
                     public void onStart() {
                         // Completed the request (either success or failure)
+                        //toggleRadioButton();
                         Log.i(TAGd, "onStart  ");
                         bCommsTimedOut = true;
                         iNotCommsLockedOut++;
@@ -440,6 +493,7 @@ public class MainActivity extends Activity implements LocationListener {
                     @Override
                     public void onFinish() {
                         // Completed the request (either success or failure)
+                        toggleRadioButton();
                         iNotCommsLockedOut--;
                         if (iNotCommsLockedOut<=0) iNotCommsLockedOut = 0;
                         updateTimeoutIcon();
@@ -566,6 +620,12 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////MAIN - END  OF COMMON CODE////////////////////////////////////////////////////////////////////////////////////
 
+
+    private void toggleRadioButton() {
+
+        RadioButton b = (RadioButton)(findViewById(R.id.radioButton));
+        b.setChecked(!b.isChecked());
+    }
 
     private void updateTimeoutIcon() {
         if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
@@ -697,7 +757,34 @@ public class MainActivity extends Activity implements LocationListener {
         callWebService();
         updateTimeoutIcon();
         updateDebugIcon();
+
+//        //5000 is the starting number (in milliseconds)
+//        //1000 is the number to count down each time (in milliseconds)
+//        MyCount counter = new MyCount(5000,1000);
+//todo        counter.start();
+
+
     }
+
+    //countdowntimer is an abstract class, so extend it and fill in methods
+    public class MyCount extends CountDownTimer {
+        public MyCount(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+        @Override
+        public void onFinish() {
+            callWebService();
+        }
+        @Override
+        public void onTick(long millisUntilFinished) {
+            //tv.setText(”Left: ” + millisUntilFinished/1000);
+        }
+    }
+
+
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -751,6 +838,11 @@ public class MainActivity extends Activity implements LocationListener {
 //
                 return true;
 
+
+            case R.id.menu_feedback:
+                sendFeedback();
+                finish();
+                return true;
 
             case R.id.menu_debug:
                 bDebug = !bDebug;
@@ -841,6 +933,44 @@ public class MainActivity extends Activity implements LocationListener {
                 break;
         }
     }
+
+
+    @SuppressWarnings("unused")
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void sendFeedback() {
+        try {
+            int i = 3 / 0;
+        } catch (Exception e) {
+            ApplicationErrorReport report = new ApplicationErrorReport();
+            report.packageName = report.processName = getApplication().getPackageName();
+            report.time = System.currentTimeMillis();
+            report.type = ApplicationErrorReport.TYPE_CRASH;
+            report.systemApp = false;
+
+            ApplicationErrorReport.CrashInfo crash = new ApplicationErrorReport.CrashInfo();
+            crash.exceptionClassName = e.getClass().getSimpleName();
+            crash.exceptionMessage = e.getMessage();
+
+            StringWriter writer = new StringWriter();
+            PrintWriter printer = new PrintWriter(writer);
+            e.printStackTrace(printer);
+
+            crash.stackTrace = writer.toString();
+
+            StackTraceElement stack = e.getStackTrace()[0];
+            crash.throwClassName = stack.getClassName();
+            crash.throwFileName = stack.getFileName();
+            crash.throwLineNumber = stack.getLineNumber();
+            crash.throwMethodName = stack.getMethodName();
+
+            report.crashInfo = crash;
+
+            Intent intent = new Intent(Intent.ACTION_APP_ERROR);
+            intent.putExtra(Intent.EXTRA_BUG_REPORT, report);
+            startActivity(intent);
+        }
+    }
+
 
 
 
