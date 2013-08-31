@@ -188,7 +188,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void setDisplay(int tmp) {
         setGraphicBtnV(vImageButton, tmp,false);
-        setGraphicBtnV(vImageBtnSmall, tmp, true);
+        if(bThisIsMainActivity) setGraphicBtnV(vImageBtnSmall, tmp, true);
         DistanceToNextSpeedChange = tmp;
         iSpeed = tmp;
     }
@@ -339,7 +339,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             if(iNotCommsLockedOut == 0)
             {
-                client.post(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
+                client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                     @Override
                     public void onFailure(Throwable e, JSONArray errorResponse) {
@@ -421,7 +421,7 @@ public class MainActivity extends Activity implements LocationListener {
                             if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
                                 Log.i(TAG, "onSuccess  Getting Speec change");
-                                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                                client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(JSONObject response) {
                                         Log.i(TAG, "onSuccess MyNextWeb  ");
@@ -498,10 +498,10 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            Log.i(TAG, "doStuff - no value for Lat");
         }
     }
-
     private String oneTo1(String x) {
         if(x.equals("\u0001")){
             return "1";
@@ -557,7 +557,7 @@ public class MainActivity extends Activity implements LocationListener {
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
-                noGPS((locCurrent.getAccuracy() < 0.5));
+                noGPS((locCurrent.getLatitude() == 0.0));
                 if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebService();
                 }
@@ -658,18 +658,18 @@ public class MainActivity extends Activity implements LocationListener {
 //            x = String.valueOf((int)DistanceToNextSpeedChange) + "M           or       "+ String.valueOf((int) (iSecondsToSpeedChange)) + "Sec\n";
 //        }
 
-        if (bDebug) {
-            String x = String.valueOf(DistanceToNextSpeedChange) + "  " + String.valueOf(iSecondsToSpeedChange) + "\n";
-            setDebugText(itextView, x);
-            x = "\n\n\n\n\n" + String.valueOf(jHereResult.getString("reLon")) + " ,  " + String.valueOf(jHereResult.getString("reLat") + " ,  " + String.valueOf(jHereResult.getString("reBearing")));
-            setDebugText(itextView2, x);
-        } else {
-            setDebugText(itextView, "");
-            setDebugText(itextView2, "");
+
+            if (bDebug) {
+                String x = String.valueOf(DistanceToNextSpeedChange) + "  " + String.valueOf(iSecondsToSpeedChange) + "\n";
+                setDebugText(itextView, x);
+                x = "\n\n\n\n\n" + locCurrent.getLatitude() + "," + locCurrent.getLongitude() + " ,  B:" + locCurrent.getBearing()   + " ,  A:" +  locCurrent.getAccuracy()           ;
+                setDebugText(itextView2, x);
+            } else {
+                setDebugText(itextView, "");
+                setDebugText(itextView2, "");
+            }
+
         }
-
-    }
-
 
     //todo
 //    public static Context getAppContext() {

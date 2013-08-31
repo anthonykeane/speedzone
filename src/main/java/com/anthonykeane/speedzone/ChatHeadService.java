@@ -188,7 +188,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     private void setDisplay(int tmp) {
         setGraphicBtnV(vImageButton, tmp,false);
-        setGraphicBtnV(vImageBtnSmall, tmp, true);
+        if(bThisIsMainActivity) setGraphicBtnV(vImageBtnSmall, tmp, true);
         DistanceToNextSpeedChange = tmp;
         iSpeed = tmp;
     }
@@ -323,7 +323,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
 
-        if ((0.0 == locCurrent.getLatitude()) && bDebug) {
+        if ((locCurrent.getAccuracy()>=15) && bDebug) {
             HTTPrp.put("lat", "-33.71013");
             HTTPrp.put("lon", "150.94951");
             HTTPrp.put("ber", "100");
@@ -335,7 +335,7 @@ public class ChatHeadService extends Service implements LocationListener {
         //HTTPrp.put("ber", "133");
 
         //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
-        if ((0.0 != locCurrent.getLatitude()) || bDebug)
+        if ((locCurrent.getAccuracy()<15)  || bDebug)
         {
 
             if(iNotCommsLockedOut == 0)
@@ -391,7 +391,7 @@ public class ChatHeadService extends Service implements LocationListener {
                                 try {
                                     mTts.speak("the Speed is now " + String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    Log.i(TAG, "onSuccess  TTS gaf");;
                                 }
                             }
 
@@ -559,7 +559,7 @@ public class ChatHeadService extends Service implements LocationListener {
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
-                noGPS((locCurrent.getAccuracy() < 0.5));
+                noGPS((locCurrent.getLatitude() == 0.0));
                 if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebService();
                 }
@@ -684,15 +684,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
     private void updateDebugText() throws JSONException {
-        if (bDebug) {
-            String x = String.valueOf(DistanceToNextSpeedChange) + "  " + String.valueOf(iSecondsToSpeedChange) + "\n";
-            setDebugText(itextView, x);
-            x = "\n\n\n\n\n" + String.valueOf(jHereResult.getString("reLon")) + " ,  " + String.valueOf(jHereResult.getString("reLat") + " ,  " + String.valueOf(jHereResult.getString("reBearing")));
-            setDebugText(itextView2, x);
-        } else {
-            setDebugText(itextView, "");
-            setDebugText(itextView2, "");
-        }
+
 
     }
 
@@ -749,7 +741,8 @@ public class ChatHeadService extends Service implements LocationListener {
             updateDebugIcon();
             iSpeed =  intent.getIntExtra("iSpeed", 50);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.i(TAG, "onStartCommand  ");
+            //e.printStackTrace();
             Log.i(TAG, "onStartCommand  Exception");
             return 0;
         }
