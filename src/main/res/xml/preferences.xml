@@ -117,43 +117,43 @@
 
 
 
-    <PreferenceScreen android:title="Advanced Options">
+    <!--<PreferenceScreen android:title="Advanced Options">-->
 
-    <CheckBoxPreference
-    android:key="Advanced_Option"
-    android:title="Advanced Option"
-    android:defaultValue="true"
-    android:summary="SUMMARY_Advanced_Option"/>
+    <!--<CheckBoxPreference-->
+    <!--android:key="Advanced_Option"-->
+    <!--android:title="Advanced Option"-->
+    <!--android:defaultValue="true"-->
+    <!--android:summary="SUMMARY_Advanced_Option"/>-->
 
-    </PreferenceScreen>
-
-
-    <com.anthonykeane.speedzone.SeekBarPreference
-        android:key="customPref"
-        android:defaultValue="32"
-        android:title="@string/settings_aboutTitle"
-        android:summary="@string/settings_aboutSummary"/>
-
-    <EditTextPreference
-        android:key="@string/settings_VersionKey"
-        android:title="@string/settings_userVersionTitle"
-        android:summary="@string/settings_userVersionSummary"
-        android:dialogTitle="@string/settings_userVersionTitle"
-        android:inputType="text"
-        android:dialogMessage="@string/settings_userVersionSummary"
-        android:editable="false"
-        android:defaultValue=""/>
+    <!--</PreferenceScreen>-->
 
 
-    <PreferenceCategory android:title="@string/sendFeedback">
-        <PreferenceScreen
-            android:title="@string/settings_FeedbackTitle"
-            android:summary="@string/settings_FeedbackSummary">
-            <intent android:action="SendFeedBackActivity"/>
+    <!--<com.anthonykeane.speedzone.SeekBarPreference-->
+        <!--android:key="customPref"-->
+        <!--android:defaultValue="32"-->
+        <!--android:title="@string/settings_aboutTitle"-->
+        <!--android:summary="@string/settings_aboutSummary"/>-->
+
+    <!--<EditTextPreference-->
+        <!--android:key="@string/settings_VersionKey"-->
+        <!--android:title="@string/settings_userVersionTitle"-->
+        <!--android:summary="@string/settings_userVersionSummary"-->
+        <!--android:dialogTitle="@string/settings_userVersionTitle"-->
+        <!--android:inputType="text"-->
+        <!--android:dialogMessage="@string/settings_userVersionSummary"-->
+        <!--android:editable="false"-->
+        <!--android:defaultValue=""/>-->
 
 
-        </PreferenceScreen>
-    </PreferenceCategory>
+    <!--<PreferenceCategory android:title="@string/sendFeedback">-->
+        <!--<PreferenceScreen-->
+            <!--android:title="@string/settings_FeedbackTitle"-->
+            <!--android:summary="@string/settings_FeedbackSummary">-->
+            <!--<intent android:action="SendFeedBackActivity"/>-->
+
+
+        <!--</PreferenceScreen>-->
+    <!--</PreferenceCategory>-->
 
 
 </PreferenceScreen>
