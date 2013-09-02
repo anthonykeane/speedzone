@@ -23,10 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageButton;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -161,7 +158,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             if ((int) locLast.getSpeed() != (int) locCurrent.getSpeed()
                     && (int) (locLast.getBearing() / 6) != (int) (locCurrent.getBearing() / 6)) {
-                callWebService();
+                callWebServiceHere();
             }
             doStuff();
         }
@@ -302,12 +299,15 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
 
-    private void callWebService() {
+
+
+
+    private void callWebServiceHere() {
 
         Time now = new Time();
         now.setToNow();
         String xxx = now.format("%Y-%m-%d %H:%M:%S");
-        Log.i(TAG, "callWebService  " + xxx + "                     *");
+        Log.i(TAG, "callWebServiceHere  " + xxx + "                     *");
 
         HTTPrp.put("When", xxx);
         HTTPrp.put("UUID", sUUID);
@@ -331,6 +331,11 @@ public class MainActivity extends Activity implements LocationListener {
             HTTPrp.put("UUID", "test-" + sUUID);
             HTTPrp.put("When", xxx);
         }
+
+
+        HTTPrp.put("ber", "100");
+
+
 //     -34.069 151.0136
         //HTTPrp.put("ber", "133");
 
@@ -373,19 +378,7 @@ public class MainActivity extends Activity implements LocationListener {
                         Log.i(TAGd, "           onSuccess  ");
                         jHereResult = response;
                         try {
-                            //Calculate Distance
-                            me = new Location("");
-                            dest = new Location("");
-                            me.setLatitude(locCurrent.getLatitude());
-                            me.setLongitude(locCurrent.getLongitude());
-                            try {
-                                dest.setLatitude(jThereResult.getDouble("reLat"));
-                                dest.setLongitude(jThereResult.getDouble("reLon"));
-                                DistanceToNextSpeedChange = me.distanceTo(dest);
-                            } catch (JSONException e) {
-                                Log.i(TAG, "onSuccess - No value for reLat");
-                            }
-
+                           doStuff();
 
                             if (!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit"))) {
                                 try {
@@ -406,8 +399,8 @@ public class MainActivity extends Activity implements LocationListener {
                             HTTPrp2.put("RE", String.valueOf(jHereResult.getString("RE")));
                             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
                             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
-                            fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                            iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
+//                            fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
+//                            iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
 
 
                             //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
@@ -418,31 +411,8 @@ public class MainActivity extends Activity implements LocationListener {
                                 updateDebugText();
                             }
 
+                            MyNextWebService();
 
-                            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
-                            {
-                                Log.i(TAG, "onSuccess  Getting Speec change");
-                                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
-                                    @Override
-                                    public void onSuccess(JSONObject response) {
-                                        Log.i(TAG, "onSuccess MyNextWeb  ");
-                                        bCommsTimedOut = false;
-                                        jThereResult = response;
-
-                                        doStuff();
-
-                                    }
-
-                                    @Override
-                                    public void onFinish() {
-                                        // Completed the request (either success or failure)
-
-                                        updateTimeoutIcon();
-                                        Log.i(TAGd, "onFinish  ");
-                                    }
-                                });
-
-                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -476,10 +446,37 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
+
+
+    private void MyNextWebService() {
+        if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+        {
+            Log.i(TAG, "onSuccess  Getting Speec change");
+            client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(JSONObject response) {
+                    Log.i(TAG, "onSuccess MyNextWeb  ");
+                    bCommsTimedOut = false;
+                    jThereResult = response;
+                    doStuff();
+                }
+                @Override
+                public void onFinish() {
+                    // Completed the request (either success or failure)
+
+                    updateTimeoutIcon();
+                    Log.i(TAGd, "onFinish  ");
+                }
+            });
+        }
+    }
     private void doStuff() {
         try {
+            me.setLatitude(locCurrent.getLatitude());
+            me.setLongitude(locCurrent.getLongitude());
             dest.setLatitude(jThereResult.getDouble("reLat"));
             dest.setLongitude(jThereResult.getDouble("reLon"));
+
             DistanceToNextSpeedChange = me.distanceTo(dest) - iDistanceOffset;
             if (bThisIsMainActivity) {
 
@@ -559,8 +556,9 @@ public class MainActivity extends Activity implements LocationListener {
             @Override
             public void run() {
                 noGPS((locCurrent.getLatitude() == 0.0));
-                if (iNotCommsLockedOut < 6){    // DON'T LET THE COMMS QUEUE GET TO BUG
-                    callWebService();
+                if (iNotCommsLockedOut < 3){    // DON'T LET THE COMMS QUEUE GET TO BUG
+                    callWebServiceHere();
+                    callPOI();
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
 
@@ -730,7 +728,7 @@ public class MainActivity extends Activity implements LocationListener {
                 bZoneError = true;
                 ImageButton imgerr = (ImageButton) vErrorButton;
                 imgerr.setVisibility(View.VISIBLE);
-                callWebService();
+                callWebServiceHere();
                 return true;
             }
         });
@@ -749,7 +747,7 @@ public class MainActivity extends Activity implements LocationListener {
                 bZoneError = false;
                 ImageButton imgerr = (ImageButton) vErrorButton;
                 imgerr.setVisibility(View.INVISIBLE);
-                callWebService();
+                callWebServiceHere();
                 return true;
             }
         });
@@ -768,7 +766,7 @@ public class MainActivity extends Activity implements LocationListener {
 //            e.printStackTrace();
 //        }
 
-        callWebService();
+        callWebServiceHere();
         updateTimeoutIcon();
         updateDebugIcon();
 
@@ -787,7 +785,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
         @Override
         public void onFinish() {
-            callWebService();
+            callWebServiceHere();
         }
         @Override
         public void onTick(long millisUntilFinished) {
@@ -819,7 +817,7 @@ public class MainActivity extends Activity implements LocationListener {
                 Bundle extras;
                 intent = new Intent(MainActivity.this, ChatHeadService.class);
                 intent.putExtra("TheOK", true);
-                intent.putExtra(sUUID, "");
+                intent.putExtra(sUUID, "sUUID");
                 Log.i(TAG, "bDebug is  " + bDebug);
                 intent.putExtra("bDebug", bDebug);
                 intent.putExtra("bCommsTimedOut", bCommsTimedOut);
@@ -866,7 +864,7 @@ public class MainActivity extends Activity implements LocationListener {
                 } catch (JSONException e) {
                     Log.i(TAG, "onOptionsItemSelected - No Value for reLon");
                 }
-                callWebService();
+                callWebServiceHere();
                 Toast.makeText(this, String.valueOf(bDebug), Toast.LENGTH_SHORT).show();
                 return true;
 
@@ -974,6 +972,49 @@ public class MainActivity extends Activity implements LocationListener {
             startActivity(intent);
         }
     }
+
+
+
+
+    private void callPOI(){
+
+
+        HTTPrp2.put("lat", String.valueOf(locCurrent.getLatitude()));
+        HTTPrp2.put("lon", String.valueOf(locCurrent.getLongitude()));
+        HTTPrp2.put("ber", String.valueOf(locCurrent.getBearing()));
+        HTTPrp2.put("speed", String.valueOf(locCurrent.getSpeed()));
+
+        client.get(getString(R.string.MyPOIWeb), HTTPrp2, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(JSONObject response) {
+
+//                try {
+//                    setDebugText(itextView, "SPEED TRAP");
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+
+                ImageView img = (ImageView) findViewById(R.id.imageAlert);
+                img.setVisibility(View.VISIBLE);
+
+            }
+
+            @Override
+            public void onFinish() {
+                // Completed the request (either success or failure)
+
+
+                ImageView img = (ImageView) findViewById(R.id.imageAlert);
+                img.setVisibility(View.GONE);
+
+            }
+        });
+
+    }
+
+
+
+
 
 
 

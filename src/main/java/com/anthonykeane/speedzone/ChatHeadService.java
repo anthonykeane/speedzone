@@ -95,7 +95,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     public float DistanceToNextSpeedChange = 0;            //any BIG number or zero
     public int iSecondsToSpeedChange = 0;
-    private static String sUUID = "";
+    private static String sUUID;
 
     private static LocationManager locManager;
     private View vImageButton;
@@ -195,10 +195,12 @@ public class ChatHeadService extends Service implements LocationListener {
     public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
 
+
         ImageButton img = (ImageButton) x;
 
 
         if (!bSmall && bThisIsMainActivity){
+            Log.i(TAG, "setGraphicBtnV 1 "+ iSpeed + " - " + bSmall);
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.b40);
@@ -231,8 +233,8 @@ public class ChatHeadService extends Service implements LocationListener {
             }
         }
 
-        if ((bSmall && bThisIsMainActivity)
-                || (!bThisIsMainActivity && (locCurrent.getAccuracy()>15) && (locCurrent.getAccuracy()!=0.0)) ) {
+        if ((bSmall && bThisIsMainActivity) || (!bThisIsMainActivity && ((locCurrent.getAccuracy()>15) || (locCurrent.getAccuracy()==0.0))) ) {
+            Log.i(TAG, "setGraphicBtnV 2 "+ iSpeed + " - " + bSmall);
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.g40);
@@ -265,7 +267,8 @@ public class ChatHeadService extends Service implements LocationListener {
             }
         }
 
-        if (!bThisIsMainActivity && (locCurrent.getAccuracy()<=15)  && (locCurrent.getAccuracy()!=0.0)) {
+        if (!bThisIsMainActivity && (locCurrent.getAccuracy()<=15)  && !((locCurrent.getAccuracy()>15) || (locCurrent.getAccuracy()==0.0))) {
+            Log.i(TAG, "setGraphicBtnV 3 "+ iSpeed + " - " + bSmall);
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);
@@ -306,7 +309,7 @@ public class ChatHeadService extends Service implements LocationListener {
         Time now = new Time();
         now.setToNow();
         String xxx = now.format("%Y-%m-%d %H:%M:%S");
-        Log.i(TAG, "callWebService  " + xxx + "                     *");
+        Log.i(TAGd, "callWebService  " + xxx + "                     *");
 
         HTTPrp.put("When", xxx);
         HTTPrp.put("UUID", sUUID);
@@ -339,7 +342,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
             if(iNotCommsLockedOut == 0)
             {
-                client.post(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
+                client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                     @Override
                     public void onFailure(Throwable e, JSONArray errorResponse) {
@@ -410,7 +413,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
                             //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
-                            Log.i(TAG, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
+                            Log.i(TAGd, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
 
 
                             if (bThisIsMainActivity) {
@@ -420,8 +423,8 @@ public class ChatHeadService extends Service implements LocationListener {
 
                             if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
                             {
-                                Log.i(TAG, "onSuccess  Getting Speec change");
-                                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                                Log.i(TAGd, "onSuccess  Getting Speec change");
+                                client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(JSONObject response) {
                                         Log.i(TAG, "onSuccess MyNextWeb  ");
@@ -701,7 +704,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand  2?");
+        Log.i(TAG, "2.2 onStartCommand");
 
         final View chatHead = inflater.inflate(R.layout.chat_head, null);
 
@@ -721,9 +724,6 @@ public class ChatHeadService extends Service implements LocationListener {
         //Start the GPS listener
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
 
-        callWebService();
-        handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
-
 
         boolean bOK;
 
@@ -731,15 +731,13 @@ public class ChatHeadService extends Service implements LocationListener {
             bOK = intent.getBooleanExtra("TheOK",false);
             sUUID = intent.getStringExtra("sUUID");
             bDebug = intent.getBooleanExtra("bDebug",false);
-            Log.i(TAG, "bDebug is  "+bDebug);
-            updateDebugIcon();
             bCommsTimedOut = intent.getBooleanExtra("bCommsTimedOut",false);
-            Log.i(TAG, "bCommsTimedOut is  "+bCommsTimedOut);
+            Log.i(TAG, "2.2 bCommsTimedOut is  "+bCommsTimedOut);
+            Log.i(TAG, "2.2 bDebug is  "+bDebug);
             updateTimeoutIcon();
             updateDebugIcon();
             iSpeed =  intent.getIntExtra("iSpeed", 50);
         } catch (Exception e) {
-            Log.i(TAG, "onStartCommand  ");
             //e.printStackTrace();
             Log.i(TAG, "onStartCommand  Exception");
             return 0;
@@ -756,9 +754,12 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
 
-
         // got iSpeed above
         setGraphicBtnV(vImageButton, iSpeed, true);
+
+        callWebService();
+        handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
+
 
 
         vImageButton.setOnLongClickListener(new View.OnLongClickListener() {
