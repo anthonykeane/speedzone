@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -34,6 +35,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 
+import static java.lang.Math.abs;
 import static java.util.UUID.randomUUID;
 
 
@@ -157,15 +159,21 @@ public class MainActivity extends Activity implements LocationListener {
         DistanceToNextSpeedChange = (int)(me.distanceTo(dest) - iDistanceOffset);
         DistanceToPOI = (int)( me.distanceTo(poi) - iDistanceOffset);
         Log.i("GPS", "onLocationChanged  ");
+
+
+
+
+
         if (iNotCommsLockedOut ==0){
-
             // if params of locaton unchanged skip
-
-            if ((int) locLast.getSpeed() != (int) locCurrent.getSpeed()
-                    && (int) (locLast.getBearing() / 6) != (int) (locCurrent.getBearing() / 6)) {
+            if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>2.0)
+                ||  (abs(locLast.getBearing()-locCurrent.getBearing())>15.0)
+                || (DistanceToNextSpeedChange<50)
+                || (DistanceToPOI < 50)    )
+            {
                 callWebServiceHere();
             }
-            doStuff();
+            //doStuff();
         }
 
         updateDebugText();
@@ -302,6 +310,7 @@ public class MainActivity extends Activity implements LocationListener {
             }
 
         }
+       img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely) );
     }
 
 
@@ -357,7 +366,7 @@ public class MainActivity extends Activity implements LocationListener {
                         @Override
                         public void onFailure(Throwable e, JSONArray errorResponse) {
                             System.out.println(e);
-                            Log.i(TAG, "onFailure  1");
+                            Log.i(TAG, "onFailure  1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
                             //if (locCurrent.getSpeed() >= 40)
@@ -498,10 +507,10 @@ public class MainActivity extends Activity implements LocationListener {
             DistanceToNextSpeedChange = (int)(me.distanceTo(dest) - iDistanceOffset);
             if (bThisIsMainActivity) {
 
-                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
+                if (!bCommsTimedOut) setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
 
                 fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
+                iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / (fFiveValAvgSpeed+1)));
                 updateDebugText();
             }
 
@@ -569,7 +578,6 @@ public class MainActivity extends Activity implements LocationListener {
                 noGPS((locCurrent.getLatitude() == 0.0));
                 if (iNotCommsLockedOut < 3){    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebServiceHere();
-                    callPOI();
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
 
@@ -607,7 +615,7 @@ public class MainActivity extends Activity implements LocationListener {
     public void NeedToResetDisplay() {
         iNeedToResetDisplay++;
         if (iNeedToResetDisplay>3){
-            setDisplay(0);
+            setDisplay(50);
             iNeedToResetDisplay = 0;
 
         }
@@ -633,7 +641,7 @@ public class MainActivity extends Activity implements LocationListener {
     if (bNoGps) {
         textView.setVisibility(View.VISIBLE);
     } else {
-        textView.setVisibility(View.GONE);
+        textView.setVisibility(View.INVISIBLE);
     }
 }
 
@@ -646,7 +654,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void updateTimeoutIcon() {
         if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
-        else{ vImageViewTimeout.setVisibility(View.GONE); }
+        else{ vImageViewTimeout.setVisibility(View.INVISIBLE); }
     }
 
 
@@ -654,7 +662,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void updateDebugIcon() {
         if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
-        else{ vImageViewDebug.setVisibility(View.GONE); }
+        else{ vImageViewDebug.setVisibility(View.INVISIBLE); }
     }
 
 
@@ -665,7 +673,9 @@ public class MainActivity extends Activity implements LocationListener {
 //        else{
 //            x = String.valueOf((int)DistanceToNextSpeedChange) + "M           or       "+ String.valueOf((int) (iSecondsToSpeedChange)) + "Sec\n";
 //        }
-
+        ProgressBar pBap = (ProgressBar) findViewById(R.id.progressBar);
+        pBap.setProgress(1500-DistanceToNextSpeedChange);
+        pBap.setSecondaryProgress(1500- DistanceToPOI);
            try
            {
                 if (bDebug) {
@@ -872,6 +882,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             case R.id.menu_debug:
                 bDebug = !bDebug;
+                vImageBtnSmall.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely));
                 updateDebugIcon();
                 updateDebugText();
                 callWebServiceHere();

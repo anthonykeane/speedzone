@@ -47,7 +47,7 @@ public class ChatHeadService extends Service implements LocationListener {
     private static final boolean bThisIsMainActivity = false;
     private static final String TAG = "ChatHead::Service";
     private static final String TAGd = "ChatHead::Service_focus";
-
+    private   boolean toDIE = false;
 
 
 //    < click here
@@ -129,7 +129,9 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         Log.i(TAG, "onDestroy  5");
+        toDIE =true;
         handler.removeCallbacks(timedGPSqueue);
 
         try { // Turn Off the GPS
@@ -147,6 +149,8 @@ public class ChatHeadService extends Service implements LocationListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 
     @Override
@@ -563,6 +567,8 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
     private final Runnable timedGPSqueue; {
+
+
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
@@ -571,7 +577,15 @@ public class ChatHeadService extends Service implements LocationListener {
                     callWebServiceHere();
                     callPOI();
                 }
-                handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
+
+                if(!toDIE){
+                    Log.i(TAG, "run  "+ toDIE);
+                    handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
+                }else{
+                    Log.i(TAG, "run  "+ toDIE);
+                    onDestroy();
+
+                }
 
                 Log.i(TAG, "run  REPEAT TIMER  "+ locCurrent.getAccuracy());
             }
@@ -713,7 +727,7 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "2.2 onStartCommand");
-
+        toDIE = false;
         final View chatHead = inflater.inflate(R.layout.chat_head, null);
 
         if (chatHead != null)
@@ -959,6 +973,7 @@ public class ChatHeadService extends Service implements LocationListener {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 
     public void gpsUpdated() {
         Log.i(TAGd, "gpsUpdated  ");
