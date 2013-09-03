@@ -357,7 +357,7 @@ public class MainActivity extends Activity implements LocationListener {
                         @Override
                         public void onFailure(Throwable e, JSONArray errorResponse) {
                             System.out.println(e);
-                            Log.i(TAGd, "onFailure  1");
+                            Log.i(TAG, "onFailure  1");
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
                             //if (locCurrent.getSpeed() >= 40)
@@ -370,7 +370,7 @@ public class MainActivity extends Activity implements LocationListener {
                         @Override
                         public void onFailure(Throwable e, JSONObject errorResponse) {
                             System.out.println(e);
-                            Log.i(TAGd, "onFailure  2");
+                            Log.i(TAG, "onFailure  2");
                             bCommsTimedOut = false;
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
@@ -382,7 +382,7 @@ public class MainActivity extends Activity implements LocationListener {
                         @Override
                         public void onSuccess(JSONObject response) {
                             bCommsTimedOut = false;
-                            Log.i(TAGd, "           onSuccess  ");
+                            Log.i(TAG, "           onSuccess  ");
                             jHereResult = response;
                             try {
                                doStuff();
@@ -420,7 +420,7 @@ public class MainActivity extends Activity implements LocationListener {
                         public void onStart() {
                             // Completed the request (either success or failure)
                             //toggleRadioButton();
-                            Log.i(TAGd, "onStart  ");
+                            Log.i(TAG, "onStart  ");
                             bCommsTimedOut = true;
                             iNotCommsLockedOut++;
                         }
@@ -435,7 +435,7 @@ public class MainActivity extends Activity implements LocationListener {
                             if (bCommsTimedOut) {
                                 setDisplay(0);
                             }
-                            Log.i(TAGd, "                       onFinish  ");
+                            Log.i(TAG, "                       onFinish  ");
                         }
                     });
                 }
@@ -460,7 +460,7 @@ public class MainActivity extends Activity implements LocationListener {
                 client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject response) {
-                        Log.i(TAG, "onSuccess MyNextWeb  ");
+                        Log.i(TAGd, "onSuccess MyNextWeb  ");
                         bCommsTimedOut = false;
                         jThereResult = response;
                         doStuff();
@@ -469,7 +469,7 @@ public class MainActivity extends Activity implements LocationListener {
                     @Override
                     public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                        Log.i(TAGd, "onFailure  3");
+                        Log.i(TAGd, "onFailure  next");
                         DistanceToNextSpeedChange = 0;
 
                     }
@@ -480,7 +480,7 @@ public class MainActivity extends Activity implements LocationListener {
                         // Completed the request (either success or failure)
 
                         updateTimeoutIcon();
-                        Log.i(TAGd, "onFinish  ");
+                        Log.i(TAGd, "onFinish  next");
                     }
                 });
             }
@@ -669,7 +669,7 @@ public class MainActivity extends Activity implements LocationListener {
            try
            {
                 if (bDebug) {
-                    String x = "dSpeed " + String.valueOf(DistanceToNextSpeedChange) + "  dPOI" + String.valueOf(DistanceToPOI) + "\n";
+                    String x = "dSpeed " + String.valueOf(DistanceToNextSpeedChange) + "  dPOI " + String.valueOf(DistanceToPOI) + "\n";
                     setDebugText(itextView, x);
                     x = "\n\n\n\n\n" + locCurrent.getLatitude() + "," + locCurrent.getLongitude() + " ,  B:" + locCurrent.getBearing()   + " ,  A:" +  locCurrent.getAccuracy()           ;
                     setDebugText(itextView2, x);
@@ -1005,6 +1005,7 @@ public class MainActivity extends Activity implements LocationListener {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        Log.i(TAGd, "onSuccess  POI 3");
                         ImageView img = (ImageView) findViewById(R.id.imageAlert);
                         img.setVisibility(View.VISIBLE);
                     }
@@ -1012,7 +1013,7 @@ public class MainActivity extends Activity implements LocationListener {
                     @Override
                     public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                        Log.i(TAGd, "onFailure  3");
+                        Log.i(TAGd, "onFailure  POI 3");
                         DistanceToPOI = 0;
                         // Completed the request (either success or failure)
                         ImageView img = (ImageView) findViewById(R.id.imageAlert);
