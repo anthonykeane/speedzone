@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="---"
-        android:id="@+id/textView" android:layout_gravity="center" android:autoText="false" android:textSize="40dp" android:layout_alignParentLeft="true" android:layout_marginLeft="14dp" android:layout_alignParentTop="true"/>
+        android:id="@+id/textView" android:layout_gravity="center" android:autoText="false" android:textSize="20dp" android:layout_alignParentLeft="true" android:layout_marginLeft="14dp" android:layout_alignParentTop="true"/>
 
     <TextView
         android:layout_width="match_parent"
