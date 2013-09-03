@@ -1022,31 +1022,32 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
     private void callPOI(){
+        if ((locCurrent.getBearing()!= 0.0) || bDebug)
+        {
+            RequestParams HTTPrpA = new RequestParams();
+            HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
+            HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
+            HTTPrpA.put("ber", String.valueOf(locCurrent.getBearing()));
+            HTTPrpA.put("speed", String.valueOf(locCurrent.getSpeed()));
 
-        RequestParams HTTPrpA = new RequestParams();
-        HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
-        HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
-        HTTPrpA.put("ber", String.valueOf(locCurrent.getBearing()));
-        HTTPrpA.put("speed", String.valueOf(locCurrent.getSpeed()));
+            client.get(getString(R.string.MyPOIWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(JSONObject response) {
+                    try {
+                        poi.setLatitude(response.getDouble("reLat"));
+                        poi.setLongitude(response.getDouble("reLon"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-        client.get(getString(R.string.MyPOIWeb), HTTPrp2, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(JSONObject response) {
-                try {
-                    poi.setLatitude(response.getDouble("reLat"));
-                    poi.setLongitude(response.getDouble("reLon"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+                @Override
+                public void onFinish() {
+                    // Completed the request (either success or failure)
 
-            }
-            @Override
-            public void onFinish() {
-                // Completed the request (either success or failure)
-
-            }
-        });
-
+                }
+            });
+        }
     }
 
 

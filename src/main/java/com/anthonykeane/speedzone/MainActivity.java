@@ -453,30 +453,29 @@ public class MainActivity extends Activity implements LocationListener {
             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
 
+            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+            {
+                Log.i(TAG, "onSuccess  Getting Speec change");
+                client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(JSONObject response) {
+                        Log.i(TAG, "onSuccess MyNextWeb  ");
+                        bCommsTimedOut = false;
+                        jThereResult = response;
+                        doStuff();
+                    }
+                    @Override
+                    public void onFinish() {
+                        // Completed the request (either success or failure)
+
+                        updateTimeoutIcon();
+                        Log.i(TAGd, "onFinish  ");
+                    }
+                });
+            }
         } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
-        {
-            Log.i(TAG, "onSuccess  Getting Speec change");
-            client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(JSONObject response) {
-                    Log.i(TAG, "onSuccess MyNextWeb  ");
-                    bCommsTimedOut = false;
-                    jThereResult = response;
-                    doStuff();
-                }
-                @Override
-                public void onFinish() {
-                    // Completed the request (either success or failure)
-
-                    updateTimeoutIcon();
-                    Log.i(TAGd, "onFinish  ");
-                }
-            });
-        }
+        Log.i(TAG, "MyNextWebService  NO HereResult");
+    }
     }
     private void doStuff() {
         try {
@@ -489,14 +488,7 @@ public class MainActivity extends Activity implements LocationListener {
             if (bThisIsMainActivity) {
 
                 setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
-                //Resize the image based on distance to.
-//                float anmi = 0;
-//                if (DistanceToNextSpeedChange != 0) {
-//                    anmi = 1 / ((DistanceToNextSpeedChange + 1) / 1000);
-//
-//                }
-//                final float v = (anmi > 1) ? 1 : anmi;
-//                setDisplayScale((v<0.3)? (float) 0.3 :v);
+
                 fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
                 iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / fFiveValAvgSpeed));
                 updateDebugText();
@@ -984,34 +976,35 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     private void callPOI(){
+        if ((locCurrent.getBearing()!= 0.0) || bDebug)
+        {
+            RequestParams HTTPrpA = new RequestParams();
+            HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
+            HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
+            HTTPrpA.put("ber", String.valueOf(locCurrent.getBearing()));
+            HTTPrpA.put("speed", String.valueOf(locCurrent.getSpeed()));
 
-        RequestParams HTTPrpA = new RequestParams();
-        HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
-        HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
-        HTTPrpA.put("ber", String.valueOf(locCurrent.getBearing()));
-        HTTPrpA.put("speed", String.valueOf(locCurrent.getSpeed()));
-
-        client.get(getString(R.string.MyPOIWeb), HTTPrp2, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(JSONObject response) {
-                try {
-                    poi.setLatitude(response.getDouble("reLat"));
-                    poi.setLongitude(response.getDouble("reLon"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            client.get(getString(R.string.MyPOIWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(JSONObject response) {
+                    try {
+                        poi.setLatitude(response.getDouble("reLat"));
+                        poi.setLongitude(response.getDouble("reLon"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    ImageView img = (ImageView) findViewById(R.id.imageAlert);
+                    img.setVisibility(View.VISIBLE);
                 }
-                ImageView img = (ImageView) findViewById(R.id.imageAlert);
-                img.setVisibility(View.VISIBLE);
-            }
-            @Override
-            public void onFinish() {
-                // Completed the request (either success or failure)
-                ImageView img = (ImageView) findViewById(R.id.imageAlert);
-                img.setVisibility(View.GONE);
+                @Override
+                public void onFinish() {
+                    // Completed the request (either success or failure)
+                    ImageView img = (ImageView) findViewById(R.id.imageAlert);
+                    img.setVisibility(View.GONE);
 
-            }
-        });
-
+                }
+            });
+        }
     }
 
 
