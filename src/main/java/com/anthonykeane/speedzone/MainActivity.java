@@ -27,7 +27,6 @@ import android.widget.*;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -122,7 +121,10 @@ public class MainActivity extends Activity implements LocationListener {
     public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
     public boolean bCommsTimedOut = false;
     private boolean bMute = false;
-    private int iDistanceOffset = 50;
+    private int iDistanceOffset = 0;    // don't think this helps
+    private int iDisplayingB = 0;
+    private int iDisplayingG = 0;
+    private int iDisplayingS = 0;
 
 
     @Override
@@ -158,7 +160,7 @@ public class MainActivity extends Activity implements LocationListener {
         me.setLongitude(locCurrent.getLongitude());
         DistanceToNextSpeedChange = (int)(me.distanceTo(dest) - iDistanceOffset);
         DistanceToPOI = (int)( me.distanceTo(poi) - iDistanceOffset);
-        Log.i("GPS", "onLocationChanged  ");
+        //Log.i("GPS", "onLocationChanged  ");
 
 
 
@@ -210,7 +212,11 @@ public class MainActivity extends Activity implements LocationListener {
         ImageButton img = (ImageButton) x;
 
 
-        if (!bSmall && bThisIsMainActivity){
+        //noinspection PointlessBooleanExpression,ConstantConditions
+        if ((!bSmall && bThisIsMainActivity)
+            && (iDisplayingB != iSpeed))
+        {
+            iDisplayingB = iSpeed;
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.b40);
@@ -241,11 +247,19 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
+            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely) );
         }
 
-        if ((bSmall && bThisIsMainActivity)
-                || (!bThisIsMainActivity && (locCurrent.getAccuracy()>15) && (locCurrent.getAccuracy()!=0.0)) ) {
-            switch (iSpeed){
+        //noinspection PointlessBooleanExpression,ConstantConditions
+        if ( (iDisplayingG != iSpeed) &&
+                (       (bSmall && bThisIsMainActivity)
+                        || (!bThisIsMainActivity && (locCurrent.getAccuracy()>15)  || (locCurrent.getAccuracy()==0.0))
+                )                )
+        {
+
+            iDisplayingG = iSpeed;
+
+            switch (iSpeed) {
                 case 40:
                     img.setImageResource(R.drawable.g40);
                     break;
@@ -275,9 +289,13 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
+            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely) );
         }
 
-        if (!bThisIsMainActivity && (locCurrent.getAccuracy()<=15)  && (locCurrent.getAccuracy()!=0.0)) {
+        //noinspection PointlessBooleanExpression,ConstantConditions
+        if ((iDisplayingS != iSpeed) && (!bThisIsMainActivity && (locCurrent.getAccuracy()<=15)  && (locCurrent.getAccuracy()!=0.0)))
+        {
+            iDisplayingS = iSpeed;
             switch (iSpeed){
                 case 40:
                     img.setImageResource(R.drawable.s40);
@@ -308,9 +326,9 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
-
+            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely) );
         }
-       img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely) );
+
     }
 
 
@@ -364,26 +382,14 @@ public class MainActivity extends Activity implements LocationListener {
                     client.post(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                         @Override
-                        public void onFailure(Throwable e, JSONArray errorResponse) {
-                            System.out.println(e);
-                            Log.i(TAG, "onFailure  1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                            //Clear the display if we don't know the value
-                            // Skip is too slow to matter
-                            //if (locCurrent.getSpeed() >= 40)
-                            {
-                                NeedToResetDisplay();
-                            }
-                            bCommsTimedOut = false;
-                        }
-
-                        @Override
                         public void onFailure(Throwable e, JSONObject errorResponse) {
                             System.out.println(e);
                             Log.i(TAG, "onFailure  2");
                             bCommsTimedOut = false;
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
-                            if (locCurrent.getSpeed() >= 20) {
+                            if (locCurrent.getSpeed() >= 7)
+                            {
                                 NeedToResetDisplay();
                             }
                         }
@@ -395,13 +401,14 @@ public class MainActivity extends Activity implements LocationListener {
                             jHereResult = response;
                             try {
                                doStuff();
-
+                                Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit")   );
                                 if (!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit"))) {
                                     try {
                                         mTts.speak("the Speed is now " + String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
                                     } catch (Exception e) {
                                         Log.i(TAG, "onSuccess - No value for reSpeedLimit");
                                     }
+                                    DistanceToNextSpeedChange = 0;
                                 }
 
 
@@ -439,7 +446,7 @@ public class MainActivity extends Activity implements LocationListener {
                             // Completed the request (either success or failure)
                             toggleRadioButton();
                             iNotCommsLockedOut--;
-                            if (iNotCommsLockedOut <= 0) iNotCommsLockedOut = 0;
+                            if (iNotCommsLockedOut <= 2) iNotCommsLockedOut = 0;
                             updateTimeoutIcon();
                             if (bCommsTimedOut) {
                                 setDisplay(0);
@@ -465,7 +472,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
             {
-                Log.i(TAG, "onSuccess  Getting Speec change");
+                Log.i(TAG, "onSuccess  Getting Speed change");
                 client.post(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject response) {
@@ -614,7 +621,8 @@ public class MainActivity extends Activity implements LocationListener {
 
     public void NeedToResetDisplay() {
         iNeedToResetDisplay++;
-        if (iNeedToResetDisplay>3){
+        Log.i(TAG, "NeedToResetDisplay  "+ iNeedToResetDisplay);
+        if (iNeedToResetDisplay>1){
             setDisplay(50);
             iNeedToResetDisplay = 0;
 
@@ -845,7 +853,7 @@ public class MainActivity extends Activity implements LocationListener {
                 Log.i(TAG, "bDebug is  " + bDebug);
                 intent.putExtra("bDebug", bDebug);
                 intent.putExtra("bCommsTimedOut", bCommsTimedOut);
-                intent.putExtra("iSpeed",iSpeed);
+                //intent.putExtra("iSpeed",iSpeed);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 handler.removeCallbacks(timedGPSqueue);
                 moveTaskToBack(true);
@@ -882,7 +890,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             case R.id.menu_debug:
                 bDebug = !bDebug;
-                vImageBtnSmall.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely));
+                //vImageBtnSmall.startAnimation(AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely));
                 updateDebugIcon();
                 updateDebugText();
                 callWebServiceHere();
@@ -1005,9 +1013,9 @@ public class MainActivity extends Activity implements LocationListener {
             HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
             HTTPrpA.put("ber", String.valueOf(locCurrent.getBearing()));
             HTTPrpA.put("speed", String.valueOf(locCurrent.getSpeed()));
-            if ((DistanceToPOI < 1000) || (DistanceToPOI == 0))                         //refresh when close only
+            if ((DistanceToPOI < 1000) || (DistanceToPOI > 10000))                         //refresh when close only
             {
-                client.get(getString(R.string.MyPOIWeb), HTTPrp2, new JsonHttpResponseHandler() {
+                client.get(getString(R.string.MyPOIWeb), HTTPrpA, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject response) {
                         try {
@@ -1016,15 +1024,22 @@ public class MainActivity extends Activity implements LocationListener {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        Log.i(TAGd, "onSuccess  POI 3");
+                        Log.i(TAGd, "CallPOI onSuccess  POI 3");
                         ImageView img = (ImageView) findViewById(R.id.imageAlert);
                         img.setVisibility(View.VISIBLE);
                     }
 
                     @Override
+                    public void onFinish() {
+                        // Completed the request (either success or failure)
+
+                        updateTimeoutIcon();
+                        Log.i(TAGd, "CallPOI onFinish  next");
+                    }
+                    @Override
                     public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                        Log.i(TAGd, "onFailure  POI 3");
+                        Log.i(TAGd, "CallPOI onFailure  POI 3");
                         DistanceToPOI = 0;
                         // Completed the request (either success or failure)
                         ImageView img = (ImageView) findViewById(R.id.imageAlert);
