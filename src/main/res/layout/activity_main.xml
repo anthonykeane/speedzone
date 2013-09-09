@@ -16,20 +16,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" android:layout_alignParentStart="false" android:gravity="center" android:layout_alignBottom="@+id/imageButton" android:layout_alignParentLeft="true" android:id="@+id/linearLayout">
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/imageViewTimeout" android:src="@drawable/stat_notify_wifi_in_range" android:visibility="visible" android:layout_centerHorizontal="true" android:layout_alignParentEnd="false" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"/>
-
         <ImageButton
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:id="@+id/imageBtnSmall" android:src="@drawable/gerror" android:scaleType="fitCenter" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:layout_alignBottom="@+id/imageButton" android:layout_alignRight="@+id/imageButton" android:contentDescription="Next Speed"/>
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/imageViewDebug" android:src="@drawable/debug" android:visibility="visible" android:layout_centerHorizontal="true" android:layout_alignParentEnd="false" android:adjustViewBounds="false" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"/>
 
     </LinearLayout>
 
@@ -40,11 +30,6 @@
 
     <TextView
         android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GPS Signal Lost" android:id="@+id/textViewGPSlost" android:layout_gravity="center" android:autoText="true" android:textSize="35dp" android:phoneNumber="true" android:gravity="center" android:background="@color/black_overlay" android:textColor="@color/holo_orange_light" android:layout_alignParentStart="true" android:singleLine="false" android:password="false" android:layout_alignParentBottom="true" android:layout_alignRight="@+id/textView" android:visibility="visible"/>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageAlert" android:src="@drawable/speedcameraredlight" android:visibility="gone" android:layout_alignParentLeft="false" android:layout_alignParentTop="false" android:layout_alignParentEnd="true" android:layout_alignParentStart="false"/>
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
@@ -62,6 +47,21 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/textView2" android:layout_gravity="center" android:textSize="20dp" android:layout_above="@+id/textViewGPSlost" android:layout_alignParentLeft="true"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageAlert" android:src="@drawable/speedcameraredlight" android:visibility="gone" android:layout_alignParentLeft="false" android:layout_alignParentTop="false" android:layout_alignParentEnd="true" android:layout_alignParentStart="false"/>
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageViewTimeout" android:src="@drawable/stat_notify_wifi_in_range" android:visibility="visible" android:layout_alignParentEnd="false" android:layout_below="@+id/textView" android:layout_toRightOf="@+id/imageAlert"/>
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageViewDebug" android:src="@drawable/debug" android:visibility="visible" android:layout_alignParentEnd="false" android:adjustViewBounds="false" android:layout_below="@+id/textView" android:layout_alignRight="@+id/radioButton"/>
 
     <!--<Button-->
         <!--style="?android:attr/buttonStyleSmall"-->
