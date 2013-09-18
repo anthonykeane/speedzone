@@ -12,7 +12,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageAlert" android:src="@drawable/speedcameraredlight" android:visibility="invisible" android:layout_alignParentLeft="false" android:layout_alignParentTop="false" android:layout_alignParentEnd="true" android:layout_alignParentStart="false"/>
+        android:id="@+id/imageAlert" android:src="@drawable/speedcameraredlight" android:visibility="invisible" android:layout_alignParentLeft="false" android:layout_alignParentTop="false" android:layout_alignParentEnd="true" android:layout_alignParentStart="false" android:longClickable="false"/>
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -31,18 +31,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/textView2" android:layout_gravity="center" android:textSize="20dp" android:layout_alignParentLeft="false" android:layout_alignParentBottom="false" android:layout_alignParentTop="false"/>
+        android:id="@+id/textView2" android:layout_gravity="center" android:textSize="20dp" android:layout_alignParentBottom="false" android:layout_alignParentTop="false" android:layout_toRightOf="@+id/radioButton"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView" android:layout_gravity="center" android:autoText="false" android:textSize="20dp" android:layout_alignParentLeft="false" android:linksClickable="false" android:layout_alignParentTop="true" android:layout_alignParentBottom="false" android:layout_alignParentRight="false" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:layout_below="@+id/textView2"/>
+        android:id="@+id/textView" android:layout_gravity="center" android:autoText="false" android:textSize="20dp" android:linksClickable="false" android:layout_alignParentTop="true" android:layout_alignParentBottom="false" android:layout_alignParentRight="false" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:layout_below="@+id/textView2" android:layout_toRightOf="@+id/radioButton"/>
 
     <ProgressBar
+        android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar" android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"/>
+        android:indeterminate="false"
+        android:maxHeight="10dip"
+        android:minHeight="10dip"
+        android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
+        android:progressDrawable="@drawable/greenprogress" android:layout_alignParentTop="false" android:layout_alignRight="@+id/imageAlert" android:layout_marginTop="24dp" android:layout_alignWithParentIfMissing="false"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -62,6 +67,13 @@
 
     <TextView
         android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GPS Signal Lost" android:id="@+id/textViewGPSlost" android:layout_gravity="center" android:autoText="true" android:textSize="40dp" android:phoneNumber="true" android:gravity="center" android:background="#000000" android:textColor="@color/holo_orange_light" android:layout_alignParentStart="true" android:singleLine="false" android:password="false" android:layout_alignParentBottom="true" android:layout_alignRight="@+id/textView" android:visibility="visible"/>
+
+    <!--<ProgressBar-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/progressBar"-->
+        <!--android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"/>-->
 
     <!--<Button-->
         <!--style="?android:attr/buttonStyleSmall"-->

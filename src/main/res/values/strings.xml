@@ -149,7 +149,7 @@
 
     <string name="getSpeedURL">http://220.233.25.75/mydb2.php</string>
     <string name="getNextSpeedURL">http://220.233.25.75/mynext.php</string>
-    <string name="whatsnew">draft</string>
+    <string name="whatsnew">0.0.20 Fixed "GPS Signal Lost" no longer slow\n </string>
 
 
 

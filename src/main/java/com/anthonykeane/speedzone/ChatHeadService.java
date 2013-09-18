@@ -179,9 +179,24 @@ public class ChatHeadService extends Service implements LocationListener {
             {
                 DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locLastCallNext) - iDistanceOffset);
             }
-            if(poi.hasAccuracy())  {
-                if(DistanceToPOI < (int)( locCurrent.distanceTo(poi))) locLastCallPOI = new Location(""); // if last getting farther away recalculate
-                DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
+
+
+            noGPS(!(locCurrent.hasAccuracy()));
+
+
+//            if(poi.hasAccuracy())
+
+            //if (DistanceToPOI < (int)(locCurrent.distanceTo(poi)))
+            {
+                if((DistanceToPOI < (int)(locCurrent.distanceTo(poi))) ||  locCurrent.distanceTo(locLastCallPOI)>1000)
+                {
+                    //locLastCallPOI = new Location(""); // if last getting farther away recalculate
+                    DistanceToPOI = 0;
+                }
+                else
+                {
+                    DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
+                }
             }
             //Log.i("GPS", "onLocationChanged  ");
 
@@ -238,7 +253,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>15)  || (locCurrent.getAccuracy()==0.0)))
+        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>15)  || (!locCurrent.hasAccuracy())))
         {
 
             iDisplayingG = iSpeed;
@@ -314,7 +329,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy()<=15)  && (locCurrent.getAccuracy()!=0.0))
+        if ( (iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy()<=15)  && (locCurrent.hasAccuracy()))
         {
             iDisplayingS = iSpeed;
             switch (iSpeed){
@@ -360,7 +375,6 @@ public class ChatHeadService extends Service implements LocationListener {
     {
         //    if (locCurrent.hasAccuracy())
         {
-
             Time now = new Time();
             now.setToNow();
 
@@ -379,7 +393,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
             //todo
 
-            if (   ((locCurrent.getAccuracy()>=15) || (locCurrent.getAccuracy()==0.0))  && bDebug)
+            if (   ((locCurrent.getAccuracy()>=15) || (!locCurrent.hasAccuracy()))  && bDebug)
             {
                 HTTPrp.put("lat", "-33.71013");
                 HTTPrp.put("lon", "150.94951");
@@ -400,7 +414,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         @Override
                         public void onFailure(Throwable e, JSONObject errorResponse) {
                             System.out.println(e);
-                            Log.i(TAG, "onFailure  2");
+                            Log.i(TAG, "onFailure MyDbWeb");
                             bCommsTimedOut = false;
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
@@ -413,16 +427,22 @@ public class ChatHeadService extends Service implements LocationListener {
                         @Override
                         public void onSuccess(JSONObject response) {
                             bCommsTimedOut = false;
-                            Log.i(TAG, "           onSuccess  ");
+                            Log.i(TAG, "           onSuccess MyDbWeb ");
                             jHereResult = response;
                             try {
                                 doStuff();
                                 Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit")   );
 
                                 // if changing speed zone Alert but only if your speed is > than posted
-                                if (!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit"))  && (locCurrent.getSpeed()>jHereResult.getInt("reSpeedLimit"))) {
+                                if (!bMute && (iSpeed != jHereResult.getInt("reSpeedLimit")) ) {
                                     try {
-                                        mTts.speak("the Speed is " + String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
+
+
+                                        if ((locCurrent.getSpeed()*3.6)>jHereResult.getInt("reSpeedLimit"))
+                                        {
+                                            mTts.speak("the Speed is now " + String.valueOf(jHereResult.getInt("reSpeedLimit")), TextToSpeech.QUEUE_FLUSH, null);
+                                            mTts.speak("check your speed . " , TextToSpeech.QUEUE_ADD, null);
+                                        }
                                     } catch (Exception e) {
                                         Log.i(TAG, "onSuccess - No value for reSpeedLimit");
                                     }
@@ -437,7 +457,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
                                 if (bThisIsMainActivity) {
-                                    updateDebugText();
+                                    //updateDebugText();
                                     MyNextWebService();
                                     callPOI();
                                 }
@@ -469,7 +489,7 @@ public class ChatHeadService extends Service implements LocationListener {
                             if (bCommsTimedOut) {
                                 setDisplay(0);
                             }
-                            Log.i(TAG, "                       onFinish  ");
+                            Log.i(TAG, "                       onFinish MyDbWeb ");
                         }
                     });
                 }
@@ -503,7 +523,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     @Override
                     public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                        Log.i(TAGd, "onFailure  next");
+                        Log.i(TAGd, "onFailure  MyNextWeb");
                         DistanceToNextSpeedChange = 0;
 
                     }
@@ -514,7 +534,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         // Completed the request (either success or failure)
 
                         updateTimeoutIcon();
-                        Log.i(TAGd, "onFinish  next");
+                        Log.i(TAGd, "onFinish  MyNextWeb");
                     }
                 });
             }
@@ -539,7 +559,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
                 fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
                 iSecondsToSpeedChange = (int) ((DistanceToNextSpeedChange / (fFiveValAvgSpeed+1)));
-                updateDebugText();
+                //updateDebugText();
             }
 
 
@@ -595,15 +615,22 @@ public class ChatHeadService extends Service implements LocationListener {
                             break;
                     }
                 }
+                try {
+                    mTts.speak(getString(R.string.ttsSalute), TextToSpeech.QUEUE_FLUSH, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         });
+
     }
 
     private final Runnable timedGPSqueue; {
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
-                noGPS((locCurrent.getLatitude() == 0.0));
+                noGPS(!(locCurrent.hasAccuracy()));
                 if (iNotCommsLockedOut < 3){    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebServiceHere();
                 }

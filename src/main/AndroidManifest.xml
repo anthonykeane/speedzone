@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.anthonykeane.speedzone"
-    android:versionCode="20"
-    android:versionName="0.0.20" >
+    android:versionCode="22"
+    android:versionName="0.0.22" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
     <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
     <!--<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />-->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
