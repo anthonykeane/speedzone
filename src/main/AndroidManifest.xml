@@ -48,8 +48,8 @@
         <activity android:name=".PreferencesActivity"/>
         <activity android:name=".SendFeedBackActivity"/>
 
-        <service android:name=".ChatHeadService" >
-        </service>
+        <service android:name=".ChatHeadService" />
+        <service android:name=".ActivityRecognitionIntentService"/>
     </application>
 
 </manifest>

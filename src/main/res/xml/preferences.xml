@@ -17,16 +17,38 @@
 
 
     <PreferenceCategory android:title="@string/settings_Settings_title">
+
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/settings_activityServicesKey"
+            android:title="@string/settings_activityServicesTitle"
+            android:summary="@string/settings_activityServicesSummary"/>
+
+        <ListPreference
+            android:dependency="@string/settings_activityServicesKey"
+            android:key="@string/settings_launchTypeKey"
+            android:title="@string/settings_launchTypeTitle"
+            android:summary="@string/settings_launchTypeSummary"
+            android:entries="@array/opts"
+            android:entryValues="@array/opts_values"
+            android:defaultValue="1" />
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/settings_soundKey"
             android:title="@string/settings_soundTitle"
             android:summary="@string/settings_soundSummary"/>
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="@string/settings_debugKey"
-            android:title="@string/settings_debugTitle"
-            android:summary="@string/settings_debugSummary"/>
+
+        <EditTextPreference
+            android:dependency="@string/settings_soundKey"
+            android:key="@string/settings_ttsSaluteKey"
+            android:summary="@string/settings_user_ttsSaluteSummary"
+            android:title="@string/settings_user_ttsSaluteTitle"
+            android:dialogTitle="@string/settings_user_ttsSaluteTitle"
+            android:dialogMessage="@string/settings_user_ttsSaluteSummary"
+            android:inputType="text"
+            android:defaultValue="@string/ttsSalute"/>
 
         <!--<ListPreference-->
             <!--android:dependency="@string/settings_displayKey"-->
@@ -154,7 +176,11 @@
 
         <!--</PreferenceScreen>-->
     <!--</PreferenceCategory>-->
-
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/settings_debugKey"
+        android:title="@string/settings_debugTitle"
+        android:summary="@string/settings_debugSummary"/>
 
 </PreferenceScreen>
 

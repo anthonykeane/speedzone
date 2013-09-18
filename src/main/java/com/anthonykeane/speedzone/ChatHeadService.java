@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static java.lang.Math.abs;
 import static java.util.UUID.randomUUID;
@@ -66,7 +67,7 @@ public class ChatHeadService extends Service implements LocationListener {
 // code below this line is same in MainActivity and Service
 
     //private static final int intentTTS = 3;
-    //private String ttsSalute;
+    private String ttsSalute;
 
     SharedPreferences appSharedPrefs;
 
@@ -82,7 +83,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     public static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     public static final long minTime = 1000;                   // don't update GPS if time < mS
-    public static final float minDistanceGPS = 0;              // don't update GPS if distance < Meters
+    public static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -131,7 +132,7 @@ public class ChatHeadService extends Service implements LocationListener {
     private int iDisplayingB = 0;
     private int iDisplayingG = 0;
     private int iDisplayingS = 0;
-
+    private int iLaunchMode = 1;
 
     @Override
     public void onDestroy() {
@@ -159,8 +160,9 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if(location.hasAccuracy() && location.hasBearing() && location.hasSpeed())
+        if(location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy()<8)
         {
+            noGPS(false);
             Log.i(TAG, "onLocationChanged  GOOD");
             locLast = locCurrent; // this supposed to be here (think again)
 
@@ -168,6 +170,15 @@ public class ChatHeadService extends Service implements LocationListener {
             locCurrent = location;
             //me.setLatitude(locCurrent.getLatitude());
             //me.setLongitude(locCurrent.getLongitude());
+
+
+
+
+            callPOI();
+
+
+
+
 
 
 
@@ -181,21 +192,23 @@ public class ChatHeadService extends Service implements LocationListener {
             }
 
 
-            noGPS(!(locCurrent.hasAccuracy()));
+
 
 
 //            if(poi.hasAccuracy())
 
             //if (DistanceToPOI < (int)(locCurrent.distanceTo(poi)))
             {
-                if((DistanceToPOI < (int)(locCurrent.distanceTo(poi))) ||  locCurrent.distanceTo(locLastCallPOI)>1000)
+                if((DistanceToPOI < (int)(locCurrent.distanceTo(poi))) ||  locCurrent.distanceTo(poi)>300)
                 {
                     //locLastCallPOI = new Location(""); // if last getting farther away recalculate
                     DistanceToPOI = 0;
+                    updateAlertImage(false);
                 }
                 else
                 {
                     DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
+                    updateAlertImage(true);
                 }
             }
             //Log.i("GPS", "onLocationChanged  ");
@@ -219,6 +232,7 @@ public class ChatHeadService extends Service implements LocationListener {
         else
         {
             Log.i(TAG, "onLocationChanged  BAD");
+            noGPS(true);
         }
 
     }
@@ -252,44 +266,6 @@ public class ChatHeadService extends Service implements LocationListener {
         ImageButton img = (ImageButton) x;
 
 
-        //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>15)  || (!locCurrent.hasAccuracy())))
-        {
-
-            iDisplayingG = iSpeed;
-
-            switch (iSpeed) {
-                case 40:
-                    img.setImageResource(R.drawable.g40);
-                    break;
-                case 50:
-                    img.setImageResource(R.drawable.g50);
-                    break;
-                case 60:
-                    img.setImageResource(R.drawable.g60);
-                    break;
-                case 70:
-                    img.setImageResource(R.drawable.g70);
-                    break;
-                case 80:
-                    img.setImageResource(R.drawable.g80);
-                    break;
-                case 90:
-                    img.setImageResource(R.drawable.g90);
-                    break;
-                case 100:
-                    img.setImageResource(R.drawable.g100);
-                    break;
-                case 110:
-                    img.setImageResource(R.drawable.g110);
-                    break;
-                default:
-                    img.setImageResource(R.drawable.g50);
-                    break;
-
-            }
-            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce) );
-        }
 
         //noinspection PointlessBooleanExpression,ConstantConditions
         if ((!bSmall && bThisIsMainActivity) && (iDisplayingB != iSpeed))
@@ -356,6 +332,46 @@ public class ChatHeadService extends Service implements LocationListener {
                     break;
                 case 110:
                     img.setImageResource(R.drawable.s110);
+                    break;
+                default:
+                    img.setImageResource(R.drawable.g50);
+                    break;
+
+            }
+            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce) );
+        }
+
+
+        //noinspection PointlessBooleanExpression,ConstantConditions
+        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>15)  || (!locCurrent.hasAccuracy())))
+        {
+
+            iDisplayingG = iSpeed;
+
+            switch (iSpeed) {
+                case 40:
+                    img.setImageResource(R.drawable.g40);
+                    break;
+                case 50:
+                    img.setImageResource(R.drawable.g50);
+                    break;
+                case 60:
+                    img.setImageResource(R.drawable.g60);
+                    break;
+                case 70:
+                    img.setImageResource(R.drawable.g70);
+                    break;
+                case 80:
+                    img.setImageResource(R.drawable.g80);
+                    break;
+                case 90:
+                    img.setImageResource(R.drawable.g90);
+                    break;
+                case 100:
+                    img.setImageResource(R.drawable.g100);
+                    break;
+                case 110:
+                    img.setImageResource(R.drawable.g110);
                     break;
                 default:
                     img.setImageResource(R.drawable.g50);
@@ -459,7 +475,6 @@ public class ChatHeadService extends Service implements LocationListener {
                                 if (bThisIsMainActivity) {
                                     //updateDebugText();
                                     MyNextWebService();
-                                    callPOI();
                                 }
 
 
@@ -482,7 +497,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         @Override
                         public void onFinish() {
                             // Completed the request (either success or failure)
-                            toggleRadioButton();
+                            //toggleRadioButton();
                             iNotCommsLockedOut--;
                             if (iNotCommsLockedOut <= 2) iNotCommsLockedOut = 0;
                             updateTimeoutIcon();
@@ -616,7 +631,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     }
                 }
                 try {
-                    mTts.speak(getString(R.string.ttsSalute), TextToSpeech.QUEUE_FLUSH, null);
+                    if (!bMute) mTts.speak(ttsSalute, TextToSpeech.QUEUE_FLUSH, null);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -651,20 +666,33 @@ public class ChatHeadService extends Service implements LocationListener {
             sUUID= randomUUID().toString();
             appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
         }
-        //Map<String, ?> xx = appSharedPrefs.getAll();
+        Map<String, ?> xx = appSharedPrefs.getAll();
 
 
         bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
         bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
 //        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
 //        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
-//        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
+        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
 //        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
 //        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
 
+
+        if(appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)){
+            onStartUpdates();
+        }else
+        {
+            onStopUpdates();
+        }
+
+        iLaunchMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_launchTypeKey), "1"));
+
+
         updateDebugIcon();
     }
+
+
 
 
     public void NeedToResetDisplay() {
@@ -689,6 +717,12 @@ public class ChatHeadService extends Service implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    private void onStopUpdates() {
+    }
+
+    private void onStartUpdates() {
+    }
 
     private void toggleRadioButton() {
 
@@ -726,6 +760,10 @@ public class ChatHeadService extends Service implements LocationListener {
             }
         });
 
+    }
+
+
+    private void updateAlertImage(boolean b) {
     }
 
 
