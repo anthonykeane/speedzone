@@ -36,6 +36,7 @@ import static java.util.UUID.randomUUID;
 
 public class ChatHeadService extends Service implements LocationListener {
 
+    private static boolean isRunning;
     // unique to ChatHeadService
     private boolean bYouMovedIt = false;
 	private WindowManager windowManager;
@@ -133,10 +134,12 @@ public class ChatHeadService extends Service implements LocationListener {
     private int iDisplayingG = 0;
     private int iDisplayingS = 0;
     private int iLaunchMode = 1;
+    private static final int iMinAccuracy = 9;
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        isRunning = false;
         Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
 
@@ -160,7 +163,7 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if(location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy()<8)
+        if(location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy()<iMinAccuracy)
         {
             noGPS(false);
             Log.i(TAG, "onLocationChanged  GOOD");
@@ -218,9 +221,7 @@ public class ChatHeadService extends Service implements LocationListener {
             if (iNotCommsLockedOut ==0){
                 // if params of locaton unchanged skip
                 if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>2.0)
-                        ||  (abs(locLast.getBearing()-locCurrent.getBearing())>15.0)
-                        || (DistanceToNextSpeedChange<50)
-                        || (DistanceToPOI < 50)    )
+                        ||  (abs(locLast.getBearing()-locCurrent.getBearing())>7.0)   )
                 {
                     callWebServiceHere();
                 }
@@ -305,7 +306,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy()<=15)  && (locCurrent.hasAccuracy()))
+        if ( (iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy()<=iMinAccuracy)  && (locCurrent.hasAccuracy()))
         {
             iDisplayingS = iSpeed;
             switch (iSpeed){
@@ -343,7 +344,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>15)  || (!locCurrent.hasAccuracy())))
+        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>iMinAccuracy)  || (!locCurrent.hasAccuracy())))
         {
 
             iDisplayingG = iSpeed;
@@ -409,7 +410,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
             //todo
 
-            if (   ((locCurrent.getAccuracy()>=15) || (!locCurrent.hasAccuracy()))  && bDebug)
+            if (   ((locCurrent.getAccuracy()>=iMinAccuracy) || (!locCurrent.hasAccuracy()))  && bDebug)
             {
                 HTTPrp.put("lat", "-33.71013");
                 HTTPrp.put("lon", "150.94951");
@@ -693,8 +694,6 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
 
-
-
     public void NeedToResetDisplay() {
         iNeedToResetDisplay++;
         Log.i(TAG, "NeedToResetDisplay  "+ iNeedToResetDisplay);
@@ -801,6 +800,7 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onCreate() {
         super.onCreate();
+
         Log.i(TAG, "onCreate  1");
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         inflater = LayoutInflater.from(this);
@@ -814,6 +814,7 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //if(startId ==1)
+        isRunning = true;
         {
             toDIE = false;
             final View chatHead = inflater.inflate(R.layout.chat_head, null);
@@ -917,6 +918,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         Intent callIntent = new Intent(Intent.ACTION_CALL);
                         callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         callIntent.setClass(v.getContext(), MainActivity.class);
+                        callIntent.putExtra("float","2");
                         // todo   callIntent.putExtra("bZoneError",bZoneError);
                         startActivity(callIntent);
                         removeChatHead(chatHead);
@@ -1162,6 +1164,12 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
 
+
+
+    public static boolean isRunning()
+    {
+        return isRunning;
+    }
 
 
 

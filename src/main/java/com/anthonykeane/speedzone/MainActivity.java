@@ -3,9 +3,12 @@ package com.anthonykeane.speedzone;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.ApplicationErrorReport;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -23,12 +26,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,7 +66,7 @@ public class MainActivity extends Activity implements LocationListener {
     public static final int itextViewGPSlost = R.id.textViewGPSlost;
 
 
-    private static final int MAX_LOG_SIZE = 5000;
+    private static final int MAX_LOG_SIZE = 10;
 
     // Instantiates a log file utility object, used to log status updates
     private LogFile mLogFile;
@@ -170,6 +182,7 @@ public class MainActivity extends Activity implements LocationListener {
     private int iDisplayingG = 0;
     private int iDisplayingS = 0;
     private int iLaunchMode = 1;
+    private static final int iMinAccuracy = 9;
 
     @Override
     public void onDestroy() {
@@ -197,7 +210,7 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if(location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy()<8)
+        if(location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy()<iMinAccuracy)
         {
             noGPS(false);
             Log.i(TAG, "onLocationChanged  GOOD");
@@ -254,10 +267,8 @@ public class MainActivity extends Activity implements LocationListener {
 
             if (iNotCommsLockedOut ==0){
                 // if params of locaton unchanged skip
-                if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>3.0)
-                    ||  (abs(locLast.getBearing()-locCurrent.getBearing())>15.0)
-                    || (DistanceToNextSpeedChange<50)
-                    || (DistanceToPOI < 50)    )
+                if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>2.0)
+                    ||  (abs(locLast.getBearing()-locCurrent.getBearing())>7.0)   )
                 {
                     callWebServiceHere();
                 }
@@ -342,7 +353,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy()<=15)  && (locCurrent.hasAccuracy()))
+        if ( (iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy()<=iMinAccuracy)  && (locCurrent.hasAccuracy()))
         {
             iDisplayingS = iSpeed;
             switch (iSpeed){
@@ -380,7 +391,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>15)  || (!locCurrent.hasAccuracy())))
+        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>iMinAccuracy)  || (!locCurrent.hasAccuracy())))
         {
 
             iDisplayingG = iSpeed;
@@ -446,7 +457,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             //todo
 
-            if (   ((locCurrent.getAccuracy()>=15) || (!locCurrent.hasAccuracy()))  && bDebug)
+            if (   ((locCurrent.getAccuracy()>=iMinAccuracy) || (!locCurrent.hasAccuracy()))  && bDebug)
             {
                 HTTPrp.put("lat", "-33.71013");
                 HTTPrp.put("lon", "150.94951");
@@ -972,7 +983,6 @@ public class MainActivity extends Activity implements LocationListener {
             callFloat();
         }
 
-        //moveTaskToBack(isMyServiceRunning());
 
 
     }
@@ -1047,6 +1057,8 @@ public class MainActivity extends Activity implements LocationListener {
 
                 //if(isMyServiceRunning())
             {
+
+                //iLaunchMode = 2;
                 callFloat();
                 //onStop();
             }
@@ -1140,6 +1152,20 @@ public class MainActivity extends Activity implements LocationListener {
         mBroadcastManager.registerReceiver(
                 updateListReceiver,
                 mBroadcastFilter);
+
+
+
+
+
+        if(iLaunchMode == 2)
+        {
+            callFloat();
+        }
+
+
+        if (isMyServiceRunning()){
+            moveTaskToBack(isTaskRoot());
+        }
 
     }
 
@@ -1289,13 +1315,17 @@ public class MainActivity extends Activity implements LocationListener {
         }
     };
     private boolean isMyServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (ChatHeadService.class.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
+
+
+
+
+//        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+//            if (ChatHeadService.class.getName().equals(service.service.getClassName())) {
+//                return true;
+//            }
+//        }
+        return ChatHeadService.isRunning();
     }
 
     /*
