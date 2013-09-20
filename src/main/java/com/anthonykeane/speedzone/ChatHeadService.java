@@ -813,242 +813,243 @@ public class ChatHeadService extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "2.2 onStartCommand");
-        toDIE = false;
-        final View chatHead = inflater.inflate(R.layout.chat_head, null);
-
-        if (chatHead != null)
+        //if(startId ==1)
         {
-            vImageButton = chatHead.findViewById(R.id.imageButton);
-            vErrorButton = chatHead.findViewById( R.id.imageButtonError);
-            vImageBtnSmall = chatHead.findViewById(R.id.imageBtnSmall);
-            vImageViewDebug = chatHead.findViewById( R.id.imageViewDebug);
-            vImageViewTimeout = chatHead.findViewById(R.id.imageViewTimeout);
-        }
-
-
-        // Turn on tht GPS.     set up GPS
-        locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
-        //Start the GPS listener
-        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
-
-
-        boolean bOK;
-
-        try {
-            bOK = intent.getBooleanExtra("TheOK",false);
-            sUUID = intent.getStringExtra("sUUID");
-            bDebug = intent.getBooleanExtra("bDebug",false);
-            bCommsTimedOut = intent.getBooleanExtra("bCommsTimedOut",false);
-            Log.i(TAG, "2.2 bCommsTimedOut is  "+bCommsTimedOut);
-            Log.i(TAG, "2.2 bDebug is  "+bDebug);
-            updateTimeoutIcon();
-            updateDebugIcon();
-            //iSpeed =  intent.getIntExtra("iSpeed", 50);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.i(TAG, "onStartCommand  Exception");
-
-            toDIE =true;
-            onDestroy();
-            return 0;
-        }
-
-
-        if(bOK)
-        {
-            Log.i(TAG, "onStartCommand  THE OK "+bOK);
-        }
-        else
-        {
-            Log.i(TAG, "onStartCommand  NOT ***********"+bOK);
-        }
-
-
-        // got iSpeed above
-        setGraphicBtnV(vImageButton, 50, true);
-
-
-        handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
-        callWebServiceHere();
-
-
-        vImageButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-                if (!bYouMovedIt) {
-                    // Send Error to URL
-                    bZoneError = true;
-                    ImageButton imgerr = (ImageButton) vErrorButton;
-                    imgerr.setVisibility(View.VISIBLE);
-                    callWebServiceHere();
-
-
-                }
-                return true;
+            toDIE = false;
+            final View chatHead = inflater.inflate(R.layout.chat_head, null);
+            Log.i("Local Service", "Received start id " + startId + ": " + intent);
+            if (chatHead != null)
+            {
+                vImageButton = chatHead.findViewById(R.id.imageButton);
+                vErrorButton = chatHead.findViewById( R.id.imageButtonError);
+                vImageBtnSmall = chatHead.findViewById(R.id.imageBtnSmall);
+                vImageViewDebug = chatHead.findViewById( R.id.imageViewDebug);
+                vImageViewTimeout = chatHead.findViewById(R.id.imageViewTimeout);
             }
-        });
 
-        vErrorButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
 
-                if (!bYouMovedIt) {
-                    // Send Error to URL
-                    bZoneError = false;
-                    ImageButton imgerr = (ImageButton) vErrorButton;
-                    imgerr.setVisibility(View.GONE);
-                    callWebServiceHere();
-                }
-                return true;
+            // Turn on tht GPS.     set up GPS
+            locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
+            //Start the GPS listener
+            locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
+
+
+            boolean bOK;
+
+            try {
+                bOK = intent.getBooleanExtra("TheOK",false);
+                sUUID = intent.getStringExtra("sUUID");
+                bDebug = intent.getBooleanExtra("bDebug",false);
+                bCommsTimedOut = intent.getBooleanExtra("bCommsTimedOut",false);
+                Log.i(TAG, "2.2 bCommsTimedOut is  "+bCommsTimedOut);
+                Log.i(TAG, "2.2 bDebug is  "+bDebug);
+                updateTimeoutIcon();
+                updateDebugIcon();
+                //iSpeed =  intent.getIntExtra("iSpeed", 50);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, "onStartCommand  Exception");
+
+                toDIE =true;
+                onDestroy();
+                return 0;
             }
-        });
 
 
-        vImageButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (!bYouMovedIt) {
-                    Log.i("Service", "onStart() is called");
-                    Intent callIntent = new Intent(Intent.ACTION_CALL);
-                    callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    callIntent.setClass(v.getContext(), MainActivity.class);
-                    // todo   callIntent.putExtra("bZoneError",bZoneError);
-                    startActivity(callIntent);
-                    removeChatHead(chatHead);
-                }
+            if(bOK)
+            {
+                Log.i(TAG, "onStartCommand  THE OK "+bOK);
             }
-        });
-
-        vErrorButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (!bYouMovedIt) {
-                    // Send Error to URL
-                    bZoneError = false;
-                    ImageButton imgerr = (ImageButton) vErrorButton;
-                    imgerr.setVisibility(View.GONE);
-                    callWebServiceHere();
-                }
+            else
+            {
+                Log.i(TAG, "onStartCommand  NOT ***********"+bOK);
             }
-        });
+
+
+            // got iSpeed above
+            setGraphicBtnV(vImageButton, 50, true);
+
+
+            handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer
+            callWebServiceHere();
+
+
+            vImageButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    if (!bYouMovedIt) {
+                        // Send Error to URL
+                        bZoneError = true;
+                        ImageButton imgerr = (ImageButton) vErrorButton;
+                        imgerr.setVisibility(View.VISIBLE);
+                        callWebServiceHere();
+
+
+                    }
+                    return true;
+                }
+            });
+
+            vErrorButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    if (!bYouMovedIt) {
+                        // Send Error to URL
+                        bZoneError = false;
+                        ImageButton imgerr = (ImageButton) vErrorButton;
+                        imgerr.setVisibility(View.GONE);
+                        callWebServiceHere();
+                    }
+                    return true;
+                }
+            });
+
+
+            vImageButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (!bYouMovedIt) {
+                        Log.i("Service", "onStart() is called");
+                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+                        callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        callIntent.setClass(v.getContext(), MainActivity.class);
+                        // todo   callIntent.putExtra("bZoneError",bZoneError);
+                        startActivity(callIntent);
+                        removeChatHead(chatHead);
+                    }
+                }
+            });
+
+            vErrorButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (!bYouMovedIt) {
+                        // Send Error to URL
+                        bZoneError = false;
+                        ImageButton imgerr = (ImageButton) vErrorButton;
+                        imgerr.setVisibility(View.GONE);
+                        callWebServiceHere();
+                    }
+                }
+            });
 
 
 
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+            final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
 
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.TRANSLUCENT);
 
-        params.gravity = Gravity.CENTER;
-        // retrieve last position of chathead
-        params.x = Integer.parseInt(LoadSetting("params.x"));
-        params.y = Integer.parseInt(LoadSetting("params.y"));
+            params.gravity = Gravity.CENTER;
+            // retrieve last position of chathead
+            params.x = Integer.parseInt(LoadSetting("params.x"));
+            params.y = Integer.parseInt(LoadSetting("params.y"));
 
-        vImageButton.setOnTouchListener(new View.OnTouchListener() {
-            private int didwemove;
-            private int initialX;
-            private int initialY;
-            private float initialTouchX;
-            private float initialTouchY;
+            vImageButton.setOnTouchListener(new View.OnTouchListener() {
+                private int didwemove;
+                private int initialX;
+                private int initialY;
+                private float initialTouchX;
+                private float initialTouchY;
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // to dispatch click / long click event,
-                // you must pass the event to it's default callback View.onTouchEvent
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    // to dispatch click / long click event,
+                    // you must pass the event to it's default callback View.onTouchEvent
 
-                //boolean defaultResult = v.onTouchEvent(event);
+                    //boolean defaultResult = v.onTouchEvent(event);
 
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        initialX = params.x;
-                        didwemove = params.x;
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            initialX = params.x;
+                            didwemove = params.x;
 
-                        initialY = params.y;
-                        initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
-                        //return true;
-                        bYouMovedIt = false;
-                        Log.i(TAG, String.valueOf(bYouMovedIt));
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        SaveSetting("params.x", String.valueOf(params.x));
-                        SaveSetting("params.y", String.valueOf(params.y));
-                        //return true;
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        try {
+                            initialY = params.y;
+                            initialTouchX = event.getRawX();
+                            initialTouchY = event.getRawY();
+                            //return true;
+                            bYouMovedIt = false;
+                            Log.i(TAG, String.valueOf(bYouMovedIt));
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            SaveSetting("params.x", String.valueOf(params.x));
+                            SaveSetting("params.y", String.valueOf(params.y));
+                            //return true;
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                            params.y = initialY + (int) (event.getRawY() - initialTouchY);
+                            try {
+                                windowManager.updateViewLayout(chatHead, params);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
+
+
+                            bYouMovedIt = ((StrictMath.abs(params.x - didwemove) > 10));
+                            //return true;
+                            break;
+                    }
+                    return false;
+                }
+            });
+
+            vErrorButton.setOnTouchListener(new View.OnTouchListener() {
+                private int didwemove;
+                private int initialX;
+                private int initialY;
+                private float initialTouchX;
+                private float initialTouchY;
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    // to dispatch click / long click event,
+                    // you must pass the event to it's default callback View.onTouchEvent
+                    //boolean defaultResult = v.onTouchEvent(event);
+
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            initialX = params.x;
+                            didwemove = params.x;
+
+                            initialY = params.y;
+                            initialTouchX = event.getRawX();
+                            initialTouchY = event.getRawY();
+                            //return true;
+                            bYouMovedIt = false;
+                            Log.i(TAG, String.valueOf(bYouMovedIt));
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            SaveSetting("params.x", String.valueOf(params.x));
+                            SaveSetting("params.y", String.valueOf(params.y));
+                            //return true;
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                            params.y = initialY + (int) (event.getRawY() - initialTouchY);
                             windowManager.updateViewLayout(chatHead, params);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
-
-
-                        bYouMovedIt = ((StrictMath.abs(params.x - didwemove) > 10));
-                        //return true;
-                        break;
+                            Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
+                            bYouMovedIt = params.x != didwemove;
+                            //return true;
+                            break;
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
-
-        vErrorButton.setOnTouchListener(new View.OnTouchListener() {
-            private int didwemove;
-            private int initialX;
-            private int initialY;
-            private float initialTouchX;
-            private float initialTouchY;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // to dispatch click / long click event,
-                // you must pass the event to it's default callback View.onTouchEvent
-                //boolean defaultResult = v.onTouchEvent(event);
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        initialX = params.x;
-                        didwemove = params.x;
-
-                        initialY = params.y;
-                        initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
-                        //return true;
-                        bYouMovedIt = false;
-                        Log.i(TAG, String.valueOf(bYouMovedIt));
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        SaveSetting("params.x", String.valueOf(params.x));
-                        SaveSetting("params.y", String.valueOf(params.y));
-                        //return true;
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(chatHead, params);
-                        Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
-                        bYouMovedIt = params.x != didwemove;
-                        //return true;
-                        break;
-                }
-                return false;
-            }
-        });
+            });
 
 
-        createTextToSpeech(this, Locale.getDefault());
-        addChatHead(chatHead, params);
-
+            createTextToSpeech(this, Locale.getDefault());
+            addChatHead(chatHead, params);
+        }
         return super.onStartCommand(intent, flags, startId);
 
     }

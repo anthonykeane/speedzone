@@ -254,7 +254,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             if (iNotCommsLockedOut ==0){
                 // if params of locaton unchanged skip
-                if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>2.0)
+                if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>3.0)
                     ||  (abs(locLast.getBearing()-locCurrent.getBearing())>15.0)
                     || (DistanceToNextSpeedChange<50)
                     || (DistanceToPOI < 50)    )
@@ -822,7 +822,7 @@ public class MainActivity extends Activity implements LocationListener {
                 if (bDebug) {
                     String x = "dSpeed " + (int)(DistanceToNextSpeedChange) + "\tPOI lc" + (int) locCurrent.distanceTo(locLastCallPOI) + "\n ##  " +(int)locCurrent.distanceTo(poi)+ "\n";
                     setDebugText(itextView, x);
-                    x = "\n\n\n\n\n" + " ,  B:" + locCurrent.getBearing()   + " ,  A:" +  locCurrent.getAccuracy()           ;
+                    x = "\n\n\n  A:" +  locCurrent.getAccuracy()           ;
                     setDebugText(itextView2, x);
                 } else {
                     setDebugText(itextView, "");
@@ -969,22 +969,10 @@ public class MainActivity extends Activity implements LocationListener {
 
         if(iLaunchMode == 2)
         {
-            Intent intent;
-            Bundle extras;
-            intent = new Intent(MainActivity.this, ChatHeadService.class);
-            intent.putExtra("TheOK", true);
-            intent.putExtra(sUUID, "sUUID");
-            Log.i(TAG, "bDebug is  " + bDebug);
-            intent.putExtra("bDebug", bDebug);
-            intent.putExtra("bCommsTimedOut", bCommsTimedOut);
-            //intent.putExtra("iSpeed",iSpeed);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            handler.removeCallbacks(timedGPSqueue);
-            moveTaskToBack(true);
-            startService(intent);
-            //onStop();
+            callFloat();
         }
 
+        //moveTaskToBack(isMyServiceRunning());
 
 
     }
@@ -1059,19 +1047,7 @@ public class MainActivity extends Activity implements LocationListener {
 
                 //if(isMyServiceRunning())
             {
-                Intent intent;
-                Bundle extras;
-                intent = new Intent(MainActivity.this, ChatHeadService.class);
-                intent.putExtra("TheOK", true);
-                intent.putExtra(sUUID, "sUUID");
-                Log.i(TAG, "bDebug is  " + bDebug);
-                intent.putExtra("bDebug", bDebug);
-                intent.putExtra("bCommsTimedOut", bCommsTimedOut);
-                //intent.putExtra("iSpeed",iSpeed);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                handler.removeCallbacks(timedGPSqueue);
-                moveTaskToBack(true);
-                startService(intent);
+                callFloat();
                 //onStop();
             }
             //finish();
@@ -1115,6 +1091,23 @@ public class MainActivity extends Activity implements LocationListener {
                 return super.onOptionsItemSelected(item);
         }
     }    //MENU CODE END
+
+    private void callFloat() {
+        Intent intent;
+        Bundle extras;
+        intent = new Intent(MainActivity.this, ChatHeadService.class);
+        intent.putExtra("TheOK", true);
+        intent.putExtra(sUUID, "sUUID");
+        Log.i(TAG, "bDebug is  " + bDebug);
+        intent.putExtra("bDebug", bDebug);
+        intent.putExtra("bCommsTimedOut", bCommsTimedOut);
+        //intent.putExtra("iSpeed",iSpeed);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        handler.removeCallbacks(timedGPSqueue);
+        moveTaskToBack(true);
+        stopService(intent);
+        startService(intent);
+    }
 
     @Override
     public void onPause() {
@@ -1174,7 +1167,11 @@ public class MainActivity extends Activity implements LocationListener {
         }
         else {
            // Display an error dialog
-            GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
+            try {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return false;
 
 
@@ -1426,9 +1423,9 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void callPOI(){
 
-        if((locCurrent.distanceTo(locLastCallPOI)> 500) || (!locLastCallPOI.hasAccuracy())) // call this is 500m distance of not init-ed
+        if((locCurrent.distanceTo(locLastCallPOI)> 200) || (!locLastCallPOI.hasAccuracy())) // call this is 500m distance of not init-ed
         {
-
+            Log.i(TAG, "callPOI  ");
             locLastCallPOI = locCurrent;
 
             RequestParams HTTPrpA = new RequestParams();
@@ -1448,6 +1445,7 @@ public class MainActivity extends Activity implements LocationListener {
                             poi = locCurrent; // this is to set values like accuracy etc.
                             poi.setLatitude(response.getDouble("poiLat"));
                             poi.setLongitude(response.getDouble("poiLon"));
+                            Log.i(TAG, "onSuccess  " + poi.getLatitude() +" "+ poi.getLongitude());
 
                             DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
                         } catch (JSONException e) {
