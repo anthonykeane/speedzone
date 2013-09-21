@@ -9,6 +9,7 @@ import android.graphics.PixelFormat;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -863,14 +864,20 @@ public class ChatHeadService extends Service implements LocationListener {
             }
 
 
+
+            // Are we charging / charged?
             Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-            int iPluggedIn = inPower.getIntExtra("plugged", 0);
+            int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                    status == BatteryManager.BATTERY_STATUS_FULL;
+
+            //int iPluggedIn = inPower.getIntExtra("plugged", 0);
 
             // Turn on the GPS.     set up GPS
             locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
             //Start the GPS listener
-            if (iPluggedIn == 0)
+            if (isCharging)
             {
                 locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
             }
@@ -878,6 +885,7 @@ public class ChatHeadService extends Service implements LocationListener {
             {
                 locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistanceGPS, this);
             }
+
 
             boolean bOK;
 

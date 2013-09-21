@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -598,7 +599,7 @@ public class MainActivity extends Activity implements LocationListener {
             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
 
-            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 200) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
             {
                 Log.i(TAG, "onSuccess  Getting Speed change");
                 client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
@@ -901,14 +902,19 @@ public class MainActivity extends Activity implements LocationListener {
         vImageViewTimeout = findViewById(R.id.imageViewTimeout);
 
 
+        // Are we charging / charged?
         Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int iPluggedIn = inPower.getIntExtra("plugged", 0);
+        int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                             status == BatteryManager.BATTERY_STATUS_FULL;
+
+        //int iPluggedIn = inPower.getIntExtra("plugged", 0);
 
         // Turn on the GPS.     set up GPS
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
         //Start the GPS listener
-        if (iPluggedIn == 0)
+        if (isCharging)
         {
             locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
         }
