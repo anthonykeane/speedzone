@@ -9,4 +9,23 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <string-array name="pointAlert">
+        <item>Six Points, 45Km/h over</item>
+        <item>Five Points, 30Km/h over</item>
+        <item>Four Points, 20Km/h over</item>
+        <item>Three Points, 10Km/h over</item>
+        <item>One Point, less than 10Km/h over</item>
+        <item>Any Speed Zone Change</item>
+    </string-array>
+
+    <string-array name="point_values">
+        <item>6</item>
+        <item>5</item>
+        <item>4</item>
+        <item>3</item>
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+
 </resources>

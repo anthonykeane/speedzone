@@ -4,15 +4,23 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent" android:clickable="false" android:orientation="vertical" android:background="#f000" android:alpha="1" android:gravity="center|clip_horizontal|clip_vertical">
 
+    <RelativeLayout android:id="@+id/list_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_below="@+id/stop_update_button">
+
+        <ListView
+            android:id="@+id/log_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"/>
+    </RelativeLayout>
+
     <RadioButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/radioButton" android:checked="true" android:layout_alignParentTop="true" android:layout_alignParentRight="false" android:layout_alignParentLeft="true"/>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageAlert" android:src="@drawable/speedcameraredlight" android:visibility="invisible" android:layout_alignParentLeft="false" android:layout_alignParentTop="false" android:layout_alignParentEnd="true" android:layout_alignParentStart="false" android:longClickable="false"/>
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -68,6 +76,11 @@
     <TextView
         android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GPS Signal Lost" android:id="@+id/textViewGPSlost" android:layout_gravity="center" android:autoText="true" android:textSize="40dp" android:phoneNumber="true" android:gravity="center" android:background="#000000" android:textColor="@color/holo_orange_light" android:layout_alignParentStart="true" android:singleLine="false" android:password="false" android:layout_alignParentBottom="true" android:layout_alignRight="@+id/textView" android:visibility="visible"/>
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageAlert" android:src="@drawable/speedcameraredlight" android:visibility="invisible" android:layout_alignParentLeft="false" android:layout_alignParentTop="false" android:layout_alignParentEnd="true" android:layout_alignParentStart="false" android:longClickable="false"/>
+
     <!--<ProgressBar-->
         <!--style="?android:attr/progressBarStyleHorizontal"-->
         <!--android:layout_width="fill_parent"-->
@@ -81,19 +94,5 @@
         <!--android:layout_height="wrap_content"-->
         <!--android:text="New Button"-->
         <!--android:id="@+id/button1" android:layout_gravity="left|center_vertical"/>-->
-
-    <RelativeLayout android:id="@+id/list_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_below="@+id/stop_update_button">
-
-        <ListView
-            android:id="@+id/log_listview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"/>
-    </RelativeLayout>
 
 </RelativeLayout>

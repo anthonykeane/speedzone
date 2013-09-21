@@ -15,6 +15,48 @@
     <!--</PreferenceScreen>-->
     <!--</PreferenceCategory>-->
 
+    <PreferenceCategory android:title="@string/settings_Alert_title">
+
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/settings_soundKey"
+            android:title="@string/settings_soundTitle"
+            android:summary="@string/settings_soundSummary"/>
+
+        <ListPreference
+            android:dependency="@string/settings_soundKey"
+            android:key="@string/settings_Alert_Key"
+            android:title="@string/settings_PointLossKey_Title"
+            android:summary="@string/settings_PointLossKey_Summary"
+            android:entries="@array/pointAlert"
+            android:entryValues="@array/point_values"
+            android:defaultValue="3" />
+
+
+        <EditTextPreference
+            android:dependency="@string/settings_soundKey"
+            android:key="@string/settings_ttsSaluteKey"
+            android:summary="@string/settings_user_ttsSaluteSummary"
+            android:title="@string/settings_user_ttsSaluteTitle"
+            android:dialogTitle="@string/settings_user_ttsSaluteTitle"
+            android:dialogMessage="@string/settings_user_ttsSaluteSummary"
+            android:inputType="text"
+            android:defaultValue="@string/ttsSalute"/>
+
+
+        <!--<ListPreference-->
+        <!--android:dependency="@string/settings_displayKey"-->
+        <!--android:dialogTitle="@string/settings_debugVerbosityTitle"-->
+        <!--android:title="@string/settings_debugVerbosityTitle"-->
+        <!--android:summary="@string/settings_debugVerbositySummary"-->
+        <!--android:key="@string/settings_debugVerbosityKey"-->
+        <!--android:defaultValue="0"-->
+        <!--android:entries="@array/debugVerbosity"-->
+        <!--android:entryValues="@array/debugVerbosityValue"-->
+        <!--/>-->
+
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_Settings_title">
 
@@ -34,21 +76,6 @@
             android:entryValues="@array/opts_values"
             android:defaultValue="1" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="@string/settings_soundKey"
-            android:title="@string/settings_soundTitle"
-            android:summary="@string/settings_soundSummary"/>
-
-        <EditTextPreference
-            android:dependency="@string/settings_soundKey"
-            android:key="@string/settings_ttsSaluteKey"
-            android:summary="@string/settings_user_ttsSaluteSummary"
-            android:title="@string/settings_user_ttsSaluteTitle"
-            android:dialogTitle="@string/settings_user_ttsSaluteTitle"
-            android:dialogMessage="@string/settings_user_ttsSaluteSummary"
-            android:inputType="text"
-            android:defaultValue="@string/ttsSalute"/>
 
         <!--<ListPreference-->
             <!--android:dependency="@string/settings_displayKey"-->
