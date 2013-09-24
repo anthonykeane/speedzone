@@ -157,13 +157,13 @@
     <string name="menu_float">Float</string>
 
     <string name="settings_Alert_Key">settings_Point_Key</string>
-    <string name="SpeakAlertSpeedChange">the Speed Limit is now . </string>
-    <string name="SpeakAlertSpeedChangeSpeeding">check your speed. </string>
-    <string name="SpeakAlertSpeed1point">your risking one point and $106 </string>
+    <string name="SpeakAlertSpeedChange">the Speed Limit is now</string>
+    <string name="SpeakAlertSpeedChangeSpeeding">check your speed</string>
+    <string name="SpeakAlertSpeed1point">your risking one point and $106</string>
     <string name="SpeakAlertSpeed3points">your risking three point and $248 </string>
     <string name="SpeakAlertSpeed4points">your risking four point and $425 </string>
     <string name="SpeakAlertSpeed5points">your risking five point and $815</string>
-    <string name="SpeakAlertSpeed6points">your risking your license and $$2,197.</string>
+    <string name="SpeakAlertSpeed6points">your risking your license and $2,197</string>
 
 
 

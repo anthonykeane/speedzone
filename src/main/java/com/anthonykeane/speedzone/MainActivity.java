@@ -3,6 +3,7 @@ package com.anthonykeane.speedzone;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.ApplicationErrorReport;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -127,7 +128,7 @@ public class MainActivity extends Activity implements LocationListener {
     private Location locCurrent = new Location(""); // GPS right now
     private Location locLast = new Location("");    // right now n-1
     private Location locLastCallPOI = new Location("");
-    private Location locLastCallNext = new Location("");
+    private Location locNextSpeedChange = new Location("");
     private Location locLastCallHere = new Location("");
 
     private TextToSpeech mTts;
@@ -186,6 +187,9 @@ public class MainActivity extends Activity implements LocationListener {
     private int iLaunchMode = 1;
     private int iAlertMode = 3;
     private static final int iMinAccuracy = 9;
+    private float fMinUpdateDistance = 30;
+    private int iPOIminDistance = 10;
+    private boolean bPhoneActive_Hide;
 
     @Override
     public void onDestroy() {
@@ -222,61 +226,20 @@ public class MainActivity extends Activity implements LocationListener {
 
 
             locCurrent = location;
-            //me.setLatitude(locCurrent.getLatitude());
-            //me.setLongitude(locCurrent.getLongitude());
+
+            callPOI();
+
+            DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
+            if(DistanceToNextSpeedChange<60) callWebServiceHere();
+            updateAlertImage((locCurrent.distanceTo(poi)<300) && DistanceToPOI>locCurrent.distanceTo(poi));
+            DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
 
 
-
-
-             callPOI();
-
-
-
-
-
-
-
-            if (DistanceToNextSpeedChange < (int)(locCurrent.distanceTo(locLastCallNext)))
+            if (iNotCommsLockedOut == 0 && ((abs(locLast.getSpeed() - locCurrent.getSpeed()) > 2.0)
+                    || (abs(locLast.getBearing() - locCurrent.getBearing()) > 7.0)
+                    || (locLast.distanceTo(locCurrent) > fMinUpdateDistance)))
             {
-                DistanceToNextSpeedChange = 0; // if last getting farther away recalculate
-            }
-            else
-            {
-                DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locLastCallNext) - iDistanceOffset);
-            }
-
-
-
-
-
-//            if(poi.hasAccuracy())
-
-            //if (DistanceToPOI < (int)(locCurrent.distanceTo(poi)))
-            {
-                if((DistanceToPOI < (int)(locCurrent.distanceTo(poi))) ||  locCurrent.distanceTo(poi)>300)
-                {
-                    //locLastCallPOI = new Location(""); // if last getting farther away recalculate
-                    DistanceToPOI = 0;
-                    updateAlertImage(false);
-                }
-                else
-                {
-                    DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
-                    updateAlertImage(true);
-                }
-            }
-            //Log.i("GPS", "onLocationChanged  ");
-
-
-
-            if (iNotCommsLockedOut ==0){
-                // if params of locaton unchanged skip
-                if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>2.0)
-                    ||  (abs(locLast.getBearing()-locCurrent.getBearing())>7.0)   )
-                {
-                    callWebServiceHere();
-                }
-                //doStuff();
+                callWebServiceHere();
             }
 
             updateDebugText();
@@ -637,13 +600,12 @@ public class MainActivity extends Activity implements LocationListener {
         try {
             //me.setLatitude(locCurrent.getLatitude());
             //me.setLongitude(locCurrent.getLongitude());
-            locLastCallNext.setLatitude(jThereResult.getDouble("reLat"));
-            locLastCallNext.setLongitude(jThereResult.getDouble("reLon"));
+            locNextSpeedChange.setLatitude(jThereResult.getDouble("reLat"));
+            locNextSpeedChange.setLongitude(jThereResult.getDouble("reLon"));
 
 
 
             //todo is this line needed?
-            DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locLastCallNext) - iDistanceOffset);
             if (bThisIsMainActivity) {
 
                 if (!bCommsTimedOut) setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
@@ -841,12 +803,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     private void updateDebugText(){
-//        if (DistanceToNextSpeedChange>=60){
-//            x = String.valueOf((int)(DistanceToNextSpeedChange/1000)+1) + "Km           or       "+ String.valueOf((int) (iSecondsToSpeedChange/60)+1) + "Min\n";
-//        }
-//        else{
-//            x = String.valueOf((int)DistanceToNextSpeedChange) + "M           or       "+ String.valueOf((int) (iSecondsToSpeedChange)) + "Sec\n";
-//        }
+
         ProgressBar pBap = (ProgressBar) findViewById(R.id.progressBar);
 
         if (DistanceToNextSpeedChange>DistanceToPOI)
@@ -862,10 +819,14 @@ public class MainActivity extends Activity implements LocationListener {
            try
            {
                 if (bDebug) {
-                    String x = "dSpeed " + DistanceToNextSpeedChange + "\tPOI lc" + (int) locCurrent.distanceTo(locLastCallPOI) + "\n ##  " +(int)locCurrent.distanceTo(poi)+ "\n";
+                    String x = "Speed Change in  " +(int) DistanceToNextSpeedChange + "m"
+                            + "\ncallPOI was called " + (int) locCurrent.distanceTo(locLastCallPOI) + "m ago"
+                            + "\nPOI was Detected " +(int)locCurrent.distanceTo(poi)+ "m Away"
+                            + "\nA:" +  (int)locCurrent.getAccuracy()
+                            + "\nmin:" +  (int)iPOIminDistance;
+
                     setDebugText(itextView, x);
-                    x = "\n\n\n  A:" +  locCurrent.getAccuracy()           ;
-                    setDebugText(itextView2, x);
+
                 } else {
                     setDebugText(itextView, "");
                     setDebugText(itextView2, "");
@@ -1186,6 +1147,29 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onResume() {
         super.onResume();
+
+
+
+
+
+
+//
+//
+//        ActivityManager am = (ActivityManager)this.getSystemService(ACTIVITY_SERVICE);
+//        List l = am.getRunningAppProcesses();
+//        Iterator i = l.iterator();
+//        PackageManager pm = this.getPackageManager();
+//        while(i.hasNext()) {
+//            ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
+//            try {
+//                CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
+//                Log.w("HELLOWORLD2", c.toString());
+//            }catch(Exception e) {
+//                //Name Not FOund Exception
+//            }
+//        }
+//
+
         Log.i(TAG, "onResume  ");
 
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);
@@ -1201,6 +1185,19 @@ public class MainActivity extends Activity implements LocationListener {
                 mBroadcastFilter);
 
 
+        // Sent to Back if "Phone of Contacts are active"
+        final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
+
+        for (int i = 0; i < recentTasks.size(); i++)
+        {
+            bPhoneActive_Hide = recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
+                    || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}");
+        }
+
+        if (bPhoneActive_Hide){
+            moveTaskToBack(isTaskRoot());
+        }
 
 
 
@@ -1213,6 +1210,9 @@ public class MainActivity extends Activity implements LocationListener {
         if (isMyServiceRunning()){
             moveTaskToBack(isTaskRoot());
         }
+
+
+
 
     }
 
@@ -1500,43 +1500,36 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void callPOI(){
 
-        if((locCurrent.distanceTo(locLastCallPOI)> 200) || (!locLastCallPOI.hasAccuracy())) // call this is 500m distance of not init-ed
+        if((locCurrent.distanceTo(locLastCallPOI)> iPOIminDistance) || (!locLastCallPOI.hasAccuracy())) // call this is Xm distance of not init-ed
         {
             Log.i(TAG, "callPOI  ");
             locLastCallPOI = locCurrent;
+            if (iPOIminDistance>1000) iPOIminDistance=1000;
 
             RequestParams HTTPrpA = new RequestParams();
             HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
             HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
-    //        HTTPrpA.put("ber", String.valueOf(locCurrent.getBearing()));
-    //        HTTPrpA.put("speed", String.valueOf(locCurrent.getSpeed()));
-
-    //            HTTPrpA.put("lat", "-35.350");
-    //            HTTPrpA.put("lon", "149.11");
 
                 client.get(getString(R.string.MyPOIWeb), HTTPrpA, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject response) {
                         try {
-
-                            poi = locCurrent; // this is to set values like accuracy etc.
                             poi.setLatitude(response.getDouble("poiLat"));
                             poi.setLongitude(response.getDouble("poiLon"));
-                            Log.i(TAG, "onSuccess  " + poi.getLatitude() +" "+ poi.getLongitude());
-
+                            poi.setAccuracy(5);
                             DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
+                            iPOIminDistance = (int)(DistanceToPOI*0.8);
+                            Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() +" "+ poi.getLongitude());
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        Log.i(TAGd, "CallPOI onSuccess  ");
-                        //updateAlertImage(true);
-
                     }
 
                     public void onStart() {
                         // Completed the request (either success or failure)
                         toggleRadioButton();
-                        Log.i(TAG, "onStart  ");
+                        Log.i(TAG, "callPOI onStart  ");
 
                     }
 
@@ -1550,8 +1543,9 @@ public class MainActivity extends Activity implements LocationListener {
                     public void onFailure(Throwable e, JSONObject errorResponse) {
 
                         Log.i(TAGd, "CallPOI onFailure   ");
-                        DistanceToPOI = 10000;
+                        DistanceToPOI = 0;
                         // Completed the request (either success or failure)
+                        iPOIminDistance=1000;
                         updateAlertImage(false);
                     }
 
