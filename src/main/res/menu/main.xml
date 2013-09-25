@@ -64,7 +64,7 @@
         android:id="@+id/menu_debug"
         android:title="@string/debug"
     android:icon="@drawable/debug"
-    android:showAsAction="ifRoom" />
+    android:showAsAction="never" />
 
     <item
         android:id="@+id/menu_feedback"

@@ -424,15 +424,15 @@ public class MainActivity extends Activity implements LocationListener {
 
             //todo
 
-            if (   ((locCurrent.getAccuracy()>=iMinAccuracy) || (!locCurrent.hasAccuracy()))  && bDebug)
-            {
-                HTTPrp.put("lat", "-33.71013");
-                HTTPrp.put("lon", "150.94951");
-                HTTPrp.put("ber", "100");
-                HTTPrp.put("speed", "99");
-                HTTPrp.put("UUID", "test-" + sUUID);
-                HTTPrp.put("When", now.format("%Y-%m-%d %H:%M:%S"));
-            }
+//            if (   ((locCurrent.getAccuracy()>=iMinAccuracy) || (!locCurrent.hasAccuracy()))  && bDebug)
+//            {
+//                HTTPrp.put("lat", "-33.71013");
+//                HTTPrp.put("lon", "150.94951");
+//                HTTPrp.put("ber", "100");
+//                HTTPrp.put("speed", "99");
+//                HTTPrp.put("UUID", "test-" + sUUID);
+//                HTTPrp.put("When", now.format("%Y-%m-%d %H:%M:%S"));
+//            }
 
             //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
             // todo if ((locCurrent.getAccuracy()<15) && (locCurrent.getAccuracy()!=0.0)  || bDebug)
@@ -844,7 +844,7 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+//        Debug.startMethodTracing("anthony.trace");
         //client.setTimeout(2000);
 //
 //
@@ -1141,7 +1141,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         // Stop listening to broadcasts when the Activity isn't visible.
         mBroadcastManager.unregisterReceiver(updateListReceiver);
-
+        //Debug.stopMethodTracing();
 
     }
     @Override

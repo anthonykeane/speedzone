@@ -156,27 +156,21 @@
     <string name="app_name">SpeedZone</string>
     <string name="menu_float">Float</string>
 
-    <string name="settings_Alert_Key">settings_Point_Key</string>
-    <string name="SpeakAlertSpeedChange">the Speed Limit is now</string>
+    <string name="settings_Alert_Key">settings_Point_Key </string>
+    <string name="SpeakAlertSpeedChange">the Speed Limit is now </string>
     <string name="SpeakAlertSpeedChangeSpeeding">check your speed</string>
     <string name="SpeakAlertSpeed1point">your risking one point and $106</string>
     <string name="SpeakAlertSpeed3points">your risking three point and $248 </string>
     <string name="SpeakAlertSpeed4points">your risking four point and $425 </string>
-    <string name="SpeakAlertSpeed5points">your risking five point and $815</string>
-    <string name="SpeakAlertSpeed6points">your risking your license and $2,197</string>
+    <string name="SpeakAlertSpeed5points">your risking five point and $815 </string>
+    <string name="SpeakAlertSpeed6points">your risking your license and $2,197 </string>
 
 
 
 
     <string name="getSpeedURL">http://220.233.25.75/mydb2.php</string>
     <string name="getNextSpeedURL">http://220.233.25.75/mynext.php</string>
-    <string name="whatsnew">0.0.23\n
-        Added Google Activity Service.\n
-        Added preferences to auto launch\n
-        Added preference to launch in Normal or floating Mode\n
-        Added preference to edit launch greeting (leave blank for no Greeting)\n
-        0.0.20\n
-        Fixed "GPS Signal Lost" no longer slow\n </string>
+    <string name="whatsnew">See Playstore</string>
 
 
 
@@ -237,7 +231,7 @@
 
 
 
-
+    <string name="log_message">Log: timestamp: %1$s type %2$s confidence %3$d</string>
 
 
 
@@ -251,7 +245,7 @@
     <string name="activity_updates_requested">Activity updates requested</string>
     <string name="service_not_connected">Not connected to Location Services</string>
     <string name="activity_updates_stop">Stopping activity update requests</string>
-    <string name="log_message">Log: timestamp: %1$s type %2$s confidence %3$d</string>
+
     <string name="menu_item_clearlog">Clear Log</string>
     <string name="menu_item_showlog">Show Log</string>
     <string name="logs_deleted">Log file(s) deleted</string>
