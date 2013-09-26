@@ -88,7 +88,7 @@ public class ChatHeadService extends Service implements LocationListener {
     private Location locCurrent = new Location(""); // GPS right now
     private Location locLast = new Location("");    // right now n-1
     private Location locLastCallPOI = new Location("");
-    private Location locLastCallNext = new Location("");
+    private Location locNextSpeedChange = new Location("");
     private Location locLastCallHere = new Location("");
 
     private TextToSpeech mTts;
@@ -147,6 +147,12 @@ public class ChatHeadService extends Service implements LocationListener {
     private int iLaunchMode = 1;
     private int iAlertMode = 3;
     private static final int iMinAccuracy = 9;
+    private float fMinUpdateDistance = 30;
+    private int iPOIminDistance = 10;
+    private boolean bPhoneActive_Hide;
+    private boolean bActivityPowerKey;
+    private int iTypeOfPOI;
+    private int iWhenPOI;
 
     @Override
     public void onDestroy() {
@@ -183,61 +189,20 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
             locCurrent = location;
-            //me.setLatitude(locCurrent.getLatitude());
-            //me.setLongitude(locCurrent.getLongitude());
-
-
-
 
             callPOI();
 
+            DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
+            if(DistanceToNextSpeedChange<60) callWebServiceHere();
+            updateAlertImage((locCurrent.distanceTo(poi)<500) && DistanceToPOI>locCurrent.distanceTo(poi));
+            DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
 
 
-
-
-
-
-            if (DistanceToNextSpeedChange < (int)(locCurrent.distanceTo(locLastCallNext)))
+            if (iNotCommsLockedOut == 0 && ((abs(locLast.getSpeed() - locCurrent.getSpeed()) > 2.0)
+                    || (abs(locLast.getBearing() - locCurrent.getBearing()) > 7.0)
+                    || (locLast.distanceTo(locCurrent) > fMinUpdateDistance)))
             {
-                DistanceToNextSpeedChange = 0; // if last getting farther away recalculate
-            }
-            else
-            {
-                DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locLastCallNext) - iDistanceOffset);
-            }
-
-
-
-
-
-//            if(poi.hasAccuracy())
-
-            //if (DistanceToPOI < (int)(locCurrent.distanceTo(poi)))
-            {
-                if((DistanceToPOI < (int)(locCurrent.distanceTo(poi))) ||  locCurrent.distanceTo(poi)>300)
-                {
-                    //locLastCallPOI = new Location(""); // if last getting farther away recalculate
-                    DistanceToPOI = 0;
-                    updateAlertImage(false);
-                }
-                else
-                {
-                    DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
-                    updateAlertImage(true);
-                }
-            }
-            //Log.i("GPS", "onLocationChanged  ");
-
-
-
-            if (iNotCommsLockedOut ==0){
-                // if params of locaton unchanged skip
-                if ((abs(locLast.getSpeed() - locCurrent.getSpeed())>2.0)
-                        ||  (abs(locLast.getBearing()-locCurrent.getBearing())>7.0)   )
-                {
-                    callWebServiceHere();
-                }
-                //doStuff();
+                callWebServiceHere();
             }
 
             updateDebugText();
@@ -422,15 +387,15 @@ public class ChatHeadService extends Service implements LocationListener {
 
             //todo
 
-            if (   ((locCurrent.getAccuracy()>=iMinAccuracy) || (!locCurrent.hasAccuracy()))  && bDebug)
-            {
-                HTTPrp.put("lat", "-33.71013");
-                HTTPrp.put("lon", "150.94951");
-                HTTPrp.put("ber", "100");
-                HTTPrp.put("speed", "99");
-                HTTPrp.put("UUID", "test-" + sUUID);
-                HTTPrp.put("When", now.format("%Y-%m-%d %H:%M:%S"));
-            }
+//            if (   ((locCurrent.getAccuracy()>=iMinAccuracy) || (!locCurrent.hasAccuracy()))  && bDebug)
+//            {
+//                HTTPrp.put("lat", "-33.71013");
+//                HTTPrp.put("lon", "150.94951");
+//                HTTPrp.put("ber", "100");
+//                HTTPrp.put("speed", "99");
+//                HTTPrp.put("UUID", "test-" + sUUID);
+//                HTTPrp.put("When", now.format("%Y-%m-%d %H:%M:%S"));
+//            }
 
             //Toast.makeText(this, String.valueOf(LocListener.getLat()), Toast.LENGTH_SHORT).show();
             // todo if ((locCurrent.getAccuracy()<15) && (locCurrent.getAccuracy()!=0.0)  || bDebug)
@@ -550,6 +515,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
     }
 
+
     private void MyNextWebService() {
 
         try {
@@ -559,7 +525,7 @@ public class ChatHeadService extends Service implements LocationListener {
             HTTPrp2.put("reSpeedLimit", String.valueOf(jHereResult.getString("reSpeedLimit")));
             HTTPrp2.put("RdNo", String.valueOf(jHereResult.getString("RdNo")));
 
-            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 1000) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
+            if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 200) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
             {
                 Log.i(TAG, "onSuccess  Getting Speed change");
                 client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
@@ -597,13 +563,12 @@ public class ChatHeadService extends Service implements LocationListener {
         try {
             //me.setLatitude(locCurrent.getLatitude());
             //me.setLongitude(locCurrent.getLongitude());
-            locLastCallNext.setLatitude(jThereResult.getDouble("reLat"));
-            locLastCallNext.setLongitude(jThereResult.getDouble("reLon"));
+            locNextSpeedChange.setLatitude(jThereResult.getDouble("reLat"));
+            locNextSpeedChange.setLongitude(jThereResult.getDouble("reLon"));
 
 
 
             //todo is this line needed?
-            DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locLastCallNext) - iDistanceOffset);
             if (bThisIsMainActivity) {
 
                 if (!bCommsTimedOut) setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
@@ -713,7 +678,7 @@ public class ChatHeadService extends Service implements LocationListener {
 //        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
 //        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
-
+        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), false);
 
         if(appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)){
             onStartUpdates();

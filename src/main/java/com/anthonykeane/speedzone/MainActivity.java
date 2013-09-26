@@ -49,6 +49,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -135,7 +136,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     public static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     public static final long minTime = 1000;                   // don't update GPS if time < mS
-    public static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
+    public static final float minDistanceGPS = 0;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -190,6 +191,9 @@ public class MainActivity extends Activity implements LocationListener {
     private float fMinUpdateDistance = 30;
     private int iPOIminDistance = 10;
     private boolean bPhoneActive_Hide;
+    private boolean bActivityPowerKey;
+    private int iTypeOfPOI;
+    private int iWhenPOI;
 
     @Override
     public void onDestroy() {
@@ -231,7 +235,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
             if(DistanceToNextSpeedChange<60) callWebServiceHere();
-            updateAlertImage((locCurrent.distanceTo(poi)<300) && DistanceToPOI>locCurrent.distanceTo(poi));
+            updateAlertImage((locCurrent.distanceTo(poi)<500) && DistanceToPOI>locCurrent.distanceTo(poi));
             DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
 
 
@@ -241,15 +245,13 @@ public class MainActivity extends Activity implements LocationListener {
             {
                 callWebServiceHere();
             }
-
-            updateDebugText();
         }
         else
         {
             Log.i(TAG, "onLocationChanged  BAD");
-            noGPS(true);
         }
-
+        updateDebugText();
+        noGPS(location.hasAccuracy() && location.getAccuracy()<iMinAccuracy);
     }
 
     @Override
@@ -715,7 +717,7 @@ public class MainActivity extends Activity implements LocationListener {
 //        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
 //        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
-
+        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), false);
 
         if(appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)){
             onStartUpdates();
@@ -787,6 +789,14 @@ public class MainActivity extends Activity implements LocationListener {
             if (img.getVisibility() != View.VISIBLE) {
                 img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce) );
                 img.setVisibility(View.VISIBLE);
+                //iTypeOfPOI and iWhenPOI comes from callPOI() return
+                // if Speed Camera etc are active at this time of day then ...
+                Log.i(TAG, "updateAlertImage  W" + iWhenPOI + " T" + iTypeOfPOI);
+                if(POIActive(iWhenPOI))
+                {
+                    String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
+                    mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_FLUSH, null);
+                }
             }
         }
         else {
@@ -796,6 +806,63 @@ public class MainActivity extends Activity implements LocationListener {
             }
         }
     }
+
+    private boolean POIActive(int iWhenPOI) {
+
+
+        // always active
+        if(iWhenPOI == 0) return true;
+
+
+        Calendar cal = Calendar.getInstance();
+//
+//        int millisecond = cal.get(Calendar.MILLISECOND);
+//        int second = cal.get(Calendar.SECOND);
+//        int minute = cal.get(Calendar.MINUTE);
+//        //12 hour format
+//        int hour = cal.get(Calendar.HOUR);
+//        //24 hour format
+//        int hourofday = cal.get(Calendar.HOUR_OF_DAY);
+//
+//        //Same goes for the date, as follows:
+//
+//        int dayofyear = cal.get(Calendar.DAY_OF_YEAR);
+//        int year = cal.get(Calendar.YEAR);
+//        int dayofweek = cal.get(Calendar.DAY_OF_WEEK);
+//        int dayofmonth = cal.get(Calendar.DAY_OF_MONTH);
+//
+
+
+        //check day of week
+        switch (iWhenPOI){
+            case 0:     return true;
+            case 1:
+            case 2:
+            case 3:
+            case 5:  if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))
+                     {return false;}
+        }
+        // check time
+        switch (iWhenPOI){
+
+            case 1:     return (cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<10);
+
+            case 2:     return ((cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<10) || (cal.get(Calendar.HOUR)>=15 && cal.get(Calendar.HOUR)<19));
+
+            case 3:     return ((cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<10) || (cal.get(Calendar.HOUR)>=15 && cal.get(Calendar.HOUR)<20));
+
+            case 4:
+            case 5:     return (cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<20);
+
+            case 6:     return (cal.get(Calendar.HOUR)>=15 && cal.get(Calendar.HOUR)<19);
+
+        }
+
+
+        return true;
+
+    }
+
     private void updateDebugIcon() {
         if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
         else{ vImageViewDebug.setVisibility(View.INVISIBLE); }
@@ -822,8 +889,8 @@ public class MainActivity extends Activity implements LocationListener {
                     String x = "Speed Change in  " +(int) DistanceToNextSpeedChange + "m"
                             + "\ncallPOI was called " + (int) locCurrent.distanceTo(locLastCallPOI) + "m ago"
                             + "\nPOI was Detected " +(int)locCurrent.distanceTo(poi)+ "m Away"
-                            + "\nA:" +  (int)locCurrent.getAccuracy()
-                            + "\nmin:" +  (int)iPOIminDistance;
+                            + "\nA:" +  locCurrent.getAccuracy() + "\tH:" +  locCurrent.hasAccuracy()
+                            + "\tmin:" +  (int)iPOIminDistance;
 
                     setDebugText(itextView, x);
 
@@ -863,26 +930,11 @@ public class MainActivity extends Activity implements LocationListener {
         vImageViewTimeout = findViewById(R.id.imageViewTimeout);
 
 
-        // Are we charging / charged?
-        Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                             status == BatteryManager.BATTERY_STATUS_FULL;
-
-        //int iPluggedIn = inPower.getIntExtra("plugged", 0);
-
         // Turn on the GPS.     set up GPS
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
         //Start the GPS listener
-        if (isCharging)
-        {
-            locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
-        }
-        else
-        {
-            locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistanceGPS, this);
-        }
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
 
 
 
@@ -930,10 +982,6 @@ public class MainActivity extends Activity implements LocationListener {
 
 
 
-        callWebServiceHere();
-        updateTimeoutIcon();
-        updateDebugIcon();
-
 //        //5000 is the starting number (in milliseconds)
 //        //1000 is the number to count down each time (in milliseconds)
 //          MyCount counter = new MyCount(5000,1000);
@@ -968,8 +1016,6 @@ public class MainActivity extends Activity implements LocationListener {
         // Create a new LogFile object
         mLogFile = LogFile.getInstance(this);
 
-        // Receive Settings
-        RetreiveSettings();
 
 
         // Use instance field for listener
@@ -983,14 +1029,14 @@ public class MainActivity extends Activity implements LocationListener {
 
         appSharedPrefs.registerOnSharedPreferenceChangeListener(splistener);
 
+        // Receive Settings
+        RetreiveSettings();
+        LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
 
 
-
-        if(iLaunchMode == 2)
-        {
-            callFloat();
-        }
-
+        callWebServiceHere();
+        updateTimeoutIcon();
+        updateDebugIcon();
 
 
     }
@@ -1150,6 +1196,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
 
+        LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
 
 
 
@@ -1185,14 +1232,29 @@ public class MainActivity extends Activity implements LocationListener {
                 mBroadcastFilter);
 
 
-        // Sent to Back if "Phone of Contacts are active"
+    }
+
+    private void LaunchOrKill() {
+
+        if(iLaunchMode == 2)
+        {
+            callFloat();
+        }
+
+        if (isMyServiceRunning()){
+            moveTaskToBack(isTaskRoot());
+        }
+
+
+        // Sent to Back if "Phone or Contacts are active"
         final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
 
         for (int i = 0; i < recentTasks.size(); i++)
         {
             bPhoneActive_Hide = recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
-                    || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}");
+                             || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
+                             || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
         }
 
         if (bPhoneActive_Hide){
@@ -1201,13 +1263,15 @@ public class MainActivity extends Activity implements LocationListener {
 
 
 
-        if(iLaunchMode == 2)
+
+        // Are we Connected to external power?
+        Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        if (!isCharging && bActivityPowerKey)
         {
-            callFloat();
-        }
-
-
-        if (isMyServiceRunning()){
             moveTaskToBack(isTaskRoot());
         }
 
@@ -1241,7 +1305,7 @@ public class MainActivity extends Activity implements LocationListener {
         else {
            // Display an error dialog
             try {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
+                //GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1518,6 +1582,8 @@ public class MainActivity extends Activity implements LocationListener {
                             poi.setLongitude(response.getDouble("poiLon"));
                             poi.setAccuracy(5);
                             DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
+                            iTypeOfPOI = response.getInt("poiType");
+                            iWhenPOI =  response.getInt("poiWhen");
                             iPOIminDistance = (int)(DistanceToPOI*0.8);
                             Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() +" "+ poi.getLongitude());
 

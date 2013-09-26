@@ -72,14 +72,14 @@
     <string name="settings_debugTitle">Debug</string>
     <string name="settings_debugSummary">Would you like to enable debugging?</string>
 
-    <string name="settings_soundTitle">Sound</string>
-    <string name="settings_soundSummary">Would you like to hear new posted speeds, as you move between zones?</string>
+    <string name="settings_soundTitle">Sound Alerts</string>
+    <string name="settings_soundSummary">Announce new posted speeds, as you move between zones.</string>
 
     <string name="settings_activityServicesTitle">Google Activity Services</string>
-    <string name="settings_activityServicesSummary">Auto launch app when driving is detected?</string>
+    <string name="settings_activityServicesSummary">Auto launch app when driving is detected.</string>
 
     <string name="settings_launchTypeTitle">Auto Launch Mode</string>
-    <string name="settings_launchTypeSummary">Normal mode of Float mode?</string>
+    <string name="settings_launchTypeSummary">Normal mode or Float mode?</string>
 
 
     <string name="settings_userEmailTitle">Optional BCC Email address</string>
@@ -200,6 +200,7 @@
 
     <string name="settings_debugKey">settings_debugKey</string>
     <string name="settings_activityServicesKey">settings_activityServicesKey</string>
+    <string name="settings_activityPowerKey">settings_activityPowerKey</string>
     <string name="settings_launchTypeKey">settings_launchTypeKey</string>
     <item name="settings" type="id">Settings</item>
     <item name="menu_feedback" type="id">menu_feedback</item>
@@ -267,6 +268,8 @@
     </string>
     <string name="settings_PointLossKey_Summary">Alert me if I am at risk of losing demerit points</string>
     <string name="settings_PointLossKey_Title">Demerit Points Alert</string>
+    <string name="settings_activityPowerSummary">Launch the app even if power is not connected?</string>
+    <string name="settings_activityPowerTitle">Launch if no Power</string>
 
 
 </resources>

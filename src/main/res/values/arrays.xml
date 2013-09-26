@@ -28,4 +28,25 @@
         <item>0</item>
     </string-array>
 
+    <string-array name="poiActiveTimes">
+        <item>0,All</item>
+        <item>1,06:00-10:00 Weekday</item>
+        <item>2,06:00-10:00, 15:00-19:00, Weekday</item>
+        <item>3,06:00-10:00, 15:00-20:00, Weekday</item>
+        <item>4,06:00-20:00</item>
+        <item>5,06:00-20:00, Weekday</item>
+        <item>6,15:00-19:00</item>
+    </string-array>
+
+
+    <string-array name="poiTypeArray">
+        <item>place Holder</item>
+        <item>Red light and speed camera ahead</item>
+        <item>School zone speed camera ahead</item>
+        <item>Bus Lane camera ahead</item>
+        <item>Red Light and Speed camera within School Zone</item>
+        <item>Speed camera ahead</item>
+        <item>Variable Speed camera ahead</item>
+        <item>Transitway camera ahead</item>
+    </string-array>
 </resources>

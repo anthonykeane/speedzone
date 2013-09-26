@@ -67,6 +67,13 @@
             android:title="@string/settings_activityServicesTitle"
             android:summary="@string/settings_activityServicesSummary"/>
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="@string/settings_activityServicesKey"
+            android:key="@string/settings_activityPowerKey"
+            android:title="@string/settings_activityPowerTitle"
+            android:summary="@string/settings_activityPowerSummary"/>
+
         <ListPreference
             android:dependency="@string/settings_activityServicesKey"
             android:key="@string/settings_launchTypeKey"
