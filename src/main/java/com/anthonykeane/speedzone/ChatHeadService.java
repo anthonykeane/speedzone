@@ -715,28 +715,6 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
 
-    private void initTextToSpeach() {
-        //Sound TTS
-        Intent checkIntent = new Intent();
-        // checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-        // startActivityForResult(checkIntent, intentTTS);
-// success, create the TTS instance
-        mTts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                mTts.setLanguage(Locale.US);
-                //mTts.setLanguage(Locale.getDefault());
-                if (!bMute) {
-                    try {
-                        mTts.speak("hello", TextToSpeech.QUEUE_FLUSH, null);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-    }
 
 
     private void updateAlertImage(boolean b) {

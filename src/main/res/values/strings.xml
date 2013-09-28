@@ -1,21 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+   <string name="whatsnew">0.0.30\n bug fixes \n0.0.29\n
+    Added a setting to prevent auto launch while on battery, RED popup says when this is preventing the app from launching</string>
 
-    <!--<string name="settings_aboutAltruisticEngineersTitle">Altruistic Engineers Community</string>-->
-    <!--<string name="settings_aboutAltruisticEngineersSummary">Community is about using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>-->
-    <!--<string name="settings_aboutAltruisticTranslatorsTitle">Altruistic Translators Community</string>-->
-    <!--<string name="settings_aboutAltruisticTranslatorsSummary">using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>-->
 
-    <string name="settings_alertOnGreenLightEnabledTitle">Enable Alert On Green Light</string>
-    <string name="settings_alertOnGreenLightEnabledSummary">Touch a red traffic light and you will be notified when it changes</string>
-    <!--<string name="settings_user_ttsSignFoundTitle">Sign Detected Alert</string>-->
-    <!--<string name="settings_user_ttsSignFoundSummary">This is what is announced when a sign is detected</string>-->
-    <!--<string name="settings_user_ttsSaluteTitle">Launch Application Alert</string>-->
-    <!--<string name="settings_user_ttsSaluteSummary">This is what is announced when the application is launched\nLeave blank to disable.</string>-->
-    <!--<string name="settings_FeedbackTitle">Send Anonymous Feedback</string>-->
-    <!--<string name="settings_FeedbackSummary">This allows you to send feedback through the Google Play Store, none of your personal details are sent.</string>-->
-    <!--<string name="sendFeedback">Send Feedback</string>-->
+
 
 
     <string name="settings_displayKey">bDebug</string>
@@ -23,9 +13,6 @@
     <string name="settings_userEmailKey">userEmail</string>
     <string name="settings_userPrivacyKey">userPrivacy</string>
     <string name="settings_ttsSaluteKey">ttsSaluteKey</string>
-
-    <!--<string name="settings_debugVerbosityTitle">Debug Display</string>-->
-    <!--<string name="settings_debugVerbositySummary">Select how much debug detailed you want to see.</string>-->
 
     <string name="android:versionName">SpeedZone</string>
 
@@ -115,15 +102,9 @@
     <string name="bMenu">TouchMe</string>
 
     <!--MISC    -->
-    <string name="disabled">\u0020Disabled</string>
-    <string name="enabled">&#160;Enabled</string>
-    <string name="disable">Disable&#160;</string>
-    <string name="enable">Enable&#160;</string>
-    <string name="lightGreen">Detection</string>
-    <string name="bShowVersion">Show Version</string>
     <string name="ttsSalute">OK, here we go!</string>
-    <string name="ttslightGreen">I think the traffic is about to move!</string>
-    <string name="ttsSignFound">Detected!</string>
+
+
 
 
     <string name="symbols">&#8722;   &#43;   &#177;   &#215;   &#247;   &#37;   &#137;   &#61;   &#8800;   &#8776;   &#8801;   &#60;   &#62;   &#8804;   &#8805;   &#8734;   &#8539;   &#188;   &#8540;   &#189;   &#8541;   &#190;   &#8542;   &#8747;   &#8706;   &#8710;   &#8719;   &#8721;   &#8730;   &#8735;   &#8745;   &#8729;   &#131;   &#8260;   "</string>
@@ -142,24 +123,10 @@
     <string name="SpeakAlertSpeed6points">your risking your license and $2,197 </string>
 
 
-    <string name="getSpeedURL">http://220.233.25.75/mydb2.php</string>
-    <string name="getNextSpeedURL">http://220.233.25.75/mynext.php</string>
-    <string name="whatsnew">0.0.30/n bug fixes /n0.0.29/n
-    Added a setting to prevent auto launch while on battery, RED popup says when this is preventing the app from launching</string>
-
 
     <!--MENU-->
 
-    <string name="fancy">Fancy Display</string>
-    <string name="thres">Threshold</string>
     <string name="debug">Debug</string>
-    <string name="erode">Erode</string>
-    <string name="dilate">Dilate x2</string>
-    <string name="email">Email Data</string>
-    <string name="popup">Adjust Threshold Level</string>
-    <string name="misc">Misc</string>
-    <string name="mute_vol">Mute</string>
-    <string name="unmute_vol">Unmute</string>
     <string name="MyNextWeb">http://220.233.25.75/speed/mynext.php</string>
     <string name="MyPOIWeb">http://220.233.25.75/speed/mydbpoi.php</string>
     <string name="MyDbWeb">http://220.233.25.75/speed/mydb.php</string>
@@ -213,7 +180,7 @@
     <string name="settings_activityPowerSummary">Launch the app even if power is not connected?</string>
     <string name="settings_activityPowerTitle">Launch if no Power</string>
     <string name="GPSlost">GPS Signal Lost</string>
-    <string name="GPSlost1">GPS Signal Lost</string>
+
 
 
 </resources>

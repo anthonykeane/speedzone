@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:alpha="1"
-    android:background="#f000"
     android:clickable="false"
     android:gravity="center|clip_horizontal|clip_vertical"
     android:orientation="vertical">
@@ -13,7 +12,6 @@
         android:id="@+id/list_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/stop_update_button"
         android:orientation="vertical">
 
         <ListView
@@ -48,7 +46,8 @@
         android:contentDescription="Current Speed"
         android:longClickable="true"
         android:scaleType="fitCenter"
-        android:src="@drawable/berror" />
+        android:src="@drawable/berror"
+        tools:ignore="HardcodedText" />
 
     <ImageButton
         android:id="@+id/imageButtonError"
@@ -68,7 +67,8 @@
         android:longClickable="true"
         android:scaleType="fitCenter"
         android:src="@drawable/berror"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:ignore="HardcodedText" />
 
     <ImageButton
         android:id="@+id/imageBtnSmall"
@@ -85,7 +85,8 @@
         android:scaleType="fitCenter"
         android:scrollbarAlwaysDrawVerticalTrack="false"
         android:soundEffectsEnabled="false"
-        android:src="@drawable/gerror" />
+        android:src="@drawable/gerror"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView2"
@@ -149,12 +150,7 @@
             android:id="@+id/imageViewTimeout"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="false"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentRight="false"
-            android:layout_alignParentTop="false"
-            android:layout_alignWithParentIfMissing="false"
             android:src="@drawable/stat_notify_wifi_in_range"
             android:visibility="visible" />
 

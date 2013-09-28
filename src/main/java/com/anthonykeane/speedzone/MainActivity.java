@@ -879,11 +879,11 @@ public class MainActivity extends Activity implements LocationListener {
         }
         try {
             if (bDebug) {
-                String x = "Speed Change in  " + (int) DistanceToNextSpeedChange + "m"
+                String x = "Speed Change in  " + DistanceToNextSpeedChange + "m"
                         + "\ncallPOI was called " + (int) locCurrent.distanceTo(locLastCallPOI) + "m ago"
                         + "\nPOI was Detected " + DistanceToPOI + "m Away"
                         + "\nA:" + locCurrent.getAccuracy() + "\tH:" + locCurrent.hasAccuracy()
-                        + "\tmin:" + (int) iPOIminDistance;
+                        + "\tmin:" + iPOIminDistance;
 
                 setDebugText(itextView, x);
 
@@ -1144,7 +1144,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void callFloat() {
         Intent intent;
-        Bundle extras;
+        //Bundle extras;
         intent = new Intent(MainActivity.this, ChatHeadService.class);
         intent.putExtra("TheOK", true);
         intent.putExtra(sUUID, "sUUID");
@@ -1232,10 +1232,10 @@ public class MainActivity extends Activity implements LocationListener {
         final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
 
-        for (int i = 0; i < recentTasks.size(); i++) {
-            bPhoneActive_Hide = recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
-                    || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
-                    || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
+        for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
+            bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
+                    || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
+                    || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
         }
 
         if (bPhoneActive_Hide) {
@@ -1304,15 +1304,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             // Google Play services was not available for some reason
         } else {
-            // Display an error dialog
-            try {
-                //GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             return false;
-
-
         }
     }
 
@@ -1522,7 +1514,7 @@ public class MainActivity extends Activity implements LocationListener {
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void sendFeedback() {
         try {
-            int i = 3 / 0;
+            @SuppressWarnings("UnusedAssignment") int i = 3 / 0;
         } catch (Exception e) {
             ApplicationErrorReport report = new ApplicationErrorReport();
             report.packageName = report.processName = getApplication().getPackageName();

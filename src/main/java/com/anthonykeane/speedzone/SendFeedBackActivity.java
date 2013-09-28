@@ -26,7 +26,7 @@ public class SendFeedBackActivity extends PreferenceActivity {
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void sendFeedback() {
         try {
-            int i = 3 / 0;
+            @SuppressWarnings("UnusedAssignment") int i = 3 / 0;
         } catch (Exception e) {
             ApplicationErrorReport report = new ApplicationErrorReport();
             report.packageName = report.processName = getApplication().getPackageName();

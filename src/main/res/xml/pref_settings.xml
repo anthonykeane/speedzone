@@ -7,15 +7,6 @@
             android:key="@string/settings_soundKey"
             android:title="@string/settings_soundTitle"
             android:summary="@string/settings_soundSummary" />
-        <EditTextPreference
-            android:dependency="@string/settings_soundKey"
-            android:key="@string/settings_ttsSignFoundKey"
-            android:title="@string/settings_user_ttsSignFoundTitle"
-            android:summary="@string/settings_user_ttsSignFoundSummary"
-            android:dialogTitle="@string/settings_user_ttsSignFoundTitle"
-            android:inputType="text"
-            android:dialogMessage="@string/settings_user_ttsSignFoundSummary"
-            android:defaultValue="@string/ttsSignFound" />
 
         <EditTextPreference
             android:dependency="@string/settings_soundKey"
