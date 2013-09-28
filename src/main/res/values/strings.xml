@@ -8,8 +8,7 @@
     <!--<string name="settings_aboutAltruisticEngineersSummary">Community is about using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>-->
     <!--<string name="settings_aboutAltruisticTranslatorsTitle">Altruistic Translators Community</string>-->
     <!--<string name="settings_aboutAltruisticTranslatorsSummary">using the power of millions of skilled people with a little spare time advancing solutions that can make the world better for it being here.</string>-->
-    <!--<string name="settings_abouturl2">jakjdahsd asdlkhjdd alksjdlkajla dsas dasda aweoifhjofs</string>-->
-    <!--<string name="settings_abouturl3">jakjdahsd asdlkhjdd alksjdlkajla dsas dasda aweoifhjofs</string>-->
+
     <string name="settings_alertOnGreenLightEnabledTitle">Enable Alert On Green Light</string>
     <string name="settings_alertOnGreenLightEnabledSummary">Touch a red traffic light and you will be notified when it changes</string>
     <!--<string name="settings_user_ttsSignFoundTitle">Sign Detected Alert</string>-->
@@ -43,7 +42,7 @@
 
     <string name="settings_bExperimentalKey">bExperimental</string>
 
-    <!--titles and Summarys-->
+    <!--titles and Summaries-->
 
     <string name="settings_Alert_title">Point Savers :)</string>
     <string name="settings_Alert_Summery">Choose how much the app prompts you</string>
@@ -271,6 +270,7 @@
     <string name="settings_PointLossKey_Title">Demerit Points Alert</string>
     <string name="settings_activityPowerSummary">Launch the app even if power is not connected?</string>
     <string name="settings_activityPowerTitle">Launch if no Power</string>
+    <string name="GPSlost">GPS Signal Lost</string>
 
 
 </resources>
