@@ -23,9 +23,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spanned;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
@@ -97,9 +100,11 @@ public class MainActivity extends Activity implements LocationListener {
     // The activity recognition update request object
     private DetectionRequester mDetectionRequester;
 
-    // The activity recognition update removal object
+    // The activty recognition update removal object
     private DetectionRemover mDetectionRemover;
 
+    Time now = new Time();
+    Time tLast = new Time();
 
 
 
@@ -194,6 +199,7 @@ public class MainActivity extends Activity implements LocationListener {
     private boolean bActivityPowerKey;
     private int iTypeOfPOI;
     private int iWhenPOI;
+    private static final float iShowPOIwithin = 400;
 
     @Override
     public void onDestroy() {
@@ -235,7 +241,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
             if(DistanceToNextSpeedChange<60) callWebServiceHere();
-            updateAlertImage((locCurrent.distanceTo(poi)<500) && DistanceToPOI>locCurrent.distanceTo(poi));
+            updateAlertImage((locCurrent.distanceTo(poi)<iShowPOIwithin) && DistanceToPOI>locCurrent.distanceTo(poi));
             DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
 
 
@@ -250,8 +256,9 @@ public class MainActivity extends Activity implements LocationListener {
         {
             Log.i(TAG, "onLocationChanged  BAD");
         }
+        noGPS(!(location.hasAccuracy() && location.getAccuracy()<iMinAccuracy));
         updateDebugText();
-        noGPS(location.hasAccuracy() && location.getAccuracy()<iMinAccuracy);
+
     }
 
     @Override
@@ -709,7 +716,7 @@ public class MainActivity extends Activity implements LocationListener {
         //Map<String, ?> xx = appSharedPrefs.getAll();
 
 
-        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
+        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), true));  // Active Low
         bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
 //        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
 //        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
@@ -717,7 +724,7 @@ public class MainActivity extends Activity implements LocationListener {
 //        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
 //        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
-        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), false);
+        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), true);
 
         if(appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)){
             onStartUpdates();
@@ -873,6 +880,8 @@ public class MainActivity extends Activity implements LocationListener {
 
         ProgressBar pBap = (ProgressBar) findViewById(R.id.progressBar);
 
+        DistanceToPOI = (int)locCurrent.distanceTo(poi);
+
         if (DistanceToNextSpeedChange>DistanceToPOI)
         {
             pBap.setProgress(DistanceToPOI);
@@ -888,7 +897,7 @@ public class MainActivity extends Activity implements LocationListener {
                 if (bDebug) {
                     String x = "Speed Change in  " +(int) DistanceToNextSpeedChange + "m"
                             + "\ncallPOI was called " + (int) locCurrent.distanceTo(locLastCallPOI) + "m ago"
-                            + "\nPOI was Detected " +(int)locCurrent.distanceTo(poi)+ "m Away"
+                            + "\nPOI was Detected " + DistanceToPOI + "m Away"
                             + "\nA:" +  locCurrent.getAccuracy() + "\tH:" +  locCurrent.hasAccuracy()
                             + "\tmin:" +  (int)iPOIminDistance;
 
@@ -1243,6 +1252,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         if (isMyServiceRunning()){
             moveTaskToBack(isTaskRoot());
+            callFloat();
         }
 
 
@@ -1270,9 +1280,39 @@ public class MainActivity extends Activity implements LocationListener {
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL;
 
-        if (!isCharging && bActivityPowerKey)
+        if (!(isCharging || bActivityPowerKey))
         {
-            moveTaskToBack(isTaskRoot());
+
+            now.setToNow();
+
+
+
+            if((tLast.toMillis(true) +4000)<now.toMillis(true))
+            {
+                moveTaskToBack(isTaskRoot());
+
+
+                LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.toast,
+                        (ViewGroup) findViewById(R.id.toast_layout_root));
+
+                ImageView image = (ImageView) layout.findViewById(R.id.image);
+                image.setImageResource(R.drawable.ic_launcher);
+                TextView text = (TextView) layout.findViewById(R.id.text);
+                text.setText("CLICK AGAIN NOW\n\nSee Power in Settings");
+
+                Toast toast = new Toast(getApplicationContext());
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                toast.setDuration(Toast.LENGTH_LONG);
+                toast.setView(layout);
+                toast.show();
+
+
+
+
+                //Toast.makeText(this, "<CENTER>'SpeedZone NSW'\n\nDisabled while on battery, \nConnect Power to Launch or\n\n CLICK AGAIN \n\nthen See Settings</CENTER>" , Toast.LENGTH_LONG).show();
+            }
+            tLast.setToNow();
         }
 
 

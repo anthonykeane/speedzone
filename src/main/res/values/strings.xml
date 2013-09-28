@@ -132,7 +132,7 @@
     <string name="ttsSignFound">Detected!</string>
 
 
-
+    <string name="symbols">&#8722;   &#43;   &#177;   &#215;   &#247;   &#37;   &#137;   &#61;   &#8800;   &#8776;   &#8801;   &#60;   &#62;   &#8804;   &#8805;   &#8734;   &#8539;   &#188;   &#8540;   &#189;   &#8541;   &#190;   &#8542;   &#8747;   &#8706;   &#8710;   &#8719;   &#8721;   &#8730;   &#8735;   &#8745;   &#8729;   &#131;   &#8260;   "</string>
 
 
 
@@ -170,7 +170,8 @@
 
     <string name="getSpeedURL">http://220.233.25.75/mydb2.php</string>
     <string name="getNextSpeedURL">http://220.233.25.75/mynext.php</string>
-    <string name="whatsnew">See Playstore</string>
+    <string name="whatsnew">0.0.30/n bug fixes /n0.0.29/n
+    Added a setting to prevent auto launch while on battery, RED popup says when this is preventing the app from launching</string>
 
 
 

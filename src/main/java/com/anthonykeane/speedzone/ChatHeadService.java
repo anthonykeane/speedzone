@@ -74,9 +74,7 @@ public class ChatHeadService extends Service implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
-
     private static boolean isRunning;
-
 
     //private static final int intentTTS = 3;
     private String ttsSalute;
@@ -95,7 +93,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     public static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     public static final long minTime = 1000;                   // don't update GPS if time < mS
-    public static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
+    public static final float minDistanceGPS = 0;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -153,6 +151,7 @@ public class ChatHeadService extends Service implements LocationListener {
     private boolean bActivityPowerKey;
     private int iTypeOfPOI;
     private int iWhenPOI;
+    private static final float iShowPOIwithin = 400;
 
     @Override
     public void onDestroy() {
@@ -194,7 +193,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
             DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
             if(DistanceToNextSpeedChange<60) callWebServiceHere();
-            updateAlertImage((locCurrent.distanceTo(poi)<500) && DistanceToPOI>locCurrent.distanceTo(poi));
+            updateAlertImage((locCurrent.distanceTo(poi)<iShowPOIwithin) && DistanceToPOI>locCurrent.distanceTo(poi));
             DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
 
 
@@ -204,14 +203,13 @@ public class ChatHeadService extends Service implements LocationListener {
             {
                 callWebServiceHere();
             }
-
-            updateDebugText();
         }
         else
         {
             Log.i(TAG, "onLocationChanged  BAD");
-            noGPS(true);
         }
+        noGPS(!(location.hasAccuracy() && location.getAccuracy()<iMinAccuracy));
+        updateDebugText();
 
     }
 
@@ -670,7 +668,7 @@ public class ChatHeadService extends Service implements LocationListener {
         //Map<String, ?> xx = appSharedPrefs.getAll();
 
 
-        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), false));  // Active Low
+        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), true));  // Active Low
         bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
 //        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
 //        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
@@ -678,7 +676,7 @@ public class ChatHeadService extends Service implements LocationListener {
 //        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
 //        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
-        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), false);
+        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), true);
 
         if(appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)){
             onStartUpdates();
