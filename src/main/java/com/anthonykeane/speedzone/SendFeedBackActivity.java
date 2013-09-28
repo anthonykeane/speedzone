@@ -23,7 +23,6 @@ public class SendFeedBackActivity extends PreferenceActivity {
     }
 
 
-
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void sendFeedback() {
         try {

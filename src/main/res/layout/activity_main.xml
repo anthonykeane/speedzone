@@ -1,98 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent" android:clickable="false" android:orientation="vertical" android:background="#f000" android:alpha="1" android:gravity="center|clip_horizontal|clip_vertical">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:alpha="1"
+    android:background="#f000"
+    android:clickable="false"
+    android:gravity="center|clip_horizontal|clip_vertical"
+    android:orientation="vertical">
 
-    <RelativeLayout android:id="@+id/list_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_below="@+id/stop_update_button">
+    <RelativeLayout
+        android:id="@+id/list_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stop_update_button"
+        android:orientation="vertical">
 
         <ListView
             android:id="@+id/log_listview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentLeft="true" />
     </RelativeLayout>
 
     <RadioButton
+        android:id="@+id/radioButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/radioButton" android:checked="true" android:layout_alignParentTop="true" android:layout_alignParentRight="false" android:layout_alignParentLeft="true"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentTop="true"
+        android:checked="true" />
 
     <ImageButton
+        android:id="@+id/imageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageButton" android:src="@drawable/berror" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:layout_margin="0dp" android:adjustViewBounds="false" android:contentDescription="Current Speed" android:layout_centerVertical="true" android:layout_centerHorizontal="true" android:longClickable="true"/>
+        android:layout_alignParentStart="false"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="0dp"
+        android:adjustViewBounds="false"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:contentDescription="Current Speed"
+        android:longClickable="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/berror" />
 
     <ImageButton
-        android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/imageButtonError" android:src="@drawable/berror" android:scaleType="fitCenter" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:clickable="true" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:adjustViewBounds="false" android:contentDescription="Current Speed" android:focusableInTouchMode="false" android:alpha=".7" android:layout_alignBottom="@+id/imageButton" android:layout_centerHorizontal="true" android:visibility="invisible" android:longClickable="true"/>
+        android:id="@+id/imageButtonError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageButton"
+        android:layout_alignParentStart="false"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="false"
+        android:alpha=".7"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:contentDescription="Current Speed"
+        android:focusableInTouchMode="false"
+        android:longClickable="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/berror"
+        android:visibility="invisible" />
 
     <ImageButton
+        android:id="@+id/imageBtnSmall"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:id="@+id/imageBtnSmall" android:src="@drawable/gerror" android:scaleType="fitCenter" android:scrollbarAlwaysDrawVerticalTrack="false" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:soundEffectsEnabled="false" android:layout_gravity="center_horizontal|bottom" android:alpha="1" android:background="@android:color/transparent" android:contentDescription="Next Speed" android:layout_centerHorizontal="true" android:layout_alignBottom="@+id/imageButton"/>
+        android:layout_alignBottom="@+id/imageButton"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal|bottom"
+        android:alpha="1"
+        android:background="@android:color/transparent"
+        android:contentDescription="Next Speed"
+        android:scaleType="fitCenter"
+        android:scrollbarAlwaysDrawVerticalTrack="false"
+        android:soundEffectsEnabled="false"
+        android:src="@drawable/gerror" />
 
     <TextView
+        android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentTop="false"
+        android:layout_gravity="center"
+        android:layout_toRightOf="@+id/radioButton"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/textView2" android:layout_gravity="center" android:textSize="20dp" android:layout_alignParentBottom="false" android:layout_alignParentTop="false" android:layout_toRightOf="@+id/radioButton"/>
+        android:textSize="20dp" />
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView" android:layout_gravity="center" android:autoText="false" android:textSize="20dp" android:linksClickable="false" android:layout_alignParentTop="true" android:layout_alignParentBottom="false" android:layout_alignParentRight="false" android:layout_alignWithParentIfMissing="false" android:layout_alignParentStart="false" android:layout_below="@+id/textView2" android:layout_toRightOf="@+id/radioButton"/>
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_below="@+id/textView2"
+        android:layout_gravity="center"
+        android:layout_toRightOf="@+id/radioButton"
+        android:autoText="false"
+        android:linksClickable="false"
+        android:textSize="20dp" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="false"
+        android:layout_alignRight="@+id/imageAlert"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
         android:indeterminate="false"
+        android:max="1000"
         android:maxHeight="10dip"
         android:minHeight="10dip"
-        android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
-        android:progressDrawable="@drawable/greenprogress" android:layout_alignParentTop="false" android:layout_alignRight="@+id/imageAlert" android:layout_marginTop="24dp" android:layout_alignWithParentIfMissing="false"/>
+        android:progress="220"
+        android:progressDrawable="@drawable/greenprogress"
+        android:secondaryProgress="410" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" android:layout_alignParentStart="false" android:gravity="center" android:layout_alignParentLeft="false" android:id="@+id/linearLayout" android:layout_alignParentBottom="true" android:background="@color/black_overlay">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="false"
+        android:background="@color/black_overlay"
+        android:gravity="center">
 
         <ImageView
+            android:id="@+id/imageViewTimeout"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:id="@+id/imageViewTimeout" android:src="@drawable/stat_notify_wifi_in_range" android:visibility="visible" android:layout_alignParentEnd="false" android:layout_alignParentTop="false" android:layout_alignParentLeft="false" android:layout_alignWithParentIfMissing="false" android:layout_alignParentRight="false" android:layout_alignParentBottom="true"/>
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentTop="false"
+            android:layout_alignWithParentIfMissing="false"
+            android:src="@drawable/stat_notify_wifi_in_range"
+            android:visibility="visible" />
 
         <ImageView
+            android:id="@+id/imageViewDebug"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:id="@+id/imageViewDebug" android:src="@drawable/debug" android:visibility="visible" android:layout_alignParentEnd="false" android:adjustViewBounds="false"/>
+            android:layout_alignParentEnd="false"
+            android:adjustViewBounds="false"
+            android:src="@drawable/debug"
+            android:visibility="visible" />
 
     </LinearLayout>
 
     <TextView
-        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GPS Signal Lost" android:id="@+id/textViewGPSlost" android:layout_gravity="center" android:autoText="true" android:textSize="40dp" android:phoneNumber="true" android:gravity="center" android:background="#000000" android:textColor="@color/holo_orange_light" android:layout_alignParentStart="true" android:singleLine="false" android:password="false" android:layout_alignParentBottom="true" android:layout_alignRight="@+id/textView" android:visibility="visible"/>
+        android:id="@+id/textViewGPSlost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/textView"
+        android:layout_gravity="center"
+        android:autoText="true"
+        android:background="#000000"
+        android:gravity="center"
+        android:password="false"
+        android:phoneNumber="true"
+        android:singleLine="false"
+        android:text="@string/GPSlost"
+        android:textColor="@color/holo_orange_light"
+        android:textSize="40dp"
+        android:visibility="visible" />
 
     <ImageView
+        android:id="@+id/imageAlert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageAlert" android:src="@drawable/speedcameraredlight" android:visibility="invisible" android:layout_alignParentLeft="false" android:layout_alignParentTop="false" android:layout_alignParentEnd="true" android:layout_alignParentStart="false" android:longClickable="false"/>
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="false"
+        android:longClickable="false"
+        android:src="@drawable/speedcameraredlight"
+        android:visibility="invisible" />
 
     <!--<ProgressBar-->
-        <!--style="?android:attr/progressBarStyleHorizontal"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/progressBar"-->
-        <!--android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"/>-->
+    <!--style="?android:attr/progressBarStyleHorizontal"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:id="@+id/progressBar"-->
+    <!--android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"/>-->
 
     <!--<Button-->
-        <!--style="?android:attr/buttonStyleSmall"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="New Button"-->
-        <!--android:id="@+id/button1" android:layout_gravity="left|center_vertical"/>-->
+    <!--style="?android:attr/buttonStyleSmall"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="New Button"-->
+    <!--android:id="@+id/button1" android:layout_gravity="left|center_vertical"/>-->
 
 </RelativeLayout>

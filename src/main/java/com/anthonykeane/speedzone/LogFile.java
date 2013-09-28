@@ -73,7 +73,7 @@ public class LogFile {
         if (!mPrefs.contains(ActivityUtils.KEY_LOG_FILE_NUMBER)) {
             mFileNumber = 1;
 
-        // Otherwise, get the last-used file number and increment it.
+            // Otherwise, get the last-used file number and increment it.
         } else {
             int fileNum = mPrefs.getInt(ActivityUtils.KEY_LOG_FILE_NUMBER, 0);
             mFileNumber = fileNum + 1;
@@ -110,7 +110,6 @@ public class LogFile {
      * Create an sLogFileInstance of log file, or return the current sLogFileInstance
      *
      * @param context A Context for the current app
-     *
      * @return An sLogFileInstance of this class
      */
     public static LogFile getInstance(Context context) {
@@ -186,9 +185,9 @@ public class LogFile {
             // Create a new writer for the log file
             mActivityWriter = new PrintWriter(new FileWriter(mLogFile, true));
 
-        // If an IO exception occurs, print a stack trace
+            // If an IO exception occurs, print a stack trace
         } catch (IOException e) {
-                e.printStackTrace();
+            e.printStackTrace();
         }
     }
 

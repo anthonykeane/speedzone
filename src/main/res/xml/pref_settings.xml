@@ -6,7 +6,7 @@
             android:defaultValue="false"
             android:key="@string/settings_soundKey"
             android:title="@string/settings_soundTitle"
-            android:summary="@string/settings_soundSummary"/>
+            android:summary="@string/settings_soundSummary" />
         <EditTextPreference
             android:dependency="@string/settings_soundKey"
             android:key="@string/settings_ttsSignFoundKey"
@@ -15,7 +15,7 @@
             android:dialogTitle="@string/settings_user_ttsSignFoundTitle"
             android:inputType="text"
             android:dialogMessage="@string/settings_user_ttsSignFoundSummary"
-            android:defaultValue="@string/ttsSignFound"/>
+            android:defaultValue="@string/ttsSignFound" />
 
         <EditTextPreference
             android:dependency="@string/settings_soundKey"
@@ -25,23 +25,21 @@
             android:dialogTitle="@string/settings_user_ttsSaluteTitle"
             android:dialogMessage="@string/settings_user_ttsSaluteSummary"
             android:inputType="text"
-            android:defaultValue="@string/ttsSalute"/>
+            android:defaultValue="@string/ttsSalute" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/settings_displayKey"
             android:title="@string/settings_debugTitle"
-            android:summary="@string/settings_debugSummary"/>
-
+            android:summary="@string/settings_debugSummary" />
 
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/settings_bExperimentalKey"
             android:title="@string/settings_bExperimentalTitle"
-            android:summary="@string/settings_bExperimentalSummary"/>
+            android:summary="@string/settings_bExperimentalSummary" />
 
     </PreferenceCategory>
-
 
 
 </PreferenceScreen>

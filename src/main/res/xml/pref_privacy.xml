@@ -4,9 +4,9 @@
 
     <PreferenceScreen
         android:title="@string/settings_userPrivacyTitle"
-        android:summary="@string/settings_userPrivacyTitle"/>
+        android:summary="@string/settings_userPrivacyTitle" />
 
-        <!--android:="@string/settings_userPrivacyStatment"/>-->
+    <!--android:="@string/settings_userPrivacyStatment"/>-->
 
     <!--<PreferenceScreen android:title="Advanced Options">-->
 
@@ -28,7 +28,6 @@
 
     <!--</PreferenceScreen>-->
     <!--</PreferenceCategory>-->
-
 
 
 </PreferenceScreen>

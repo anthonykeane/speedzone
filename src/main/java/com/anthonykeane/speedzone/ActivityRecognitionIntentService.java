@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
@@ -102,19 +103,19 @@ public class ActivityRecognitionIntentService extends IntentService {
                 editor.putInt(ActivityUtils.KEY_PREVIOUS_ACTIVITY_TYPE, activityType);
                 editor.commit();
 
-            // If the repository contains a type
+                // If the repository contains a type
             } else if (
-                       // If the current type is "moving"
-                       //isMoving(activityType)
-                       (DetectedActivity.IN_VEHICLE == activityType)
+                // If the current type is "moving"
+                //isMoving(activityType)
+                    (DetectedActivity.IN_VEHICLE == activityType)
 
-                       &&
+                            &&
 
-                       // The activity has changed from the previous activity
-                       activityChanged(activityType)
+                            // The activity has changed from the previous activity
+                            activityChanged(activityType)
 
-                       // The confidence level for the current activity is > 50%
-                       && (confidence >= 70)) {
+                            // The confidence level for the current activity is > 50%
+                            && (confidence >= 70)) {
 
                 // Notify the user
 
@@ -142,11 +143,11 @@ public class ActivityRecognitionIntentService extends IntentService {
 
         // Set the title, text, and icon
         builder.setContentTitle(getString(R.string.app_name))
-               .setContentText(getString(R.string.turn_on_GPS))
-               .setSmallIcon(R.drawable.ic_notification)
+                .setContentText(getString(R.string.turn_on_GPS))
+                .setSmallIcon(R.drawable.ic_notification)
 
-               // Get the Intent that starts the Location settings panel
-               .setContentIntent(getContentIntent());
+                        // Get the Intent that starts the Location settings panel
+                .setContentIntent(getContentIntent());
 
         // Get an instance of the Notification Manager
         NotificationManager notifyManager = (NotificationManager)
@@ -155,6 +156,7 @@ public class ActivityRecognitionIntentService extends IntentService {
         // Build the notification and post it
         notifyManager.notify(0, builder.build());
     }
+
     /**
      * Get a content Intent for the notification
      *
@@ -187,7 +189,7 @@ public class ActivityRecognitionIntentService extends IntentService {
         if (previousType != currentType) {
             return true;
 
-        // Otherwise, it hasn't.
+            // Otherwise, it hasn't.
         } else {
             return false;
         }
@@ -202,9 +204,9 @@ public class ActivityRecognitionIntentService extends IntentService {
     private boolean isMoving(int type) {
         switch (type) {
             // These types mean that the user is probably not moving
-            case DetectedActivity.STILL :
-            case DetectedActivity.TILTING :
-            case DetectedActivity.UNKNOWN :
+            case DetectedActivity.STILL:
+            case DetectedActivity.TILTING:
+            case DetectedActivity.UNKNOWN:
                 return false;
             default:
                 return true;
@@ -213,7 +215,7 @@ public class ActivityRecognitionIntentService extends IntentService {
 
     /**
      * Write the activity recognition update to the log file
-
+     *
      * @param result The result extracted from the incoming Intent
      */
     private void logActivityRecognitionResult(ActivityRecognitionResult result) {
@@ -230,9 +232,9 @@ public class ActivityRecognitionIntentService extends IntentService {
 
             // Get the current log file or create a new one, then log the activity
             LogFile.getInstance(getApplicationContext()).log(
-                timeStamp +
-                LOG_DELIMITER +
-                getString(R.string.log_message, activityType, activityName, confidence)
+                    timeStamp +
+                            LOG_DELIMITER +
+                            getString(R.string.log_message, activityType, activityName, confidence)
             );
         }
     }
@@ -244,7 +246,7 @@ public class ActivityRecognitionIntentService extends IntentService {
      * @return A user-readable name for the type
      */
     private String getNameFromType(int activityType) {
-        switch(activityType) {
+        switch (activityType) {
             case DetectedActivity.IN_VEHICLE:
                 return "in_vehicle";
             case DetectedActivity.ON_BICYCLE:

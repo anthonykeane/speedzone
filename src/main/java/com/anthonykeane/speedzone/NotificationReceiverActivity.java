@@ -7,8 +7,6 @@ import android.os.Bundle;
 public class NotificationReceiverActivity extends Activity {
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,7 +16,6 @@ public class NotificationReceiverActivity extends Activity {
         notificationManager.cancelAll();
 
     }
-
 
 
     @Override

@@ -14,9 +14,9 @@ import android.util.Log;
  * Created by anthony on 7/07/13.
  */
 public class WhatsNewScreen {
-    private static final String LOG_TAG                 = "WhatsNewScreen";
+    private static final String LOG_TAG = "WhatsNewScreen";
 
-    private static final String LAST_VERSION_CODE_KEY   = "last_version_code";
+    private static final String LAST_VERSION_CODE_KEY = "last_version_code";
 
     private Activity mActivity;
 

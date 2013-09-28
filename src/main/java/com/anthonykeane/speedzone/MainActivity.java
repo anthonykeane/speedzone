@@ -107,7 +107,6 @@ public class MainActivity extends Activity implements LocationListener {
     Time tLast = new Time();
 
 
-
 //    < click here
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +172,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     public int iSpeed = 50;
-    public int fFiveValAvgSpeed=60;
+    public int fFiveValAvgSpeed = 60;
 
     //private Location me = new Location("");
     //private Location dest = new Location("");
@@ -210,11 +209,14 @@ public class MainActivity extends Activity implements LocationListener {
 
         try { // Turn Off the GPS
             locManager.removeUpdates(this); // Turn Off the GPS
-        } catch (Exception e) {Log.i(TAG, "onDestroy - GPS is already null"); }
-        if (locManager!=null){locManager = null;}
+        } catch (Exception e) {
+            Log.i(TAG, "onDestroy - GPS is already null");
+        }
+        if (locManager != null) {
+            locManager = null;
+        }
 
         removeChatHeads();
-
 
 
         //When you are done using TTS, be a good citizen and tell it "you won't be needing its services anymore"
@@ -228,8 +230,7 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if(location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy()<iMinAccuracy)
-        {
+        if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy) {
             noGPS(false);
             Log.i(TAG, "onLocationChanged  GOOD");
             locLast = locCurrent; // this supposed to be here (think again)
@@ -239,24 +240,21 @@ public class MainActivity extends Activity implements LocationListener {
 
             callPOI();
 
-            DistanceToNextSpeedChange = (int)(locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
-            if(DistanceToNextSpeedChange<60) callWebServiceHere();
-            updateAlertImage((locCurrent.distanceTo(poi)<iShowPOIwithin) && DistanceToPOI>locCurrent.distanceTo(poi));
-            DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
+            DistanceToNextSpeedChange = (int) (locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
+            if (DistanceToNextSpeedChange < 60) callWebServiceHere();
+            updateAlertImage((locCurrent.distanceTo(poi) < iShowPOIwithin) && DistanceToPOI > locCurrent.distanceTo(poi));
+            DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
 
 
             if (iNotCommsLockedOut == 0 && ((abs(locLast.getSpeed() - locCurrent.getSpeed()) > 2.0)
                     || (abs(locLast.getBearing() - locCurrent.getBearing()) > 7.0)
-                    || (locLast.distanceTo(locCurrent) > fMinUpdateDistance)))
-            {
+                    || (locLast.distanceTo(locCurrent) > fMinUpdateDistance))) {
                 callWebServiceHere();
             }
-        }
-        else
-        {
+        } else {
             Log.i(TAG, "onLocationChanged  BAD");
         }
-        noGPS(!(location.hasAccuracy() && location.getAccuracy()<iMinAccuracy));
+        noGPS(!(location.hasAccuracy() && location.getAccuracy() < iMinAccuracy));
         updateDebugText();
 
     }
@@ -278,8 +276,8 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     private void setDisplay(int tmp) {
-        setGraphicBtnV(vImageButton, tmp,false);
-        if(bThisIsMainActivity) setGraphicBtnV(vImageBtnSmall, tmp, true);
+        setGraphicBtnV(vImageButton, tmp, false);
+        if (bThisIsMainActivity) setGraphicBtnV(vImageBtnSmall, tmp, true);
         DistanceToNextSpeedChange = tmp;
         iSpeed = tmp;
     }
@@ -290,12 +288,10 @@ public class MainActivity extends Activity implements LocationListener {
         ImageButton img = (ImageButton) x;
 
 
-
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ((!bSmall && bThisIsMainActivity) && (iDisplayingB != iSpeed))
-        {
+        if ((!bSmall && bThisIsMainActivity) && (iDisplayingB != iSpeed)) {
             iDisplayingB = iSpeed;
-            switch (iSpeed){
+            switch (iSpeed) {
                 case 40:
                     img.setImageResource(R.drawable.b40);
                     break;
@@ -325,14 +321,13 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
-            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce) );
+            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
         }
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy()<=iMinAccuracy)  && (locCurrent.hasAccuracy()))
-        {
+        if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy() <= iMinAccuracy) && (locCurrent.hasAccuracy())) {
             iDisplayingS = iSpeed;
-            switch (iSpeed){
+            switch (iSpeed) {
                 case 40:
                     img.setImageResource(R.drawable.s40);
                     break;
@@ -362,13 +357,12 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
-            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce) );
+            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
         }
 
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ( (iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy()>iMinAccuracy)  || (!locCurrent.hasAccuracy())))
-        {
+        if ((iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy() > iMinAccuracy) || (!locCurrent.hasAccuracy()))) {
 
             iDisplayingG = iSpeed;
 
@@ -402,18 +396,14 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
-            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce) );
+            img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
         }
 
     }
 
 
-
-
-
-    private void callWebServiceHere()
-    {
-    //    if (locCurrent.hasAccuracy())
+    private void callWebServiceHere() {
+        //    if (locCurrent.hasAccuracy())
         {
             Time now = new Time();
             now.setToNow();
@@ -447,8 +437,7 @@ public class MainActivity extends Activity implements LocationListener {
             // todo if ((locCurrent.getAccuracy()<15) && (locCurrent.getAccuracy()!=0.0)  || bDebug)
             {
 
-                if(iNotCommsLockedOut == 0)
-                {
+                if (iNotCommsLockedOut == 0) {
                     client.get(getString(R.string.MyDbWeb), HTTPrp, new JsonHttpResponseHandler() {
 
                         @Override
@@ -458,8 +447,7 @@ public class MainActivity extends Activity implements LocationListener {
                             bCommsTimedOut = false;
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
-                            if (locCurrent.getSpeed() >= 7)
-                            {
+                            if (locCurrent.getSpeed() >= 7) {
                                 NeedToResetDisplay();
                             }
                         }
@@ -470,8 +458,8 @@ public class MainActivity extends Activity implements LocationListener {
                             Log.i(TAG, "           onSuccess MyDbWeb ");
                             jHereResult = response;
                             try {
-                               doStuff();
-                                Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit")   );
+                                doStuff();
+                                Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit"));
 
                                 // if changing speed zone Alert but only if your speed is > than posted
                                 AlertAnnounce();
@@ -487,7 +475,6 @@ public class MainActivity extends Activity implements LocationListener {
                                     //updateDebugText();
                                     MyNextWebService();
                                 }
-
 
 
                             } catch (JSONException e) {
@@ -526,38 +513,34 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void AlertAnnounce() {
         int SpeedLimit = 0;
-        int intCurrentSpeeed = (int)(locCurrent.getSpeed()*3.6);
-        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");}
-        catch (JSONException e) {e.printStackTrace(); }
-        if ((!bMute) && (iSpeed != SpeedLimit))
-        {
-            mTts.speak(getString(R.string.SpeakAlertSpeedChange)  + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_FLUSH, null);
+        int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
+        try {
+            SpeedLimit = jHereResult.getInt("reSpeedLimit");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if ((!bMute) && (iSpeed != SpeedLimit)) {
+            mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_FLUSH, null);
 
-            if (intCurrentSpeeed>(SpeedLimit) && intCurrentSpeeed<(SpeedLimit+3) && (iAlertMode <= 1))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding) , TextToSpeech.QUEUE_ADD, null);
+            if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
+                mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
             }
-            if (intCurrentSpeeed>=(SpeedLimit+3) && intCurrentSpeeed<(SpeedLimit+10) && (iAlertMode <= 1))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeed1point)  , TextToSpeech.QUEUE_ADD, null);
+            if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 1)) {
+                mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
             }
-            if (intCurrentSpeeed>=(SpeedLimit+10) && intCurrentSpeeed<(SpeedLimit+20)  && (iAlertMode <= 3))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeed3points) , TextToSpeech.QUEUE_ADD, null);
+            if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
+                mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
             }
-            if (intCurrentSpeeed>=(SpeedLimit+20) && intCurrentSpeeed<(SpeedLimit+30) && (iAlertMode <= 4))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeed4points)  , TextToSpeech.QUEUE_ADD, null);
+            if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) && (iAlertMode <= 4)) {
+                mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
             }
-            if (intCurrentSpeeed>=(SpeedLimit+30) && intCurrentSpeeed<(SpeedLimit+45) && (iAlertMode <= 5))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeed5points)  , TextToSpeech.QUEUE_ADD, null);
+            if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) && (iAlertMode <= 5)) {
+                mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
             }
-            if (intCurrentSpeeed>=(SpeedLimit+45) && (iAlertMode <= 6))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeed6points)  , TextToSpeech.QUEUE_ADD, null);
+            if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
+                mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
             }
-           DistanceToNextSpeedChange = 0;
+            DistanceToNextSpeedChange = 0;
         }
     }
 
@@ -602,9 +585,10 @@ public class MainActivity extends Activity implements LocationListener {
                 });
             }
         } catch (JSONException e) {
-        Log.i(TAG, "MyNextWebService  NO HereResult");
+            Log.i(TAG, "MyNextWebService  NO HereResult");
+        }
     }
-    }
+
     private void doStuff() {
         try {
             //me.setLatitude(locCurrent.getLatitude());
@@ -613,14 +597,14 @@ public class MainActivity extends Activity implements LocationListener {
             locNextSpeedChange.setLongitude(jThereResult.getDouble("reLon"));
 
 
-
             //todo is this line needed?
             if (bThisIsMainActivity) {
 
-                if (!bCommsTimedOut) setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
+                if (!bCommsTimedOut)
+                    setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
 
                 fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-                iSecondsToSpeedChange = (DistanceToNextSpeedChange / (fFiveValAvgSpeed+1));
+                iSecondsToSpeedChange = (DistanceToNextSpeedChange / (fFiveValAvgSpeed + 1));
                 //updateDebugText();
             }
 
@@ -630,33 +614,27 @@ public class MainActivity extends Activity implements LocationListener {
             Log.i(TAG, "doStuff - no value for Lat");
         }
     }
+
     private String oneTo1(String x) {
-        if(x.equals("\u0001")){
+        if (x.equals("\u0001")) {
             return "1";
-        }
-        else {
+        } else {
             return "0";
         }
     }
 
 
-    public void createTextToSpeech(final Context context, final Locale locale)
-    {
-        mTts = new TextToSpeech(context, new TextToSpeech.OnInitListener()
-        {
+    public void createTextToSpeech(final Context context, final Locale locale) {
+        mTts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
-            public void onInit(int status)
-            {
-                if (status == TextToSpeech.SUCCESS)
-                {
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
                     Locale defaultOrPassedIn = locale;
-                    if (locale == null)
-                    {
+                    if (locale == null) {
                         defaultOrPassedIn = Locale.getDefault();
                     }
                     // check if language is available
-                    switch (mTts.isLanguageAvailable(defaultOrPassedIn))
-                    {
+                    switch (mTts.isLanguageAvailable(defaultOrPassedIn)) {
                         case TextToSpeech.LANG_AVAILABLE:
                         case TextToSpeech.LANG_COUNTRY_AVAILABLE:
                         case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
@@ -688,17 +666,19 @@ public class MainActivity extends Activity implements LocationListener {
 
     }
 
-    private final Runnable timedGPSqueue; {
+    private final Runnable timedGPSqueue;
+
+    {
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
                 noGPS(!(locCurrent.hasAccuracy()));
-                if (iNotCommsLockedOut < 3){    // DON'T LET THE COMMS QUEUE GET TO BUG
+                if (iNotCommsLockedOut < 3) {    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebServiceHere();
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
 
-                Log.i(TAG, "run  REPEAT TIMER  "+ locCurrent.getAccuracy());
+                Log.i(TAG, "run  REPEAT TIMER  " + locCurrent.getAccuracy());
             }
         };
     }
@@ -709,9 +689,9 @@ public class MainActivity extends Activity implements LocationListener {
 
         sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
 
-        if (sUUID.equals("")){
-            sUUID= randomUUID().toString();
-            appSharedPrefs.edit().putString(getString(R.string.myUUID)  ,sUUID ).commit();
+        if (sUUID.equals("")) {
+            sUUID = randomUUID().toString();
+            appSharedPrefs.edit().putString(getString(R.string.myUUID), sUUID).commit();
         }
         //Map<String, ?> xx = appSharedPrefs.getAll();
 
@@ -726,10 +706,9 @@ public class MainActivity extends Activity implements LocationListener {
 //        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
         bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), true);
 
-        if(appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)){
+        if (appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)) {
             onStartUpdates();
-        }else
-        {
+        } else {
             onStopUpdates();
         }
 
@@ -742,8 +721,8 @@ public class MainActivity extends Activity implements LocationListener {
 
     public void NeedToResetDisplay() {
         iNeedToResetDisplay++;
-        Log.i(TAG, "NeedToResetDisplay  "+ iNeedToResetDisplay);
-        if (iNeedToResetDisplay>1){
+        Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
+        if (iNeedToResetDisplay > 1) {
             setDisplay(50);
             iNeedToResetDisplay = 0;
 
@@ -764,51 +743,48 @@ public class MainActivity extends Activity implements LocationListener {
 //////////MAIN - END  OF COMMON CODE//////////////////////////////////////////////////////////
 
 
+    private void noGPS(boolean bNoGps) {
 
-
-
-    private void noGPS(boolean bNoGps)  {
-
-    TextView textView = (TextView) findViewById(itextViewGPSlost);
-    if (bNoGps) {
-        textView.setVisibility(View.VISIBLE);
-    } else {
-        textView.setVisibility(View.INVISIBLE);
+        TextView textView = (TextView) findViewById(itextViewGPSlost);
+        if (bNoGps) {
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.INVISIBLE);
+        }
     }
-}
 
 
     private void toggleRadioButton() {
 
-        RadioButton b = (RadioButton)(findViewById(R.id.radioButton));
+        RadioButton b = (RadioButton) (findViewById(R.id.radioButton));
         b.setChecked(!b.isChecked());
     }
 
     private void updateTimeoutIcon() {
-        if(bCommsTimedOut) {vImageViewTimeout.setVisibility(View.VISIBLE);}
-        else{ vImageViewTimeout.setVisibility(View.INVISIBLE); }
+        if (bCommsTimedOut) {
+            vImageViewTimeout.setVisibility(View.VISIBLE);
+        } else {
+            vImageViewTimeout.setVisibility(View.INVISIBLE);
+        }
     }
 
-    private void updateAlertImage(boolean bShow)
-    {
+    private void updateAlertImage(boolean bShow) {
         ImageView img = (ImageView) findViewById(R.id.imageAlert);
-        if (bShow){
+        if (bShow) {
             if (img.getVisibility() != View.VISIBLE) {
-                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce) );
+                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
                 img.setVisibility(View.VISIBLE);
                 //iTypeOfPOI and iWhenPOI comes from callPOI() return
                 // if Speed Camera etc are active at this time of day then ...
                 Log.i(TAG, "updateAlertImage  W" + iWhenPOI + " T" + iTypeOfPOI);
-                if(POIActive(iWhenPOI))
-                {
+                if (POIActive(iWhenPOI)) {
                     String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
                     mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_FLUSH, null);
                 }
             }
-        }
-        else {
+        } else {
             if (img.getVisibility() != View.GONE) {
-                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce) );
+                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
                 img.setVisibility(View.GONE);
             }
         }
@@ -818,7 +794,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         // always active
-        if(iWhenPOI == 0) return true;
+        if (iWhenPOI == 0) return true;
 
 
         Calendar cal = Calendar.getInstance();
@@ -841,27 +817,35 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         //check day of week
-        switch (iWhenPOI){
-            case 0:     return true;
+        switch (iWhenPOI) {
+            case 0:
+                return true;
             case 1:
             case 2:
             case 3:
-            case 5:  if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY))
-                     {return false;}
+            case 5:
+                if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    return false;
+                }
         }
         // check time
-        switch (iWhenPOI){
+        switch (iWhenPOI) {
 
-            case 1:     return (cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<10);
+            case 1:
+                return (cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 10);
 
-            case 2:     return ((cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<10) || (cal.get(Calendar.HOUR)>=15 && cal.get(Calendar.HOUR)<19));
+            case 2:
+                return ((cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 10) || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19));
 
-            case 3:     return ((cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<10) || (cal.get(Calendar.HOUR)>=15 && cal.get(Calendar.HOUR)<20));
+            case 3:
+                return ((cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 10) || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 20));
 
             case 4:
-            case 5:     return (cal.get(Calendar.HOUR)>=6 && cal.get(Calendar.HOUR)<20);
+            case 5:
+                return (cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 20);
 
-            case 6:     return (cal.get(Calendar.HOUR)>=15 && cal.get(Calendar.HOUR)<19);
+            case 6:
+                return (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19);
 
         }
 
@@ -871,46 +855,46 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
     private void updateDebugIcon() {
-        if(bDebug) {vImageViewDebug.setVisibility(View.VISIBLE);}
-        else{ vImageViewDebug.setVisibility(View.INVISIBLE); }
+        if (bDebug) {
+            vImageViewDebug.setVisibility(View.VISIBLE);
+        } else {
+            vImageViewDebug.setVisibility(View.INVISIBLE);
+        }
     }
 
 
-    private void updateDebugText(){
+    private void updateDebugText() {
 
         ProgressBar pBap = (ProgressBar) findViewById(R.id.progressBar);
 
-        DistanceToPOI = (int)locCurrent.distanceTo(poi);
+        DistanceToPOI = (int) locCurrent.distanceTo(poi);
 
-        if (DistanceToNextSpeedChange>DistanceToPOI)
-        {
+        if (DistanceToNextSpeedChange > DistanceToPOI) {
             pBap.setProgress(DistanceToPOI);
-            pBap.setSecondaryProgress(DistanceToNextSpeedChange );
+            pBap.setSecondaryProgress(DistanceToNextSpeedChange);
 
-        }else
-        {
+        } else {
             pBap.setProgress(DistanceToNextSpeedChange);
             pBap.setSecondaryProgress(DistanceToPOI);
         }
-           try
-           {
-                if (bDebug) {
-                    String x = "Speed Change in  " +(int) DistanceToNextSpeedChange + "m"
-                            + "\ncallPOI was called " + (int) locCurrent.distanceTo(locLastCallPOI) + "m ago"
-                            + "\nPOI was Detected " + DistanceToPOI + "m Away"
-                            + "\nA:" +  locCurrent.getAccuracy() + "\tH:" +  locCurrent.hasAccuracy()
-                            + "\tmin:" +  (int)iPOIminDistance;
+        try {
+            if (bDebug) {
+                String x = "Speed Change in  " + (int) DistanceToNextSpeedChange + "m"
+                        + "\ncallPOI was called " + (int) locCurrent.distanceTo(locLastCallPOI) + "m ago"
+                        + "\nPOI was Detected " + DistanceToPOI + "m Away"
+                        + "\nA:" + locCurrent.getAccuracy() + "\tH:" + locCurrent.hasAccuracy()
+                        + "\tmin:" + (int) iPOIminDistance;
 
-                    setDebugText(itextView, x);
+                setDebugText(itextView, x);
 
-                } else {
-                    setDebugText(itextView, "");
-                    setDebugText(itextView2, "");
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } else {
+                setDebugText(itextView, "");
+                setDebugText(itextView2, "");
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+    }
 
     //todo
 //    public static Context getAppContext() {
@@ -933,9 +917,9 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         vImageButton = findViewById(R.id.imageButton);
-        vErrorButton = findViewById( R.id.imageButtonError);
+        vErrorButton = findViewById(R.id.imageButtonError);
         vImageBtnSmall = findViewById(R.id.imageBtnSmall);
-        vImageViewDebug =  findViewById( R.id.imageViewDebug);
+        vImageViewDebug = findViewById(R.id.imageViewDebug);
         vImageViewTimeout = findViewById(R.id.imageViewTimeout);
 
 
@@ -944,7 +928,6 @@ public class MainActivity extends Activity implements LocationListener {
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
         //Start the GPS listener
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
-
 
 
         //handler.postDelayed(timedGPSqueue, 8);   //Start timer
@@ -989,13 +972,10 @@ public class MainActivity extends Activity implements LocationListener {
         });
 
 
-
-
 //        //5000 is the starting number (in milliseconds)
 //        //1000 is the number to count down each time (in milliseconds)
 //          MyCount counter = new MyCount(5000,1000);
 //          todo        counter.start();
-
 
 
         // Get a handle to the activity update list
@@ -1024,7 +1004,6 @@ public class MainActivity extends Activity implements LocationListener {
 
         // Create a new LogFile object
         mLogFile = LogFile.getInstance(this);
-
 
 
         // Use instance field for listener
@@ -1066,22 +1045,18 @@ public class MainActivity extends Activity implements LocationListener {
 //    }
 
 
-
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
 
         switch (item.getItemId()) {
-
 
 
             // Clear the log display and remove the log files
@@ -1199,14 +1174,13 @@ public class MainActivity extends Activity implements LocationListener {
         //Debug.stopMethodTracing();
 
     }
+
     @Override
     public void onResume() {
         super.onResume();
 
 
-
         LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
-
 
 
 //
@@ -1234,7 +1208,6 @@ public class MainActivity extends Activity implements LocationListener {
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
 
 
-
         // Register the broadcast receiver
         mBroadcastManager.registerReceiver(
                 updateListReceiver,
@@ -1245,12 +1218,11 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void LaunchOrKill() {
 
-        if(iLaunchMode == 2)
-        {
+        if (iLaunchMode == 2) {
             callFloat();
         }
 
-        if (isMyServiceRunning()){
+        if (isMyServiceRunning()) {
             moveTaskToBack(isTaskRoot());
             callFloat();
         }
@@ -1260,18 +1232,15 @@ public class MainActivity extends Activity implements LocationListener {
         final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
 
-        for (int i = 0; i < recentTasks.size(); i++)
-        {
+        for (int i = 0; i < recentTasks.size(); i++) {
             bPhoneActive_Hide = recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
-                             || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
-                             || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
+                    || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
+                    || recentTasks.get(i).baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
         }
 
-        if (bPhoneActive_Hide){
+        if (bPhoneActive_Hide) {
             moveTaskToBack(isTaskRoot());
         }
-
-
 
 
         // Are we Connected to external power?
@@ -1280,15 +1249,12 @@ public class MainActivity extends Activity implements LocationListener {
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL;
 
-        if (!(isCharging || bActivityPowerKey))
-        {
+        if (!(isCharging || bActivityPowerKey)) {
 
             now.setToNow();
 
 
-
-            if((tLast.toMillis(true) +4000)<now.toMillis(true))
-            {
+            if ((tLast.toMillis(true) + 4000) < now.toMillis(true)) {
                 moveTaskToBack(isTaskRoot());
 
 
@@ -1308,14 +1274,10 @@ public class MainActivity extends Activity implements LocationListener {
                 toast.show();
 
 
-
-
                 //Toast.makeText(this, "<CENTER>'SpeedZone NSW'\n\nDisabled while on battery, \nConnect Power to Launch or\n\n CLICK AGAIN \n\nthen See Settings</CENTER>" , Toast.LENGTH_LONG).show();
             }
             tLast.setToNow();
         }
-
-
 
 
     }
@@ -1341,9 +1303,8 @@ public class MainActivity extends Activity implements LocationListener {
             return true;
 
             // Google Play services was not available for some reason
-        }
-        else {
-           // Display an error dialog
+        } else {
+            // Display an error dialog
             try {
                 //GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0).show();
             } catch (Exception e) {
@@ -1354,6 +1315,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         }
     }
+
     /**
      * Respond to "Start" button by requesting activity recognition
      * updates.
@@ -1465,9 +1427,8 @@ public class MainActivity extends Activity implements LocationListener {
             updateActivityHistory();
         }
     };
+
     private boolean isMyServiceRunning() {
-
-
 
 
 //        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -1485,7 +1446,8 @@ public class MainActivity extends Activity implements LocationListener {
     private void setDisplayScale(int t){}
     */
 
-    public void removeChatHeads(){}
+    public void removeChatHeads() {
+    }
 
     private void setDebugText(int t, String s) throws JSONException {
         TextView textView = (TextView) findViewById(t);
@@ -1504,17 +1466,14 @@ public class MainActivity extends Activity implements LocationListener {
         switch (requestCode) {
 
 
-
-
             case intentSettings:
                 // Retreive Settings
-               // RetreiveSettings();
+                // RetreiveSettings();
                 break;
 
 
-
             // If the request code matches the code sent in onConnectionFailed
-            case ActivityUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST :
+            case ActivityUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST:
 
                 switch (resultCode) {
                     // If Google Play services resolved the problem
@@ -1527,7 +1486,7 @@ public class MainActivity extends Activity implements LocationListener {
                             mDetectionRequester.requestUpdates();
 
                             // If the request was to remove activity recognition updates
-                        } else if (ActivityUtils.REQUEST_TYPE.REMOVE == mRequestType ){
+                        } else if (ActivityUtils.REQUEST_TYPE.REMOVE == mRequestType) {
 
                                 /*
                                  * Restart the removal of all activity recognition updates for the
@@ -1602,60 +1561,61 @@ public class MainActivity extends Activity implements LocationListener {
 //
 //}
 
-    private void callPOI(){
+    private void callPOI() {
 
-        if((locCurrent.distanceTo(locLastCallPOI)> iPOIminDistance) || (!locLastCallPOI.hasAccuracy())) // call this is Xm distance of not init-ed
+        if ((locCurrent.distanceTo(locLastCallPOI) > iPOIminDistance) || (!locLastCallPOI.hasAccuracy())) // call this is Xm distance of not init-ed
         {
             Log.i(TAG, "callPOI  ");
             locLastCallPOI = locCurrent;
-            if (iPOIminDistance>1000) iPOIminDistance=1000;
+            if (iPOIminDistance > 1000) iPOIminDistance = 1000;
 
             RequestParams HTTPrpA = new RequestParams();
             HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
             HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
 
-                client.get(getString(R.string.MyPOIWeb), HTTPrpA, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(JSONObject response) {
-                        try {
-                            poi.setLatitude(response.getDouble("poiLat"));
-                            poi.setLongitude(response.getDouble("poiLon"));
-                            poi.setAccuracy(5);
-                            DistanceToPOI = (int)( locCurrent.distanceTo(poi) - iDistanceOffset);
-                            iTypeOfPOI = response.getInt("poiType");
-                            iWhenPOI =  response.getInt("poiWhen");
-                            iPOIminDistance = (int)(DistanceToPOI*0.8);
-                            Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() +" "+ poi.getLongitude());
+            client.get(getString(R.string.MyPOIWeb), HTTPrpA, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(JSONObject response) {
+                    try {
+                        poi.setLatitude(response.getDouble("poiLat"));
+                        poi.setLongitude(response.getDouble("poiLon"));
+                        poi.setAccuracy(5);
+                        DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
+                        iTypeOfPOI = response.getInt("poiType");
+                        iWhenPOI = response.getInt("poiWhen");
+                        iPOIminDistance = (int) (DistanceToPOI * 0.8);
+                        Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+                }
 
-                    public void onStart() {
-                        // Completed the request (either success or failure)
-                        toggleRadioButton();
-                        Log.i(TAG, "callPOI onStart  ");
+                public void onStart() {
+                    // Completed the request (either success or failure)
+                    toggleRadioButton();
+                    Log.i(TAG, "callPOI onStart  ");
 
-                    }
+                }
 
-                    @Override
-                    public void onFinish() {
-                        // Completed the request (either success or failure)
-                        toggleRadioButton();
-                        Log.i(TAGd, "CallPOI onFinish  ");
-                    }
-                    @Override
-                    public void onFailure(Throwable e, JSONObject errorResponse) {
+                @Override
+                public void onFinish() {
+                    // Completed the request (either success or failure)
+                    toggleRadioButton();
+                    Log.i(TAGd, "CallPOI onFinish  ");
+                }
 
-                        Log.i(TAGd, "CallPOI onFailure   ");
-                        DistanceToPOI = 0;
-                        // Completed the request (either success or failure)
-                        iPOIminDistance=1000;
-                        updateAlertImage(false);
-                    }
+                @Override
+                public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                });
+                    Log.i(TAGd, "CallPOI onFailure   ");
+                    DistanceToPOI = 0;
+                    // Completed the request (either success or failure)
+                    iPOIminDistance = 1000;
+                    updateAlertImage(false);
+                }
+
+            });
 
 
         }
@@ -1663,15 +1623,8 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
 
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 } //END OF CODE
-
-
 
 
 //SELECT `RE` , `reLat` , `reLon` , `reBearing` , `reSpeedLimit` , `RdNo` , `rePrescribed` , `reRoadName`
@@ -1693,15 +1646,12 @@ public class MainActivity extends Activity implements LocationListener {
 //LIMIT 1 , 3
 
 
-
-
 // use speed; CREATE TABLE tblSpeedZone (RE varchar(22) , reLat float , reLon float , reBearing int , reSpeedLimit int , RdNo varchar(7),  rePrescribed bool, reRoadName nvarchar(50));
 
 // awk -F';' '{print $1 "," $6 ","     $7","   $8","  $9"," $11"," $13","     $15;}'  reid_definitions.txt > /etc/tblSpeedZone.txt
 // "reLat"      ,"reLon","RLID","Filename","RDNO","LKNO","rePrescribed","reBearing","reSpeedLimit","CWAY_CODE"
 //    9             10      11       12       13     14      15               16         17
 //,"-36.09","146.91354579700","20000002229503000050","0000002\2295C1C\000050","0000002","2295","0","64","110","C"
-
 
 
 // ALTER TABLE `tblSpeedZone` ADD INDEX( `reLat`, `reLon`)

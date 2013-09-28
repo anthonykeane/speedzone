@@ -7,7 +7,9 @@ package com.anthonykeane.speedzone;
 public final class ActivityUtils {
 
     // Used to track what type of request is in process
-    public enum REQUEST_TYPE {ADD, REMOVE}
+    public enum REQUEST_TYPE {
+        ADD, REMOVE
+    }
 
     public static final String APPTAG = "speedzone";
 
@@ -22,7 +24,7 @@ public final class ActivityUtils {
             "com.anthonykeane.speedzone.activityrecognition.ACTION_CONNECTION_ERROR";
 
     public static final String ACTION_REFRESH_STATUS_LIST =
-                    "com.anthonykeane.speedzone.activityrecognition.ACTION_REFRESH_STATUS_LIST";
+            "com.anthonykeane.speedzone.activityrecognition.ACTION_REFRESH_STATUS_LIST";
 
     public static final String CATEGORY_LOCATION_SERVICES =
             "com.anthonykeane.speedzone.activityrecognition.CATEGORY_LOCATION_SERVICES";
