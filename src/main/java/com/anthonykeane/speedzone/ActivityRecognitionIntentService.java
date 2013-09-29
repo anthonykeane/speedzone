@@ -186,13 +186,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                 DetectedActivity.UNKNOWN);
 
         // If the previous type isn't the same as the current type, the activity has changed
-        if (previousType != currentType) {
-            return true;
-
-            // Otherwise, it hasn't.
-        } else {
-            return false;
-        }
+        return previousType != currentType;
     }
 
     /**

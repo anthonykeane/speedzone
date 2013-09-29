@@ -41,11 +41,11 @@ import com.google.android.gms.location.ActivityRecognitionClient;
  * To use a DetectionRequester, instantiate it and call requestUpdates(). Everything else is done
  * automatically.
  */
-public class DetectionRequester
+class DetectionRequester
         implements ConnectionCallbacks, OnConnectionFailedListener {
 
     // Storage for a context from the calling client
-    private Context mContext;
+    private final Context mContext;
 
     // Stores the PendingIntent used to send activity recognition events back to the app
     private PendingIntent mActivityRecognitionPendingIntent;
@@ -77,7 +77,7 @@ public class DetectionRequester
      *
      * @param intent The PendingIntent
      */
-    public void setRequestPendingIntent(PendingIntent intent) {
+    void setRequestPendingIntent(PendingIntent intent) {
         mActivityRecognitionPendingIntent = intent;
     }
 

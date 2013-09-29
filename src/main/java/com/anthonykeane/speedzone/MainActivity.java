@@ -60,6 +60,7 @@ import static java.lang.Math.abs;
 import static java.util.UUID.randomUUID;
 
 
+@SuppressWarnings("EmptyMethod")
 public class MainActivity extends Activity implements LocationListener {
 
     //Is different in MainActivity
@@ -68,7 +69,7 @@ public class MainActivity extends Activity implements LocationListener {
     private static final String TAGd = "ChatHead::Activity_focus";
 
     private static final int intentSettings = 1;
-    public static final int itextViewGPSlost = R.id.textViewGPSlost;
+    private static final int itextViewGPSlost = R.id.textViewGPSlost;
 
 
     private static final int MAX_LOG_SIZE = 10;
@@ -78,9 +79,6 @@ public class MainActivity extends Activity implements LocationListener {
 
     // Store the current request type (ADD or REMOVE)
     private ActivityUtils.REQUEST_TYPE mRequestType;
-
-    // Holds the ListView object in the UI
-    private ListView mStatusListView;
 
     /*
      * Holds activity recognition data, in the form of
@@ -92,7 +90,7 @@ public class MainActivity extends Activity implements LocationListener {
      *  Intent filter for incoming broadcasts from the
      *  IntentService.
      */
-    IntentFilter mBroadcastFilter;
+    private IntentFilter mBroadcastFilter;
 
     // Instance of a local broadcast manager
     private LocalBroadcastManager mBroadcastManager;
@@ -103,8 +101,8 @@ public class MainActivity extends Activity implements LocationListener {
     // The activty recognition update removal object
     private DetectionRemover mDetectionRemover;
 
-    Time now = new Time();
-    Time tLast = new Time();
+    private final Time now = new Time();
+    private final Time tLast = new Time();
 
 
 //    < click here
@@ -121,43 +119,40 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
-    private static boolean isRunning;
-
     //private static final int intentTTS = 3;
     private String ttsSalute;
 
-    SharedPreferences appSharedPrefs;
+    private SharedPreferences appSharedPrefs;
 
     //GPS delay stuff
 
     private Location locCurrent = new Location(""); // GPS right now
-    private Location locLast = new Location("");    // right now n-1
     private Location locLastCallPOI = new Location("");
-    private Location locNextSpeedChange = new Location("");
+    private final Location locNextSpeedChange = new Location("");
     private Location locLastCallHere = new Location("");
 
     private TextToSpeech mTts;
 
-    public static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
-    public static final long minTime = 1000;                   // don't update GPS if time < mS
-    public static final float minDistanceGPS = 0;              // don't update GPS if distance < Meters
+    private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
+    private static final long minTime = 1000;                   // don't update GPS if time < mS
+    private static final float minDistanceGPS = 0;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
     // public final LocListener gpsListener = new LocListener();    // used by GPS
 
-    public int iNeedToResetDisplay = 0;
+    private int iNeedToResetDisplay = 0;
 
-    public final AsyncHttpClient client = new AsyncHttpClient();
-    public final RequestParams HTTPrp = new RequestParams();
-    public final RequestParams HTTPrp2 = new RequestParams();
+    private final AsyncHttpClient client = new AsyncHttpClient();
+    private final RequestParams HTTPrp = new RequestParams();
+    private final RequestParams HTTPrp2 = new RequestParams();
 
-    public JSONObject jHereResult = new JSONObject();
-    public JSONObject jThereResult = new JSONObject();
+    private JSONObject jHereResult = new JSONObject();
+    private JSONObject jThereResult = new JSONObject();
 
-    public int DistanceToNextSpeedChange = 0;            //any BIG number or zero
+    private int DistanceToNextSpeedChange = 0;            //any BIG number or zero
     private int DistanceToPOI = 0;
-    public int iSecondsToSpeedChange = 0;
+    private int iSecondsToSpeedChange = 0;
     private static String sUUID = "";
 
     private static LocationManager locManager;
@@ -167,32 +162,31 @@ public class MainActivity extends Activity implements LocationListener {
     private View vImageViewDebug;
     private View vImageViewTimeout;
 
-    public static final int itextView = R.id.textView;
-    public static final int itextView2 = R.id.textView2;
+    private static final int itextView = R.id.textView;
+    private static final int itextView2 = R.id.textView2;
 
 
-    public int iSpeed = 50;
-    public int fFiveValAvgSpeed = 60;
+    private int iSpeed = 50;
+    private int fFiveValAvgSpeed = 60;
 
     //private Location me = new Location("");
     //private Location dest = new Location("");
-    private Location poi = new Location("");
+    private final Location poi = new Location("");
     //private static Context context;
 
     //Flags
-    public boolean bZoneError = false;
-    public boolean bDebug = false;
-    public int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
-    public boolean bCommsTimedOut = false;
+    private boolean bZoneError = false;
+    private boolean bDebug = false;
+    private int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
+    private boolean bCommsTimedOut = false;
     private boolean bMute = false;
-    private int iDistanceOffset = 0;    // don't think this helps
+    private final int iDistanceOffset = 0;    // don't think this helps
     private int iDisplayingB = 0;
     private int iDisplayingG = 0;
     private int iDisplayingS = 0;
     private int iLaunchMode = 1;
     private int iAlertMode = 3;
     private static final int iMinAccuracy = 9;
-    private float fMinUpdateDistance = 30;
     private int iPOIminDistance = 10;
     private boolean bPhoneActive_Hide;
     private boolean bActivityPowerKey;
@@ -203,7 +197,7 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        isRunning = false;
+        boolean running = false;
         Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
 
@@ -233,7 +227,7 @@ public class MainActivity extends Activity implements LocationListener {
         if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy) {
             noGPS(false);
             Log.i(TAG, "onLocationChanged  GOOD");
-            locLast = locCurrent; // this supposed to be here (think again)
+            Location locLast = locCurrent;
 
 
             locCurrent = location;
@@ -246,6 +240,7 @@ public class MainActivity extends Activity implements LocationListener {
             DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
 
 
+            float fMinUpdateDistance = 30;
             if (iNotCommsLockedOut == 0 && ((abs(locLast.getSpeed() - locCurrent.getSpeed()) > 2.0)
                     || (abs(locLast.getBearing() - locCurrent.getBearing()) > 7.0)
                     || (locLast.distanceTo(locCurrent) > fMinUpdateDistance))) {
@@ -282,7 +277,7 @@ public class MainActivity extends Activity implements LocationListener {
         iSpeed = tmp;
     }
 
-    public void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
+    void setGraphicBtnV(View x, int iSpeed, boolean bSmall) {
 
 
         ImageButton img = (ImageButton) x;
@@ -403,7 +398,8 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     private void callWebServiceHere() {
-        //    if (locCurrent.hasAccuracy())
+        Log.i(TAG, "callWebServiceHere  " +locCurrent );
+        if (locCurrent.hasAccuracy())
         {
             Time now = new Time();
             now.setToNow();
@@ -420,6 +416,10 @@ public class MainActivity extends Activity implements LocationListener {
             } else {
                 HTTPrp.put("bZoneError", "0");
             }
+
+
+            Log.i(TAG, "callWebServiceHere  "+ HTTPrp);
+
 
             //todo
 
@@ -487,7 +487,7 @@ public class MainActivity extends Activity implements LocationListener {
                         public void onStart() {
                             // Completed the request (either success or failure)
                             //toggleRadioButton();
-                            Log.i(TAG, "onStart  ");
+                            Log.i(TAG, "onStart  MyDbWeb");
                             bCommsTimedOut = true;
                             iNotCommsLockedOut++;
                         }
@@ -624,7 +624,7 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
 
-    public void createTextToSpeech(final Context context, final Locale locale) {
+    void createTextToSpeech(final Context context, final Locale locale) {
         mTts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -719,7 +719,7 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
 
-    public void NeedToResetDisplay() {
+    void NeedToResetDisplay() {
         iNeedToResetDisplay++;
         Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
         if (iNeedToResetDisplay > 1) {
@@ -793,8 +793,6 @@ public class MainActivity extends Activity implements LocationListener {
     private boolean POIActive(int iWhenPOI) {
 
 
-        // always active
-        if (iWhenPOI == 0) return true;
 
 
         Calendar cal = Calendar.getInstance();
@@ -979,7 +977,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         // Get a handle to the activity update list
-        mStatusListView = (ListView) findViewById(R.id.log_listview);
+        ListView mStatusListView = (ListView) findViewById(R.id.log_listview);
 
         // Instantiate an adapter to store update data from the log
         mStatusAdapter = new ArrayAdapter<Spanned>(
@@ -1183,23 +1181,6 @@ public class MainActivity extends Activity implements LocationListener {
         LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
 
 
-//
-//
-//        ActivityManager am = (ActivityManager)this.getSystemService(ACTIVITY_SERVICE);
-//        List l = am.getRunningAppProcesses();
-//        Iterator i = l.iterator();
-//        PackageManager pm = this.getPackageManager();
-//        while(i.hasNext()) {
-//            ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
-//            try {
-//                CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
-//                Log.w("HELLOWORLD2", c.toString());
-//            }catch(Exception e) {
-//                //Name Not FOund Exception
-//            }
-//        }
-//
-
         Log.i(TAG, "onResume  ");
 
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);
@@ -1312,7 +1293,7 @@ public class MainActivity extends Activity implements LocationListener {
      * Respond to "Start" button by requesting activity recognition
      * updates.
      */
-    public void onStartUpdates() {
+    void onStartUpdates() {
 
         // Check for Google Play services
         if (!servicesConnected()) {
@@ -1333,7 +1314,7 @@ public class MainActivity extends Activity implements LocationListener {
     /**
      * Respond to "Stop" button by canceling updates.
      */
-    public void onStopUpdates() {
+    void onStopUpdates() {
 
         // Check for Google Play services
         if (!servicesConnected()) {
@@ -1406,7 +1387,7 @@ public class MainActivity extends Activity implements LocationListener {
      * doesn't, it pulls in history.
      * This receiver is local only. It can't read broadcast Intents from other apps.
      */
-    BroadcastReceiver updateListReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver updateListReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -1438,7 +1419,7 @@ public class MainActivity extends Activity implements LocationListener {
     private void setDisplayScale(int t){}
     */
 
-    public void removeChatHeads() {
+    void removeChatHeads() {
     }
 
     private void setDebugText(int t, String s) throws JSONException {

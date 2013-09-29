@@ -13,12 +13,12 @@ import android.util.Log;
 /**
  * Created by anthony on 7/07/13.
  */
-public class WhatsNewScreen {
+class WhatsNewScreen {
     private static final String LOG_TAG = "WhatsNewScreen";
 
     private static final String LAST_VERSION_CODE_KEY = "last_version_code";
 
-    private Activity mActivity;
+    private final Activity mActivity;
 
     // Constructor memorize the calling Activity ("context")
     public WhatsNewScreen(Activity context) {

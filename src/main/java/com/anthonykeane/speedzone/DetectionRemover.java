@@ -40,11 +40,11 @@ import com.google.android.gms.location.ActivityRecognitionClient;
  * <p/>
  * To use a DetectionRemover, instantiate it, then call removeUpdates().
  */
-public class DetectionRemover
+class DetectionRemover
         implements ConnectionCallbacks, OnConnectionFailedListener {
 
     // Storage for a context from the calling client
-    private Context mContext;
+    private final Context mContext;
 
     // Stores the current instantiation of the activity recognition client
     private ActivityRecognitionClient mActivityRecognitionClient;
@@ -98,7 +98,7 @@ public class DetectionRemover
      *
      * @return An ActivityRecognitionClient object
      */
-    public ActivityRecognitionClient getActivityRecognitionClient() {
+    ActivityRecognitionClient getActivityRecognitionClient() {
         /*
          * If a client doesn't already exist, create a new one, otherwise
          * return the existing one. This allows multiple attempts to send
@@ -130,7 +130,7 @@ public class DetectionRemover
      *
      * @param client An ActivityRecognitionClient object
      */
-    public void setActivityRecognitionClient(ActivityRecognitionClient client) {
+    void setActivityRecognitionClient(ActivityRecognitionClient client) {
         mActivityRecognitionClient = client;
 
     }

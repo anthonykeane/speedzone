@@ -18,8 +18,8 @@ public class SeekBarPreference extends Preference
         implements SeekBar.OnSeekBarChangeListener {
 
 
-    public static int maximum = 100;
-    public static int interval = 5;
+    private static final int maximum = 100;
+    private static final int interval = 5;
 
     private float oldValue = 50;
     private TextView monitorBox;
