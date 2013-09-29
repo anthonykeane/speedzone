@@ -97,7 +97,7 @@
         android:layout_gravity="center"
         android:layout_toRightOf="@+id/radioButton"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textSize="20dp" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/textView"
@@ -113,7 +113,7 @@
         android:layout_toRightOf="@+id/radioButton"
         android:autoText="false"
         android:linksClickable="false"
-        android:textSize="20dp" />
+        android:textSize="20sp" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -181,7 +181,7 @@
         android:singleLine="false"
         android:text="@string/GPSlost"
         android:textColor="@color/holo_orange_light"
-        android:textSize="40dp"
+        android:textSize="40sp"
         android:visibility="visible" />
 
     <ImageView
