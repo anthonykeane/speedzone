@@ -1269,7 +1269,7 @@ public class MainActivity extends Activity implements LocationListener {
      *
      * @return true if Google Play services is available, otherwise false
      */
-    private boolean servicesConnected() {
+    private boolean ServiceNotConnected() {
 
         // Check that Google Play services is available
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -1281,11 +1281,11 @@ public class MainActivity extends Activity implements LocationListener {
             Log.d(ActivityUtils.APPTAG, getString(R.string.play_services_available));
 
             // Continue
-            return true;
+            return false;
 
             // Google Play services was not available for some reason
         } else {
-            return false;
+            return true;
         }
     }
 
@@ -1296,7 +1296,7 @@ public class MainActivity extends Activity implements LocationListener {
     void onStartUpdates() {
 
         // Check for Google Play services
-        if (!servicesConnected()) {
+        if (ServiceNotConnected()) {
 
             return;
         }
@@ -1317,7 +1317,7 @@ public class MainActivity extends Activity implements LocationListener {
     void onStopUpdates() {
 
         // Check for Google Play services
-        if (!servicesConnected()) {
+        if (ServiceNotConnected()) {
 
             return;
         }
