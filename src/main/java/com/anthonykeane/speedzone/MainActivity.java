@@ -65,8 +65,8 @@ public class MainActivity extends Activity implements LocationListener {
 
     //Is different in MainActivity
     private static final boolean bThisIsMainActivity = true;
-    private static final String TAG = "ChatHead::Activity";
-    private static final String TAGd = "ChatHead::Activity_focus";
+    private static final String TAG = "SpeedZone::Activity";
+    private static final String TAGd = "SpeedZone::Activity_focus";
 
     private static final int intentSettings = 1;
     private static final int itextViewGPSlost = R.id.textViewGPSlost;
@@ -119,6 +119,9 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
+
+    @SuppressWarnings("All")
+    private static boolean isRunning;
     //private static final int intentTTS = 3;
     private String ttsSalute;
 
@@ -197,7 +200,7 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        boolean running = false;
+        isRunning = false;
         Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
 
@@ -316,6 +319,7 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
+            //noinspection ConstantConditions
             img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
         }
 
@@ -352,6 +356,7 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
+            //noinspection ConstantConditions
             img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
         }
 
@@ -391,6 +396,8 @@ public class MainActivity extends Activity implements LocationListener {
                     break;
 
             }
+
+            //noinspection ConstantConditions
             img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
         }
 
@@ -470,11 +477,8 @@ public class MainActivity extends Activity implements LocationListener {
                                 //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
                                 Log.i(TAG, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
 
+                                MyNextWebService();
 
-                                if (bThisIsMainActivity) {
-                                    //updateDebugText();
-                                    MyNextWebService();
-                                }
 
 
                             } catch (JSONException e) {
@@ -598,7 +602,8 @@ public class MainActivity extends Activity implements LocationListener {
 
 
             //todo is this line needed?
-            if (bThisIsMainActivity) {
+            //if (bThisIsMainActivity)
+            {
 
                 if (!bCommsTimedOut)
                     setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
@@ -772,6 +777,7 @@ public class MainActivity extends Activity implements LocationListener {
         ImageView img = (ImageView) findViewById(R.id.imageAlert);
         if (bShow) {
             if (img.getVisibility() != View.VISIBLE) {
+                //noinspection ConstantConditions
                 img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
                 img.setVisibility(View.VISIBLE);
                 //iTypeOfPOI and iWhenPOI comes from callPOI() return
@@ -784,6 +790,7 @@ public class MainActivity extends Activity implements LocationListener {
             }
         } else {
             if (img.getVisibility() != View.GONE) {
+                //noinspection ConstantConditions
                 img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
                 img.setVisibility(View.GONE);
             }
@@ -1199,19 +1206,21 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void LaunchOrKill() {
 
-        if (iLaunchMode == 2) {
+        if ((iLaunchMode == 2)&&(!isMyServiceRunning())) {
             callFloat();
+
         }
 
         if (isMyServiceRunning()) {
             moveTaskToBack(isTaskRoot());
-            callFloat();
+            //callFloat();
         }
 
 
         // Sent to Back if "Phone or Contacts are active"
         final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
+
 
         for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
             bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
@@ -1243,6 +1252,7 @@ public class MainActivity extends Activity implements LocationListener {
                 View layout = inflater.inflate(R.layout.toast,
                         (ViewGroup) findViewById(R.id.toast_layout_root));
 
+                assert layout != null;
                 ImageView image = (ImageView) layout.findViewById(R.id.image);
                 image.setImageResource(R.drawable.ic_launcher);
                 TextView text = (TextView) layout.findViewById(R.id.text);
@@ -1428,6 +1438,7 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
 
+    @SuppressWarnings("All")
     private void setDisplayScale(float anmi) {
 //        ImageButton img = (ImageButton) vImageBtnSmall;
 //        img.setScaleX(anmi);

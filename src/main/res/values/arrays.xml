@@ -40,7 +40,7 @@
 
 
     <string-array name="poiTypeArray">
-        <item>place Holder</item>
+        <item>Speed camera in Tunnel</item>
         <item>Red light and speed camera ahead</item>
         <item>School zone speed camera ahead</item>
         <item>Bus Lane camera ahead</item>
