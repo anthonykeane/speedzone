@@ -40,6 +40,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.loopj.android.http.AsyncHttpClient;
@@ -58,6 +59,9 @@ import java.util.Locale;
 
 import static java.lang.Math.abs;
 import static java.util.UUID.randomUUID;
+
+
+
 
 
 @SuppressWarnings("EmptyMethod")
@@ -164,6 +168,7 @@ public class MainActivity extends Activity implements LocationListener {
     private View vImageBtnSmall;
     private View vImageViewDebug;
     private View vImageViewTimeout;
+    private View vImageAlert;
 
     private static final int itextView = R.id.textView;
     private static final int itextView2 = R.id.textView2;
@@ -524,8 +529,10 @@ public class MainActivity extends Activity implements LocationListener {
             e.printStackTrace();
         }
         if ((!bMute) && (iSpeed != SpeedLimit)) {
-            mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_FLUSH, null);
 
+            if (iAlertMode <= 0) {
+                mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+            }
             if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
                 mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
             }
@@ -661,7 +668,7 @@ public class MainActivity extends Activity implements LocationListener {
                     }
                 }
                 try {
-                    if (!bMute) mTts.speak(ttsSalute, TextToSpeech.QUEUE_FLUSH, null);
+                    if (!bMute) mTts.speak(ttsSalute, TextToSpeech.QUEUE_ADD, null);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -734,73 +741,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////MAIN - END  OF COMMON CODE//////////////////////////////////////////////////////////
-
-
-    private void noGPS(boolean bNoGps) {
-
-        TextView textView = (TextView) findViewById(itextViewGPSlost);
-        if (bNoGps) {
-            textView.setVisibility(View.VISIBLE);
-        } else {
-            textView.setVisibility(View.INVISIBLE);
-        }
-    }
-
-
-    private void toggleRadioButton() {
-
-        RadioButton b = (RadioButton) (findViewById(R.id.radioButton));
-        b.setChecked(!b.isChecked());
-    }
-
-    private void updateTimeoutIcon() {
-        if (bCommsTimedOut) {
-            vImageViewTimeout.setVisibility(View.VISIBLE);
-        } else {
-            vImageViewTimeout.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void updateAlertImage(boolean bShow) {
-        ImageView img = (ImageView) findViewById(R.id.imageAlert);
-        if (bShow) {
-            if (img.getVisibility() != View.VISIBLE) {
-                //noinspection ConstantConditions
-                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
-                img.setVisibility(View.VISIBLE);
-                //iTypeOfPOI and iWhenPOI comes from callPOI() return
-                // if Speed Camera etc are active at this time of day then ...
-                Log.i(TAG, "updateAlertImage  W" + iWhenPOI + " T" + iTypeOfPOI);
-                if (POIActive(iWhenPOI)) {
-                    String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
-                    mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_FLUSH, null);
-                }
-            }
-        } else {
-            if (img.getVisibility() != View.GONE) {
-                //noinspection ConstantConditions
-                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
-                img.setVisibility(View.GONE);
-            }
-        }
-    }
-
     private boolean POIActive(int iWhenPOI) {
-
-
-
 
         Calendar cal = Calendar.getInstance();
 //
@@ -859,6 +800,134 @@ public class MainActivity extends Activity implements LocationListener {
 
     }
 
+
+
+    private void callPOI() {
+
+        if ((locCurrent.distanceTo(locLastCallPOI) > iPOIminDistance) || (!locLastCallPOI.hasAccuracy())) // call this is Xm distance of not init-ed
+        {
+            Log.i(TAG, "callPOI  ");
+            locLastCallPOI = locCurrent;
+            if (iPOIminDistance > 1000) iPOIminDistance = 1000;
+
+            RequestParams HTTPrpA = new RequestParams();
+            HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
+            HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
+
+            client.get(getString(R.string.MyPOIWeb), HTTPrpA, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(JSONObject response) {
+                    try {
+                        poi.setLatitude(response.getDouble("poiLat"));
+                        poi.setLongitude(response.getDouble("poiLon"));
+                        poi.setAccuracy(5);
+                        DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
+                        iTypeOfPOI = response.getInt("poiType");
+                        iWhenPOI = response.getInt("poiWhen");
+                        iPOIminDistance = (int) (DistanceToPOI * 0.8);
+                        Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                public void onStart() {
+                    // Completed the request (either success or failure)
+                    toggleRadioButton();
+                    Log.i(TAG, "callPOI onStart  ");
+
+                }
+
+                @Override
+                public void onFinish() {
+                    // Completed the request (either success or failure)
+                    toggleRadioButton();
+                    Log.i(TAGd, "CallPOI onFinish  ");
+                }
+
+                @Override
+                public void onFailure(Throwable e, JSONObject errorResponse) {
+
+                    Log.i(TAGd, "CallPOI onFailure   ");
+                    DistanceToPOI = 0;
+                    // Completed the request (either success or failure)
+                    iPOIminDistance = 1000;
+                    updateAlertImage(false);
+                }
+
+            });
+
+
+        }
+
+    }
+
+    private void updateAlertImage(boolean bShow) {
+        ImageView img = (ImageView) findViewById(R.id.imageAlert);
+        if (bShow) {
+            if (img.getVisibility() != View.VISIBLE) {
+                //noinspection ConstantConditions
+                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
+                img.setVisibility(View.VISIBLE);
+                //iTypeOfPOI and iWhenPOI comes from callPOI() return
+                // if Speed Camera etc are active at this time of day then ...
+                Log.i(TAG, "updateAlertImage  W" + iWhenPOI + " T" + iTypeOfPOI);
+                if (POIActive(iWhenPOI)) {
+                    String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
+                    mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_ADD, null);
+                }
+            }
+        } else {
+            if (img.getVisibility() != View.GONE) {
+                //noinspection ConstantConditions
+                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
+                img.setVisibility(View.GONE);
+            }
+        }
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////MAIN - END  OF COMMON CODE//////////////////////////////////////////////////////////
+
+
+    private void noGPS(boolean bNoGps) {
+
+        TextView textView = (TextView) findViewById(itextViewGPSlost);
+        if (bNoGps) {
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.INVISIBLE);
+        }
+    }
+
+
+    private void toggleRadioButton() {
+
+        RadioButton b = (RadioButton) (findViewById(R.id.radioButton));
+        b.setChecked(!b.isChecked());
+    }
+
+    private void updateTimeoutIcon() {
+        if (bCommsTimedOut) {
+            vImageViewTimeout.setVisibility(View.VISIBLE);
+        } else {
+            vImageViewTimeout.setVisibility(View.INVISIBLE);
+        }
+    }
+
+
+
     private void updateDebugIcon() {
         if (bDebug) {
             vImageViewDebug.setVisibility(View.VISIBLE);
@@ -906,6 +975,20 @@ public class MainActivity extends Activity implements LocationListener {
 //        return context;
 //    }
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance(this).activityStart(this);  // Add this method.
+
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance(this).activityStop(this);  // Add this method.
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -926,7 +1009,7 @@ public class MainActivity extends Activity implements LocationListener {
         vImageBtnSmall = findViewById(R.id.imageBtnSmall);
         vImageViewDebug = findViewById(R.id.imageViewDebug);
         vImageViewTimeout = findViewById(R.id.imageViewTimeout);
-
+        vImageAlert = findViewById(R.id.imageAlert);
 
         // Turn on the GPS.     set up GPS
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -1011,16 +1094,9 @@ public class MainActivity extends Activity implements LocationListener {
         mLogFile = LogFile.getInstance(this);
 
 
-        // Use instance field for listener
-        // It will not be gc'd as long as this instance is kept referenced
-        SharedPreferences.OnSharedPreferenceChangeListener splistener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                RetreiveSettings();
-                Log.i(TAG, "onSharedPreferenceChanged  ");
-            }
-        };
 
-        appSharedPrefs.registerOnSharedPreferenceChangeListener(splistener);
+
+
 
         // Receive Settings
         RetreiveSettings();
@@ -1032,6 +1108,16 @@ public class MainActivity extends Activity implements LocationListener {
         updateDebugIcon();
 
 
+
+        // thanks to http://stackoverflow.com/a/3104265
+        SharedPreferences.OnSharedPreferenceChangeListener splistener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                // Implementation
+                RetreiveSettings();
+                Log.i(TAG, "onSharedPreferenceChanged  ");
+            }
+        };
+        appSharedPrefs.registerOnSharedPreferenceChangeListener(splistener);
     }
 //
 //    //countdowntimer is an abstract class, so extend it and fill in methods
@@ -1063,38 +1149,38 @@ public class MainActivity extends Activity implements LocationListener {
 
         switch (item.getItemId()) {
 
-
-            // Clear the log display and remove the log files
-            case R.id.menu_item_clearlog:
-                // Clear the list adapter
-                mStatusAdapter.clear();
-
-                // Update the ListView from the empty adapter
-                mStatusAdapter.notifyDataSetChanged();
-
-                // Remove log files
-                if (!mLogFile.removeLogFiles()) {
-                    Log.e(ActivityUtils.APPTAG, getString(R.string.log_file_deletion_error));
-
-                    // Display the results to the user
-                } else {
-
-                    Toast.makeText(
-                            this,
-                            R.string.logs_deleted,
-                            Toast.LENGTH_LONG).show();
-                }
-                // Continue by passing true to the menu handler
-                return true;
-
-            // Display the update log
-            case R.id.menu_item_showlog:
-
-                // Update the ListView from log files
-                updateActivityHistory();
-
-                // Continue by passing true to the menu handler
-                return true;
+//
+//            // Clear the log display and remove the log files
+//            case R.id.menu_item_clearlog:
+//                // Clear the list adapter
+//                mStatusAdapter.clear();
+//
+//                // Update the ListView from the empty adapter
+//                mStatusAdapter.notifyDataSetChanged();
+//
+//                // Remove log files
+//                if (!mLogFile.removeLogFiles()) {
+//                    Log.e(ActivityUtils.APPTAG, getString(R.string.log_file_deletion_error));
+//
+//                    // Display the results to the user
+//                } else {
+//
+//                    Toast.makeText(
+//                            this,
+//                            R.string.logs_deleted,
+//                            Toast.LENGTH_LONG).show();
+//                }
+//                // Continue by passing true to the menu handler
+//                return true;
+//
+//            // Display the update log
+//            case R.id.menu_item_showlog:
+//
+//                // Update the ListView from log files
+//                updateActivityHistory();
+//
+//                // Continue by passing true to the menu handler
+//                return true;
 
             case R.id.menu_float:
 
@@ -1206,70 +1292,74 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void LaunchOrKill() {
 
-        if ((iLaunchMode == 2)&&(!isMyServiceRunning())) {
-            callFloat();
 
-        }
 
-        if (isMyServiceRunning()) {
+        if (isMyServiceRunning())
+        {
             moveTaskToBack(isTaskRoot());
+            return;
             //callFloat();
         }
 
 
-        // Sent to Back if "Phone or Contacts are active"
-        final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
-
-
-        for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
-            bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
-                    || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
-                    || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
+        if ((iLaunchMode == 2)&&(!didFloatCallNotmal())) {
+            callFloat();
         }
-
-        if (bPhoneActive_Hide) {
-            moveTaskToBack(isTaskRoot());
-        }
-
-
-        // Are we Connected to external power?
-        Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                status == BatteryManager.BATTERY_STATUS_FULL;
-
-        if (!(isCharging || bActivityPowerKey)) {
-
-            now.setToNow();
+        else
+        {
+         // Sent to Back if "Phone or Contacts are active"
+            final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
 
 
-            if ((tLast.toMillis(true) + 4000) < now.toMillis(true)) {
-                moveTaskToBack(isTaskRoot());
-
-
-                LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.toast,
-                        (ViewGroup) findViewById(R.id.toast_layout_root));
-
-                assert layout != null;
-                ImageView image = (ImageView) layout.findViewById(R.id.image);
-                image.setImageResource(R.drawable.ic_launcher);
-                TextView text = (TextView) layout.findViewById(R.id.text);
-                text.setText("CLICK AGAIN NOW\n\nSee Power in Settings");
-
-                Toast toast = new Toast(getApplicationContext());
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                toast.setDuration(Toast.LENGTH_LONG);
-                toast.setView(layout);
-                toast.show();
-
-
-                //Toast.makeText(this, "<CENTER>'SpeedZone NSW'\n\nDisabled while on battery, \nConnect Power to Launch or\n\n CLICK AGAIN \n\nthen See Settings</CENTER>" , Toast.LENGTH_LONG).show();
+            for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
+                bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
+                        || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
+                        || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
             }
-            tLast.setToNow();
-        }
 
+            if (bPhoneActive_Hide) {
+                moveTaskToBack(isTaskRoot());
+            }
+
+
+            // Are we Connected to external power?
+            Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                    status == BatteryManager.BATTERY_STATUS_FULL;
+
+            if (!(isCharging || bActivityPowerKey || didFloatCallNotmal() )) {
+
+                now.setToNow();
+
+
+                if ((tLast.toMillis(true) + 4000) < now.toMillis(true)) {
+                    moveTaskToBack(isTaskRoot());
+
+
+                    LayoutInflater inflater = getLayoutInflater();
+                    View layout = inflater.inflate(R.layout.toast,
+                            (ViewGroup) findViewById(R.id.toast_layout_root));
+
+                    assert layout != null;
+                    ImageView image = (ImageView) layout.findViewById(R.id.image);
+                    image.setImageResource(R.drawable.ic_launcher);
+                    TextView text = (TextView) layout.findViewById(R.id.text);
+                    text.setText("CLICK THE ICON AGAIN NOW\nnot this frame!.\nSee Power in Settings");
+
+                    Toast toast = new Toast(getApplicationContext());
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    toast.setDuration(Toast.LENGTH_LONG);
+                    toast.setView(layout);
+                    toast.show();
+
+
+                    //Toast.makeText(this, "<CENTER>'SpeedZone NSW'\n\nDisabled while on battery, \nConnect Power to Launch or\n\n CLICK AGAIN \n\nthen See Settings</CENTER>" , Toast.LENGTH_LONG).show();
+                }
+                tLast.setToNow();
+            }
+        }
 
     }
 
@@ -1405,7 +1495,7 @@ public class MainActivity extends Activity implements LocationListener {
              * When an Intent is received from the update listener IntentService, update
              * the displayed log.
              */
-            mTts.speak("update ", TextToSpeech.QUEUE_FLUSH, null);
+            mTts.speak("update ", TextToSpeech.QUEUE_ADD, null);
 
             updateActivityHistory();
         }
@@ -1422,6 +1512,21 @@ public class MainActivity extends Activity implements LocationListener {
 //        }
         return ChatHeadService.isRunning();
     }
+
+    private boolean didFloatCallNotmal() {
+
+
+//        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+//            if (ChatHeadService.class.getName().equals(service.service.getClassName())) {
+//                return true;
+//            }
+//        }
+        return ChatHeadService.didFloatCallNormal();
+    }
+
+
+
 
     /*
     Dummy in Service
@@ -1545,66 +1650,6 @@ public class MainActivity extends Activity implements LocationListener {
 //
 //}
 
-    private void callPOI() {
-
-        if ((locCurrent.distanceTo(locLastCallPOI) > iPOIminDistance) || (!locLastCallPOI.hasAccuracy())) // call this is Xm distance of not init-ed
-        {
-            Log.i(TAG, "callPOI  ");
-            locLastCallPOI = locCurrent;
-            if (iPOIminDistance > 1000) iPOIminDistance = 1000;
-
-            RequestParams HTTPrpA = new RequestParams();
-            HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
-            HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
-
-            client.get(getString(R.string.MyPOIWeb), HTTPrpA, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(JSONObject response) {
-                    try {
-                        poi.setLatitude(response.getDouble("poiLat"));
-                        poi.setLongitude(response.getDouble("poiLon"));
-                        poi.setAccuracy(5);
-                        DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
-                        iTypeOfPOI = response.getInt("poiType");
-                        iWhenPOI = response.getInt("poiWhen");
-                        iPOIminDistance = (int) (DistanceToPOI * 0.8);
-                        Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                public void onStart() {
-                    // Completed the request (either success or failure)
-                    toggleRadioButton();
-                    Log.i(TAG, "callPOI onStart  ");
-
-                }
-
-                @Override
-                public void onFinish() {
-                    // Completed the request (either success or failure)
-                    toggleRadioButton();
-                    Log.i(TAGd, "CallPOI onFinish  ");
-                }
-
-                @Override
-                public void onFailure(Throwable e, JSONObject errorResponse) {
-
-                    Log.i(TAGd, "CallPOI onFailure   ");
-                    DistanceToPOI = 0;
-                    // Completed the request (either success or failure)
-                    iPOIminDistance = 1000;
-                    updateAlertImage(false);
-                }
-
-            });
-
-
-        }
-
-    }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////

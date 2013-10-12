@@ -9,7 +9,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/imageButton"
-        android:src="@drawable/serror"
+        android:src="@drawable/g50"
         android:scaleType="fitCenter"
         android:background="@android:color/transparent"
         android:layout_gravity="center_horizontal"
@@ -30,10 +30,10 @@
         android:layout_gravity="center_horizontal"
         android:clickable="true"
         android:longClickable="true"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
         android:alpha=".8"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"/>
 
     <ImageView
         android:layout_width="20dp"
@@ -53,6 +53,21 @@
         android:visibility="visible"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true" />
+
+    <ImageView
+            android:id="@+id/imageAlert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false"
+            android:longClickable="false"
+            android:src="@drawable/sspeedcameraredlight"
+            android:visibility="invisible"
+        android:cropToPadding="false"
+        android:layout_alignParentBottom="false"
+        android:layout_alignBottom="@+id/imageButton"
+        android:layout_alignLeft="@+id/imageButton"
+        android:layout_alignRight="@+id/imageButton" />
 
 
 </RelativeLayout>

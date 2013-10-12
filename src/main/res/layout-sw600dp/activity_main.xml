@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="false"
+        android:gravity="center|clip_horizontal|clip_vertical"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/list_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@+id/imageButton">
+
+        </RelativeLayout>
+
+        <RadioButton
+            android:id="@+id/radioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentTop="true"
+            android:checked="true" />
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="false"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="0dp"
+            android:adjustViewBounds="false"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="Current Speed"
+            android:longClickable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/b00"
+            tools:ignore="HardcodedText" />
+
+        <ImageButton
+            android:id="@+id/imageButtonError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/imageButton"
+            android:layout_alignParentStart="false"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:adjustViewBounds="false"
+            android:alpha=".7"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="Current Speed"
+            android:focusableInTouchMode="false"
+            android:longClickable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/berror"
+            android:visibility="invisible"
+            tools:ignore="HardcodedText" />
+
+        <ImageButton
+            android:id="@+id/imageBtnSmall"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignBottom="@+id/imageButton"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal|bottom"
+            android:alpha="1"
+            android:background="@android:color/transparent"
+            android:contentDescription="Next Speed"
+            android:scaleType="fitCenter"
+            android:scrollbarAlwaysDrawVerticalTrack="false"
+            android:soundEffectsEnabled="false"
+            android:src="@drawable/gerror"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentTop="false"
+            android:layout_gravity="center"
+            android:layout_toRightOf="@+id/radioButton"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="true"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_below="@+id/textView2"
+            android:layout_gravity="center"
+            android:layout_toRightOf="@+id/radioButton"
+            android:autoText="false"
+            android:linksClickable="false"
+            android:textSize="20sp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="false"
+            android:layout_alignRight="@+id/imageAlert"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:indeterminate="false"
+            android:max="1000"
+            android:maxHeight="10dip"
+            android:minHeight="10dip"
+            android:progress="220"
+            android:progressDrawable="@drawable/greenprogress"
+            android:secondaryProgress="410" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="false"
+            android:background="@color/black_overlay"
+            android:gravity="center"
+            android:layout_above="@+id/imageButton"
+            android:layout_alignParentLeft="true">
+
+            <ImageView
+                android:id="@+id/imageViewTimeout"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="false"
+                android:src="@drawable/stat_notify_wifi_in_range"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/imageViewDebug"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="false"
+                android:adjustViewBounds="false"
+                android:src="@drawable/debug"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewGPSlost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center"
+            android:autoText="true"
+            android:background="#000000"
+            android:gravity="center"
+            android:password="false"
+            android:phoneNumber="true"
+            android:singleLine="false"
+            android:text="@string/GPSlost"
+            android:textColor="@color/holo_orange_light"
+            android:textSize="30sp"
+            android:visibility="visible"
+            android:layout_below="@+id/list_layout"
+            android:layout_alignParentLeft="true" />
+
+        <ImageView
+            android:id="@+id/imageAlert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="false"
+            android:longClickable="false"
+            android:src="@drawable/speedcameraredlight"
+            android:visibility="invisible" />
+
+    <ListView
+        android:id="@+id/log_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="64dp"
+        android:layout_above="@+id/linearLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/list_layout" />
+
+    <!--<ProgressBar-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/progressBar"-->
+        <!--android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"/>-->
+
+        <!--<Button-->
+        <!--style="?android:attr/buttonStyleSmall"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="New Button"-->
+        <!--android:id="@+id/button1" android:layout_gravity="left|center_vertical"/>-->
+
+    </RelativeLayout>

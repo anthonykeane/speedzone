@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-   <string name="whatsnew">0.0.30\n bug fixes \n0.0.29\n
-    Added a setting to prevent auto launch while on battery, RED popup says when this is preventing the app from launching</string>
+   <string name="whatsnew">Welcome Please give feedback</string>
 
 
 

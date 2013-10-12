@@ -19,7 +19,7 @@
 
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="@string/settings_soundKey"
             android:title="@string/settings_soundTitle"
             android:summary="@string/settings_soundSummary" />
@@ -31,7 +31,7 @@
             android:summary="@string/settings_PointLossKey_Summary"
             android:entries="@array/pointAlert"
             android:entryValues="@array/point_values"
-            android:defaultValue="3" />
+            android:defaultValue="0" />
 
 
         <EditTextPreference

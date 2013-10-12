@@ -18,15 +18,15 @@
     <!--android:title="@string/sendFeedback"-->
     <!--/>-->
 
-    <item
-        android:id="@+id/menu_item_clearlog"
-        android:title="@string/menu_item_clearlog"
-        android:enabled="true" />
-    <item
-        android:id="@+id/menu_item_showlog"
-        android:visible="true"
-        android:enabled="true"
-        android:title="@string/menu_item_showlog" />
+    <!--<item-->
+        <!--android:id="@+id/menu_item_clearlog"-->
+        <!--android:title="@string/menu_item_clearlog"-->
+        <!--android:enabled="true" />-->
+    <!--<item-->
+        <!--android:id="@+id/menu_item_showlog"-->
+        <!--android:visible="true"-->
+        <!--android:enabled="true"-->
+        <!--android:title="@string/menu_item_showlog" />-->
 
 
     <item
