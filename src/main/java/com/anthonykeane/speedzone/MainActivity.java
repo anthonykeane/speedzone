@@ -206,13 +206,13 @@ public class MainActivity extends Activity implements LocationListener {
     public void onDestroy() {
         super.onDestroy();
         isRunning = false;
-        Log.i(TAG, "onDestroy  5");
+        //Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
 
         try { // Turn Off the GPS
             locManager.removeUpdates(this); // Turn Off the GPS
         } catch (Exception e) {
-            Log.i(TAG, "onDestroy - GPS is already null");
+            //Log.i(TAG, "onDestroy - GPS is already null");
         }
         if (locManager != null) {
             locManager = null;
@@ -234,7 +234,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy) {
             noGPS(false);
-            Log.i(TAG, "onLocationChanged  GOOD");
+            //Log.i(TAG, "onLocationChanged  GOOD");
             Location locLast = locCurrent;
 
 
@@ -255,7 +255,7 @@ public class MainActivity extends Activity implements LocationListener {
                 callWebServiceHere();
             }
         } else {
-            Log.i(TAG, "onLocationChanged  BAD");
+            //Log.i(TAG, "onLocationChanged  BAD");
         }
         noGPS(!(location.hasAccuracy() && location.getAccuracy() < iMinAccuracy));
         updateDebugText();
@@ -410,7 +410,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 
     private void callWebServiceHere() {
-        Log.i(TAG, "callWebServiceHere  " +locCurrent );
+        //Log.i(TAG, "callWebServiceHere  " +locCurrent );
         if (locCurrent.hasAccuracy())
         {
             Time now = new Time();
@@ -430,7 +430,7 @@ public class MainActivity extends Activity implements LocationListener {
             }
 
 
-            Log.i(TAG, "callWebServiceHere  "+ HTTPrp);
+            //Log.i(TAG, "callWebServiceHere  "+ HTTPrp);
 
 
             //todo
@@ -455,7 +455,7 @@ public class MainActivity extends Activity implements LocationListener {
                         @Override
                         public void onFailure(Throwable e, JSONObject errorResponse) {
                             System.out.println(e);
-                            Log.i(TAG, "onFailure MyDbWeb");
+                            //Log.i(TAG, "onFailure MyDbWeb");
                             bCommsTimedOut = false;
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
@@ -467,11 +467,11 @@ public class MainActivity extends Activity implements LocationListener {
                         @Override
                         public void onSuccess(JSONObject response) {
                             bCommsTimedOut = false;
-                            Log.i(TAG, "           onSuccess MyDbWeb ");
+                            //Log.i(TAG, "           onSuccess MyDbWeb ");
                             jHereResult = response;
                             try {
                                 doStuff();
-                                Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit"));
+                                //Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit"));
 
                                 // if changing speed zone Alert but only if your speed is > than posted
                                 AlertAnnounce();
@@ -480,7 +480,7 @@ public class MainActivity extends Activity implements LocationListener {
                                 iSpeed = jHereResult.getInt("reSpeedLimit");
                                 setGraphicBtnV(vImageButton, iSpeed, false);
                                 //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
-                                Log.i(TAG, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
+                                //Log.i(TAG, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
 
                                 MyNextWebService();
 
@@ -496,7 +496,7 @@ public class MainActivity extends Activity implements LocationListener {
                         public void onStart() {
                             // Completed the request (either success or failure)
                             //toggleRadioButton();
-                            Log.i(TAG, "onStart  MyDbWeb");
+                            //Log.i(TAG, "onStart  MyDbWeb");
                             bCommsTimedOut = true;
                             iNotCommsLockedOut++;
                         }
@@ -511,7 +511,7 @@ public class MainActivity extends Activity implements LocationListener {
                             if (bCommsTimedOut) {
                                 setDisplay(0);
                             }
-                            Log.i(TAG, "                       onFinish MyDbWeb ");
+                            //Log.i(TAG, "                       onFinish MyDbWeb ");
                         }
                     });
                 }
@@ -567,11 +567,11 @@ public class MainActivity extends Activity implements LocationListener {
 
             if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 200) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
             {
-                Log.i(TAG, "onSuccess  Getting Speed change");
+                //Log.i(TAG, "onSuccess  Getting Speed change");
                 client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject response) {
-                        Log.i(TAGd, "onSuccess MyNextWeb  ");
+                        //Log.i(TAGd, "onSuccess MyNextWeb  ");
                         bCommsTimedOut = false;
                         jThereResult = response;
                         doStuff();
@@ -580,7 +580,7 @@ public class MainActivity extends Activity implements LocationListener {
                     @Override
                     public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                        Log.i(TAGd, "onFailure  MyNextWeb");
+                        //Log.i(TAGd, "onFailure  MyNextWeb");
                         DistanceToNextSpeedChange = 0;
 
                     }
@@ -591,12 +591,12 @@ public class MainActivity extends Activity implements LocationListener {
                         // Completed the request (either success or failure)
 
                         updateTimeoutIcon();
-                        Log.i(TAGd, "onFinish  MyNextWeb");
+                        //Log.i(TAGd, "onFinish  MyNextWeb");
                     }
                 });
             }
         } catch (JSONException e) {
-            Log.i(TAG, "MyNextWebService  NO HereResult");
+            //Log.i(TAG, "MyNextWebService  NO HereResult");
         }
     }
 
@@ -623,7 +623,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         } catch (JSONException e) {
             //e.printStackTrace();
-            Log.i(TAG, "doStuff - no value for Lat");
+            //Log.i(TAG, "doStuff - no value for Lat");
         }
     }
 
@@ -650,20 +650,20 @@ public class MainActivity extends Activity implements LocationListener {
                         case TextToSpeech.LANG_AVAILABLE:
                         case TextToSpeech.LANG_COUNTRY_AVAILABLE:
                         case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
-                            Log.d(TAG, "SUPPORTED");
+                            //Log.d(TAG, "SUPPORTED");
                             mTts.setLanguage(locale);
                             //pass the tts back to the main
                             //activity for use
                             break;
                         case TextToSpeech.LANG_MISSING_DATA:
-                            Log.d(TAG, "MISSING_DATA");
-                            Log.d(TAG, "require data...");
+                            //Log.d(TAG, "MISSING_DATA");
+                            //Log.d(TAG, "require data...");
                             Intent installIntent = new Intent();
                             installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
                             context.startActivity(installIntent);
                             break;
                         case TextToSpeech.LANG_NOT_SUPPORTED:
-                            Log.d(TAG, "NOT SUPPORTED");
+                            //Log.d(TAG, "NOT SUPPORTED");
                             break;
                     }
                 }
@@ -690,7 +690,7 @@ public class MainActivity extends Activity implements LocationListener {
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
 
-                Log.i(TAG, "run  REPEAT TIMER  " + locCurrent.getAccuracy());
+                //Log.i(TAG, "run  REPEAT TIMER  " + locCurrent.getAccuracy());
             }
         };
     }
@@ -733,7 +733,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     void NeedToResetDisplay() {
         iNeedToResetDisplay++;
-        Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
+        //Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
         if (iNeedToResetDisplay > 1) {
             setDisplay(50);
             iNeedToResetDisplay = 0;
@@ -806,7 +806,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         if ((locCurrent.distanceTo(locLastCallPOI) > iPOIminDistance) || (!locLastCallPOI.hasAccuracy())) // call this is Xm distance of not init-ed
         {
-            Log.i(TAG, "callPOI  ");
+            //Log.i(TAG, "callPOI  ");
             locLastCallPOI = locCurrent;
             if (iPOIminDistance > 1000) iPOIminDistance = 1000;
 
@@ -825,7 +825,7 @@ public class MainActivity extends Activity implements LocationListener {
                         iTypeOfPOI = response.getInt("poiType");
                         iWhenPOI = response.getInt("poiWhen");
                         iPOIminDistance = (int) (DistanceToPOI * 0.8);
-                        Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
+                        //Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -835,7 +835,7 @@ public class MainActivity extends Activity implements LocationListener {
                 public void onStart() {
                     // Completed the request (either success or failure)
                     toggleRadioButton();
-                    Log.i(TAG, "callPOI onStart  ");
+                    //Log.i(TAG, "callPOI onStart  ");
 
                 }
 
@@ -843,13 +843,13 @@ public class MainActivity extends Activity implements LocationListener {
                 public void onFinish() {
                     // Completed the request (either success or failure)
                     toggleRadioButton();
-                    Log.i(TAGd, "CallPOI onFinish  ");
+                    //Log.i(TAGd, "CallPOI onFinish  ");
                 }
 
                 @Override
                 public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                    Log.i(TAGd, "CallPOI onFailure   ");
+                    //Log.i(TAGd, "CallPOI onFailure   ");
                     DistanceToPOI = 0;
                     // Completed the request (either success or failure)
                     iPOIminDistance = 1000;
@@ -864,25 +864,27 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
     private void updateAlertImage(boolean bShow) {
-        ImageView img = (ImageView) findViewById(R.id.imageAlert);
+        // ImageView img = (ImageView)  vImageAlert;
         if (bShow) {
-            if (img.getVisibility() != View.VISIBLE) {
+            if (vImageAlert.getVisibility() != View.VISIBLE)
+            {
                 //noinspection ConstantConditions
-                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
-                img.setVisibility(View.VISIBLE);
+                vImageAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
+                vImageAlert.setVisibility(View.VISIBLE);
                 //iTypeOfPOI and iWhenPOI comes from callPOI() return
                 // if Speed Camera etc are active at this time of day then ...
-                Log.i(TAG, "updateAlertImage  W" + iWhenPOI + " T" + iTypeOfPOI);
+                // Log.i(TAG, "updateAlertImage  W" + iWhenPOI + " T" + iTypeOfPOI);
                 if (POIActive(iWhenPOI)) {
                     String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
                     mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_ADD, null);
                 }
             }
         } else {
-            if (img.getVisibility() != View.GONE) {
+            if (vImageAlert.getVisibility() != View.GONE)
+            {
                 //noinspection ConstantConditions
-                img.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.bounce));
-                img.setVisibility(View.GONE);
+                vImageAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
+                vImageAlert.setVisibility(View.GONE);
             }
         }
     }
@@ -1098,10 +1100,11 @@ public class MainActivity extends Activity implements LocationListener {
 
 
 
-        // Receive Settings
-        RetreiveSettings();
+
         LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
 
+        // Receive Settings
+        RetreiveSettings();
 
         callWebServiceHere();
         updateTimeoutIcon();
@@ -1114,7 +1117,7 @@ public class MainActivity extends Activity implements LocationListener {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 // Implementation
                 RetreiveSettings();
-                Log.i(TAG, "onSharedPreferenceChanged  ");
+                //Log.i(TAG, "onSharedPreferenceChanged  ");
             }
         };
         appSharedPrefs.registerOnSharedPreferenceChangeListener(splistener);
@@ -1160,7 +1163,7 @@ public class MainActivity extends Activity implements LocationListener {
 //
 //                // Remove log files
 //                if (!mLogFile.removeLogFiles()) {
-//                    Log.e(ActivityUtils.APPTAG, getString(R.string.log_file_deletion_error));
+//                    //Log.e(ActivityUtils.APPTAG, getString(R.string.log_file_deletion_error));
 //
 //                    // Display the results to the user
 //                } else {
@@ -1239,7 +1242,7 @@ public class MainActivity extends Activity implements LocationListener {
         intent = new Intent(MainActivity.this, ChatHeadService.class);
         intent.putExtra("TheOK", true);
         intent.putExtra(sUUID, "sUUID");
-        Log.i(TAG, "bDebug is  " + bDebug);
+        //Log.i(TAG, "bDebug is  " + bDebug);
         intent.putExtra("bDebug", bDebug);
         intent.putExtra("bCommsTimedOut", bCommsTimedOut);
         //intent.putExtra("iSpeed",iSpeed);
@@ -1253,7 +1256,7 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause  ");
+        //Log.i(TAG, "onPause  ");
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
         //Stop the GPS listener
         handler.removeCallbacks(timedGPSqueue);
@@ -1274,10 +1277,10 @@ public class MainActivity extends Activity implements LocationListener {
         LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
 
 
-        Log.i(TAG, "onResume  ");
+        //Log.i(TAG, "onResume  ");
 
         handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);
-        Log.i(TAG, "onResume  START TIMER");
+        //Log.i(TAG, "onResume  START TIMER");
         //Start the GPS listener
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
 
@@ -1292,77 +1295,87 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void LaunchOrKill() {
 
-
-
-        if (isMyServiceRunning())
+        if(!didFloatCallNotmal())
         {
-            moveTaskToBack(isTaskRoot());
-            return;
-            //callFloat();
-        }
 
 
-        if ((iLaunchMode == 2)&&(!didFloatCallNotmal())) {
-            callFloat();
-        }
-        else
-        {
-         // Sent to Back if "Phone or Contacts are active"
-            final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-            final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
 
-
-            for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
-                bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
-                        || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
-                        || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
-            }
-
-            if (bPhoneActive_Hide) {
+            // Already Running?
+            if (isMyServiceRunning())
+            {
+                Log.i(TAG, "isMyServiceRunning   ");
                 moveTaskToBack(isTaskRoot());
+                return;
+                //callFloat();
             }
-
 
             // Are we Connected to external power?
             Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
             int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                    status == BatteryManager.BATTERY_STATUS_FULL;
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
 
-            if (!(isCharging || bActivityPowerKey || didFloatCallNotmal() )) {
+            if (!(isCharging || bActivityPowerKey ))
+            {
+                Log.i(TAG, "isCharging !bActivityPowerKey     ");
 
                 now.setToNow();
 
 
-                if ((tLast.toMillis(true) + 4000) < now.toMillis(true)) {
+                if ((tLast.toMillis(true) + 4000) < now.toMillis(true))
+                {
+
+
+                    final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                    final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
+
+
+                    for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
+                        bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
+                                || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
+                                || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
+                    }
                     moveTaskToBack(isTaskRoot());
+                    if (!bPhoneActive_Hide)
+                    {
+                        LayoutInflater inflater = getLayoutInflater();
+                        View layout = inflater.inflate(R.layout.toast,
+                                (ViewGroup) findViewById(R.id.toast_layout_root));
 
+                        assert layout != null;
+                        ImageView image = (ImageView) layout.findViewById(R.id.image);
+                        image.setImageResource(R.drawable.ic_launcher);
+                        TextView text = (TextView) layout.findViewById(R.id.text);
+                        text.setText("CLICK THE ICON AGAIN NOW\nnot this frame!.\nSee Power in Settings");
 
-                    LayoutInflater inflater = getLayoutInflater();
-                    View layout = inflater.inflate(R.layout.toast,
-                            (ViewGroup) findViewById(R.id.toast_layout_root));
+                        Toast toast = new Toast(getApplicationContext());
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        toast.setDuration(Toast.LENGTH_LONG);
+                        toast.setView(layout);
+                        toast.show();
 
-                    assert layout != null;
-                    ImageView image = (ImageView) layout.findViewById(R.id.image);
-                    image.setImageResource(R.drawable.ic_launcher);
-                    TextView text = (TextView) layout.findViewById(R.id.text);
-                    text.setText("CLICK THE ICON AGAIN NOW\nnot this frame!.\nSee Power in Settings");
-
-                    Toast toast = new Toast(getApplicationContext());
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.setDuration(Toast.LENGTH_LONG);
-                    toast.setView(layout);
-                    toast.show();
-
-
+                        tLast.setToNow();
+                    }
                     //Toast.makeText(this, "<CENTER>'SpeedZone NSW'\n\nDisabled while on battery, \nConnect Power to Launch or\n\n CLICK AGAIN \n\nthen See Settings</CENTER>" , Toast.LENGTH_LONG).show();
                 }
-                tLast.setToNow();
+//                else
+//                {
+//                    if (iLaunchMode == 2) {
+//                        Log.i(TAG, "iLaunchMode      ");
+//                        callFloat();
+//                    }
+//
+//                }
+            }
+            else
+            {
+                if (iLaunchMode == 2) {
+                    Log.i(TAG, "iLaunchMode      ");
+                    callFloat();
+                }
+
             }
         }
-
     }
-
 
     /**
      * Verify that Google Play services is available before making a request.
@@ -1378,7 +1391,7 @@ public class MainActivity extends Activity implements LocationListener {
         if (ConnectionResult.SUCCESS == resultCode) {
 
             // In debug mode, log the status
-            Log.d(ActivityUtils.APPTAG, getString(R.string.play_services_available));
+            //Log.d(ActivityUtils.APPTAG, getString(R.string.play_services_available));
 
             // Continue
             return false;
@@ -1468,7 +1481,7 @@ public class MainActivity extends Activity implements LocationListener {
                 if (!mLogFile.removeLogFiles()) {
 
                     // Log an error if unable to delete the log file
-                    Log.e(ActivityUtils.APPTAG, getString(R.string.log_file_deletion_error));
+                    //Log.e(ActivityUtils.APPTAG, getString(R.string.log_file_deletion_error));
                 }
             }
 
@@ -1477,7 +1490,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             // If an error occurs while reading the history file
         } catch (IOException e) {
-            Log.e(ActivityUtils.APPTAG, e.getMessage(), e);
+            //Log.e(ActivityUtils.APPTAG, e.getMessage(), e);
         }
     }
 
@@ -1493,7 +1506,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             /*
              * When an Intent is received from the update listener IntentService, update
-             * the displayed log.
+             * the displayed //Log.
              */
             mTts.speak("update ", TextToSpeech.QUEUE_ADD, null);
 
@@ -1591,14 +1604,13 @@ public class MainActivity extends Activity implements LocationListener {
                     default:
 
                         // Report that Google Play services was unable to resolve the problem.
-                        Log.d(ActivityUtils.APPTAG, getString(R.string.no_resolution));
+                        //Log.d(ActivityUtils.APPTAG, getString(R.string.no_resolution));
                 }
 
                 // If any other request code was received
             default:
                 // Report that this Activity received an unknown requestCode
-                Log.d(ActivityUtils.APPTAG,
-                        getString(R.string.unknown_activity_request_code, requestCode));
+                //Log.d(ActivityUtils.APPTAG,getString(R.string.unknown_activity_request_code, requestCode));
 
                 break;
 

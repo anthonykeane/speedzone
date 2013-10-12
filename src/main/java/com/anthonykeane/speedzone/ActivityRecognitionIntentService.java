@@ -104,29 +104,27 @@ public class ActivityRecognitionIntentService extends IntentService {
                 editor.commit();
 
                 // If the repository contains a type
-            } else if (
-                // If the current type is "moving"
-                //isMoving(activityType)
-                    (DetectedActivity.IN_VEHICLE == activityType)
+            } else if (activityChanged(activityType)       // The activity has changed from the previous activity
+                    && (confidence >= 70))                  // The confidence level for the current activity is > 50%
+            {
 
-                            &&
+                switch( activityType)
+                {
+                    case DetectedActivity.IN_VEHICLE:
+                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+                        callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        callIntent.setClass(getApplicationContext(), MainActivity.class);
+                        // todo   callIntent.putExtra("bZoneError",bZoneError);
+                        startActivity(callIntent);
+                        break;
+                    case DetectedActivity.STILL:
+                    case DetectedActivity.ON_BICYCLE:
+                    case DetectedActivity.ON_FOOT:
+                        sendNotification();
+                        break;
 
-                            // The activity has changed from the previous activity
-                            activityChanged(activityType)
+                }
 
-                            // The confidence level for the current activity is > 50%
-                            && (confidence >= 70)) {
-
-                // Notify the user
-
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                callIntent.setClass(getApplicationContext(), MainActivity.class);
-                // todo   callIntent.putExtra("bZoneError",bZoneError);
-                startActivity(callIntent);
-
-
-                //sendNotification();
             }
         }
     }
@@ -142,12 +140,10 @@ public class ActivityRecognitionIntentService extends IntentService {
                 new NotificationCompat.Builder(getApplicationContext());
 
         // Set the title, text, and icon
-        builder.setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.turn_on_GPS))
-                .setSmallIcon(R.drawable.ic_notification)
-
-                        // Get the Intent that starts the Location settings panel
-                .setContentIntent(getContentIntent());
+        builder.setContentTitle(getString(R.string.app_name));
+        builder.setContentText(getString(R.string.NotificationText));
+        builder.setSmallIcon(R.drawable.ic_launcher);
+        //builder.setContentIntent(WhatToDoWhenNotificationIsClicked());
 
         // Get an instance of the Notification Manager
         NotificationManager notifyManager = (NotificationManager)
@@ -162,7 +158,7 @@ public class ActivityRecognitionIntentService extends IntentService {
      *
      * @return A PendingIntent that starts the device's Location Settings panel.
      */
-    private PendingIntent getContentIntent() {
+    private PendingIntent WhatToDoWhenNotificationIsClicked() {
 
         // Set the Intent action to open Location Settings
         Intent gpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);

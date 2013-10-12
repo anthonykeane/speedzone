@@ -150,7 +150,7 @@
     <string name="connection_failed">Connection to service failed: error code %1$d</string>
     <string name="log_file_deletion_error">Log file deletion error.</string>
     <string name="notification_title">You are moving</string>
-    <string name="turn_on_GPS">Click to turn on GPS, or swipe to ignore</string>
+    <string name="NotificationText">Not Driving detected</string>
     <string name="activity_updates_requested">Activity updates requested</string>
     <string name="service_not_connected">Not connected to Location Services</string>
     <string name="activity_updates_stop">Stopping activity update requests</string>
