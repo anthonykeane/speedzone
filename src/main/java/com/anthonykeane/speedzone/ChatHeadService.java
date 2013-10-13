@@ -58,7 +58,7 @@ public class ChatHeadService extends Service implements LocationListener {
     private static final String TAG = "SpeedZone::Service";
     private static final String TAGd = "SpeedZone::Service_focus";
     private boolean toDIE = false;
-
+    private static boolean didFloatCallNormal;
 
 //    < click here
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     @SuppressWarnings("All")
     private static boolean isRunning;
-    private static boolean didFloatCallNormal;
+
     //private static final int intentTTS = 3;
     private String ttsSalute;
 
@@ -158,13 +158,13 @@ public class ChatHeadService extends Service implements LocationListener {
     public void onDestroy() {
         super.onDestroy();
         isRunning = false;
-        // Log.i(TAG, "onDestroy  5" + isRunning);
+        //Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
 
         try { // Turn Off the GPS
             locManager.removeUpdates(this); // Turn Off the GPS
         } catch (Exception e) {
-            // Log.i(TAG, "onDestroy - GPS is already null");
+            //Log.i(TAG, "onDestroy - GPS is already null");
         }
         if (locManager != null) {
             locManager = null;
@@ -186,7 +186,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
         if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy) {
             noGPS(false);
-            // Log.i(TAG, "onLocationChanged  GOOD");
+            //Log.i(TAG, "onLocationChanged  GOOD");
             Location locLast = locCurrent;
 
 
@@ -207,7 +207,7 @@ public class ChatHeadService extends Service implements LocationListener {
                 callWebServiceHere();
             }
         } else {
-            // Log.i(TAG, "onLocationChanged  BAD");
+            //Log.i(TAG, "onLocationChanged  BAD");
         }
         noGPS(!(location.hasAccuracy() && location.getAccuracy() < iMinAccuracy));
         updateDebugText();
@@ -353,6 +353,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     break;
 
             }
+
             //noinspection ConstantConditions
             img.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
         }
@@ -361,7 +362,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
     private void callWebServiceHere() {
-        // Log.i(TAG, "callWebServiceHere  " +locCurrent );
+        //Log.i(TAG, "callWebServiceHere  " +locCurrent );
         if (locCurrent.hasAccuracy())
         {
             Time now = new Time();
@@ -380,7 +381,10 @@ public class ChatHeadService extends Service implements LocationListener {
                 HTTPrp.put("bZoneError", "0");
             }
 
-            // Log.i(TAG, "callWebServiceHere  "+ HTTPrp);
+
+            //Log.i(TAG, "callWebServiceHere  "+ HTTPrp);
+
+
             //todo
 
 //            if (   ((locCurrent.getAccuracy()>=iMinAccuracy) || (!locCurrent.hasAccuracy()))  && bDebug)
@@ -403,7 +407,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         @Override
                         public void onFailure(Throwable e, JSONObject errorResponse) {
                             System.out.println(e);
-                            // Log.i(TAG, "onFailure MyDbWeb");
+                            //Log.i(TAG, "onFailure MyDbWeb");
                             bCommsTimedOut = false;
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
@@ -415,11 +419,11 @@ public class ChatHeadService extends Service implements LocationListener {
                         @Override
                         public void onSuccess(JSONObject response) {
                             bCommsTimedOut = false;
-                            // Log.i(TAG, "           onSuccess MyDbWeb ");
+                            //Log.i(TAG, "           onSuccess MyDbWeb ");
                             jHereResult = response;
                             try {
                                 doStuff();
-                                // Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit"));
+                                //Log.i(TAG, "onSuccess - reSpeedLimit " + jHereResult.getInt("reSpeedLimit"));
 
                                 // if changing speed zone Alert but only if your speed is > than posted
                                 AlertAnnounce();
@@ -428,9 +432,10 @@ public class ChatHeadService extends Service implements LocationListener {
                                 iSpeed = jHereResult.getInt("reSpeedLimit");
                                 setGraphicBtnV(vImageButton, iSpeed, false);
                                 //Toast.makeText(getApplicationContext(), iSecondsToSpeedChange, Toast.LENGTH_SHORT).show();
-                                // Log.i(TAG, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
+                                //Log.i(TAG, "onSuccess  " + iSecondsToSpeedChange + " iSecondsToSpeedChange ");
 
                                 MyNextWebService();
+
 
 
                             } catch (JSONException e) {
@@ -443,7 +448,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         public void onStart() {
                             // Completed the request (either success or failure)
                             //toggleRadioButton();
-                            // Log.i(TAG, "onStart  MyDbWeb");
+                            //Log.i(TAG, "onStart  MyDbWeb");
                             bCommsTimedOut = true;
                             iNotCommsLockedOut++;
                         }
@@ -458,7 +463,7 @@ public class ChatHeadService extends Service implements LocationListener {
                             if (bCommsTimedOut) {
                                 setDisplay(0);
                             }
-                            // Log.i(TAG, "                       onFinish MyDbWeb ");
+                            //Log.i(TAG, "                       onFinish MyDbWeb ");
                         }
                     });
                 }
@@ -470,11 +475,8 @@ public class ChatHeadService extends Service implements LocationListener {
     private void AlertAnnounce() {
         int SpeedLimit = 0;
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
-        try {
-            SpeedLimit = jHereResult.getInt("reSpeedLimit");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
+
         if ((!bMute) && (iSpeed != SpeedLimit)) {
 
             if (iAlertMode <= 0) {
@@ -503,7 +505,6 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
 
-
     private void MyNextWebService() {
 
         try {
@@ -515,11 +516,11 @@ public class ChatHeadService extends Service implements LocationListener {
 
             if ((iSecondsToSpeedChange < 60) || (DistanceToNextSpeedChange < 200) || (DistanceToNextSpeedChange == 0))                         //refresh when close only
             {
-                // // Log.i(TAG, "onSuccess  Getting Speed change");
+                //Log.i(TAG, "onSuccess  Getting Speed change");
                 client.get(getString(R.string.MyNextWeb), HTTPrp2, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject response) {
-                        // // Log.i(TAGd, "onSuccess MyNextWeb  ");
+                        //Log.i(TAGd, "onSuccess MyNextWeb  ");
                         bCommsTimedOut = false;
                         jThereResult = response;
                         doStuff();
@@ -528,7 +529,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     @Override
                     public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                        // // Log.i(TAGd, "onFailure  MyNextWeb");
+                        //Log.i(TAGd, "onFailure  MyNextWeb");
                         DistanceToNextSpeedChange = 0;
 
                     }
@@ -539,12 +540,12 @@ public class ChatHeadService extends Service implements LocationListener {
                         // Completed the request (either success or failure)
 
                         updateTimeoutIcon();
-                        // // Log.i(TAGd, "onFinish  MyNextWeb");
+                        //Log.i(TAGd, "onFinish  MyNextWeb");
                     }
                 });
             }
         } catch (JSONException e) {
-            // // Log.i(TAG, "MyNextWebService  NO HereResult");
+            //Log.i(TAG, "MyNextWebService  NO HereResult");
         }
     }
 
@@ -559,19 +560,17 @@ public class ChatHeadService extends Service implements LocationListener {
             //todo is this line needed?
             //if (bThisIsMainActivity)
 
+                if (!bCommsTimedOut)
+                    setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
 
-            if (!bCommsTimedOut)
-                setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
-
-            fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
-            iSecondsToSpeedChange = (DistanceToNextSpeedChange / (fFiveValAvgSpeed + 1));
-            //updateDebugText();
-
+                fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
+                iSecondsToSpeedChange = (DistanceToNextSpeedChange / (fFiveValAvgSpeed + 1));
+                //updateDebugText();
 
 
         } catch (JSONException e) {
             //e.printStackTrace();
-            // // Log.i(TAG, "doStuff - no value for Lat");
+            //Log.i(TAG, "doStuff - no value for Lat");
         }
     }
 
@@ -598,20 +597,20 @@ public class ChatHeadService extends Service implements LocationListener {
                         case TextToSpeech.LANG_AVAILABLE:
                         case TextToSpeech.LANG_COUNTRY_AVAILABLE:
                         case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
-                            // Log.d(TAG, "SUPPORTED");
+                            //Log.d(TAG, "SUPPORTED");
                             mTts.setLanguage(locale);
                             //pass the tts back to the main
                             //activity for use
                             break;
                         case TextToSpeech.LANG_MISSING_DATA:
-                            // Log.d(TAG, "MISSING_DATA");
-                            // Log.d(TAG, "require data...");
+                            //Log.d(TAG, "MISSING_DATA");
+                            //Log.d(TAG, "require data...");
                             Intent installIntent = new Intent();
                             installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
                             context.startActivity(installIntent);
                             break;
                         case TextToSpeech.LANG_NOT_SUPPORTED:
-                            // Log.d(TAG, "NOT SUPPORTED");
+                            //Log.d(TAG, "NOT SUPPORTED");
                             break;
                     }
                 }
@@ -627,6 +626,7 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
     private final Runnable timedGPSqueue;
+
     {
         timedGPSqueue = new Runnable() {
             @Override
@@ -637,7 +637,7 @@ public class ChatHeadService extends Service implements LocationListener {
                 }
                 handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //repeating so needed
 
-                // Log.i(TAG, "run  REPEAT TIMER  " + locCurrent.getAccuracy());
+                //Log.i(TAG, "run  REPEAT TIMER  " + locCurrent.getAccuracy());
             }
         };
     }
@@ -680,7 +680,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     void NeedToResetDisplay() {
         iNeedToResetDisplay++;
-        // Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
+        //Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
         if (iNeedToResetDisplay > 1) {
             setDisplay(50);
             iNeedToResetDisplay = 0;
@@ -747,11 +747,13 @@ public class ChatHeadService extends Service implements LocationListener {
 
     }
 
+
+
     private void callPOI() {
 
         if ((locCurrent.distanceTo(locLastCallPOI) > iPOIminDistance) || (!locLastCallPOI.hasAccuracy())) // call this is Xm distance of not init-ed
         {
-            // Log.i(TAG, "callPOI  ");
+            //Log.i(TAG, "callPOI  ");
             locLastCallPOI = locCurrent;
             if (iPOIminDistance > 1000) iPOIminDistance = 1000;
 
@@ -770,7 +772,7 @@ public class ChatHeadService extends Service implements LocationListener {
                         iTypeOfPOI = response.getInt("poiType");
                         iWhenPOI = response.getInt("poiWhen");
                         iPOIminDistance = (int) (DistanceToPOI * 0.8);
-                        // Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
+                        //Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -780,7 +782,7 @@ public class ChatHeadService extends Service implements LocationListener {
                 public void onStart() {
                     // Completed the request (either success or failure)
                     toggleRadioButton();
-                    // Log.i(TAG, "callPOI onStart  ");
+                    //Log.i(TAG, "callPOI onStart  ");
 
                 }
 
@@ -788,13 +790,13 @@ public class ChatHeadService extends Service implements LocationListener {
                 public void onFinish() {
                     // Completed the request (either success or failure)
                     toggleRadioButton();
-                    // Log.i(TAGd, "CallPOI onFinish  ");
+                    //Log.i(TAGd, "CallPOI onFinish  ");
                 }
 
                 @Override
                 public void onFailure(Throwable e, JSONObject errorResponse) {
 
-                    // Log.i(TAGd, "CallPOI onFailure   ");
+                    //Log.i(TAGd, "CallPOI onFailure   ");
                     DistanceToPOI = 0;
                     // Completed the request (either success or failure)
                     iPOIminDistance = 1000;
@@ -808,12 +810,28 @@ public class ChatHeadService extends Service implements LocationListener {
 
     }
 
-
-
     private void updateAlertImage(boolean bShow) {
-       // ImageView img = (ImageView)  vImageAlert;
+        // ImageView img = (ImageView)  vImageAlert;
+
+
+        //todo
         if (bShow) {
-            if (vImageAlert.getVisibility() != View.VISIBLE)
+            float poiBer = locCurrent.bearingTo(poi);
+            float curBer = locCurrent.getBearing();
+
+
+            if(poiBer>180){
+                poiBer=abs(poiBer-360);
+            }
+            if(curBer>180){
+                curBer=abs(curBer-360);
+            }
+
+
+            if(  (abs(curBer-poiBer)<10)) mTts.speak("NOT", TextToSpeech.QUEUE_ADD, null);
+
+
+            if ((vImageAlert.getVisibility() != View.VISIBLE))
             {
                 //noinspection ConstantConditions
                 vImageAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));

@@ -534,7 +534,7 @@ public class MainActivity extends Activity implements LocationListener {
             if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
                 mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
             }
-            if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 1)) {
+            if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 2)) {
                 mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
             }
             if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
@@ -608,18 +608,13 @@ public class MainActivity extends Activity implements LocationListener {
 
             //todo is this line needed?
             //if (bThisIsMainActivity)
-            {
-
                 if (!bCommsTimedOut)
                     setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
 
                 fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
                 iSecondsToSpeedChange = (DistanceToNextSpeedChange / (fFiveValAvgSpeed + 1));
                 //updateDebugText();
-            }
-
-
-        } catch (JSONException e) {
+       } catch (JSONException e) {
             //e.printStackTrace();
             //Log.i(TAG, "doStuff - no value for Lat");
         }
