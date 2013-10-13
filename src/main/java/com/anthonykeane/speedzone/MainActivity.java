@@ -107,6 +107,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private final Time now = new Time();
     private final Time tLast = new Time();
+    private boolean Floating = true;
 
 
 //    < click here
@@ -523,11 +524,8 @@ public class MainActivity extends Activity implements LocationListener {
     private void AlertAnnounce() {
         int SpeedLimit = 0;
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
-        try {
-            SpeedLimit = jHereResult.getInt("reSpeedLimit");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
+
         if ((!bMute) && (iSpeed != SpeedLimit)) {
 
             if (iAlertMode <= 0) {
@@ -865,8 +863,26 @@ public class MainActivity extends Activity implements LocationListener {
 
     private void updateAlertImage(boolean bShow) {
         // ImageView img = (ImageView)  vImageAlert;
+
+
+       //todo
         if (bShow) {
-            if (vImageAlert.getVisibility() != View.VISIBLE)
+            float poiBer = locCurrent.bearingTo(poi);
+            float curBer = locCurrent.getBearing();
+
+
+            if(poiBer>180){
+                poiBer=abs(poiBer-360);
+            }
+            if(curBer>180){
+                curBer=abs(curBer-360);
+            }
+
+
+            if(  (abs(curBer-poiBer)<10)) mTts.speak("NOT", TextToSpeech.QUEUE_ADD, null);
+
+
+            if ((vImageAlert.getVisibility() != View.VISIBLE))
             {
                 //noinspection ConstantConditions
                 vImageAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
@@ -978,19 +994,7 @@ public class MainActivity extends Activity implements LocationListener {
 //    }
 
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EasyTracker.getInstance(this).activityStart(this);  // Add this method.
 
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EasyTracker.getInstance(this).activityStop(this);  // Add this method.
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1001,9 +1005,6 @@ public class MainActivity extends Activity implements LocationListener {
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-        createTextToSpeech(this, Locale.getDefault());
-
-        new WhatsNewScreen(this).show();
 
 
         vImageButton = findViewById(R.id.imageButton);
@@ -1100,27 +1101,30 @@ public class MainActivity extends Activity implements LocationListener {
 
 
 
-
-        LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
-
         // Receive Settings
         RetreiveSettings();
+        // if launch
+        if(LaunchOrKill()); // needs a preference so must be AFTER RetreiveSettings()
+        {
+            EasyTracker.getInstance(this).activityStart(this);  // Add this method.
 
-        callWebServiceHere();
-        updateTimeoutIcon();
-        updateDebugIcon();
+            createTextToSpeech(this, Locale.getDefault());
 
+            new WhatsNewScreen(this).show();
 
-
-        // thanks to http://stackoverflow.com/a/3104265
-        SharedPreferences.OnSharedPreferenceChangeListener splistener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                // Implementation
-                RetreiveSettings();
-                //Log.i(TAG, "onSharedPreferenceChanged  ");
-            }
-        };
-        appSharedPrefs.registerOnSharedPreferenceChangeListener(splistener);
+            callWebServiceHere();
+            updateTimeoutIcon();
+            updateDebugIcon();
+            // thanks to http://stackoverflow.com/a/3104265
+            SharedPreferences.OnSharedPreferenceChangeListener splistener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+                public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                    // Implementation
+                    RetreiveSettings();
+                    //Log.i(TAG, "onSharedPreferenceChanged  ");
+                }
+            };
+            appSharedPrefs.registerOnSharedPreferenceChangeListener(splistener);
+        }
     }
 //
 //    //countdowntimer is an abstract class, so extend it and fill in methods
@@ -1137,7 +1141,17 @@ public class MainActivity extends Activity implements LocationListener {
 //            //tv.setText(”Left: ” + millisUntilFinished/1000);
 //        }
 //    }
+@Override
+public void onStart() {
+    super.onStart();
 
+}
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance(this).activityStop(this);  // Add this method.
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -1237,6 +1251,7 @@ public class MainActivity extends Activity implements LocationListener {
     }    //MENU CODE END
 
     private void callFloat() {
+        Floating = true;
         Intent intent;
         //Bundle extras;
         intent = new Intent(MainActivity.this, ChatHeadService.class);
@@ -1293,19 +1308,18 @@ public class MainActivity extends Activity implements LocationListener {
 
     }
 
-    private void LaunchOrKill() {
+    private boolean LaunchOrKill() {
 
+        // if not called by Float
         if(!didFloatCallNotmal())
         {
-
-
 
             // Already Running?
             if (isMyServiceRunning())
             {
                 Log.i(TAG, "isMyServiceRunning   ");
                 moveTaskToBack(isTaskRoot());
-                return;
+                return false;
                 //callFloat();
             }
 
@@ -1365,16 +1379,19 @@ public class MainActivity extends Activity implements LocationListener {
 //                    }
 //
 //                }
+                Floating = false;
             }
             else
             {
-                if (iLaunchMode == 2) {
+                if (iLaunchMode == 2 && Floating) {
                     Log.i(TAG, "iLaunchMode      ");
                     callFloat();
                 }
 
             }
+            return false;
         }
+        return true;
     }
 
     /**
