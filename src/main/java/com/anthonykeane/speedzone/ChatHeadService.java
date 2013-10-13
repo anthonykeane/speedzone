@@ -157,6 +157,7 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         isRunning = false;
         //Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
