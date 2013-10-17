@@ -111,7 +111,6 @@
         android:layout_below="@+id/textView2"
         android:layout_gravity="center"
         android:layout_toRightOf="@+id/radioButton"
-        android:autoText="false"
         android:linksClickable="false"
         android:textSize="20sp" />
 
@@ -173,11 +172,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/textView"
         android:layout_gravity="center"
-        android:autoText="true"
         android:background="#000000"
         android:gravity="center"
-        android:password="false"
-        android:phoneNumber="true"
         android:singleLine="false"
         android:text="@string/GPSlost"
         android:textColor="@color/holo_orange_light"
@@ -194,6 +190,18 @@
         android:layout_alignParentTop="false"
         android:longClickable="false"
         android:src="@drawable/speedcameraredlight"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/imageSZAlert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="false"
+        android:longClickable="false"
+        android:src="@drawable/schoolzone"
         android:visibility="invisible" />
 
     <!--<ProgressBar-->

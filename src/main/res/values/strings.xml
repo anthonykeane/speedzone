@@ -128,6 +128,7 @@
     <string name="debug">Debug</string>
     <string name="MyNextWeb">http://220.233.25.75/speed/mynext.php</string>
     <string name="MyPOIWeb">http://220.233.25.75/speed/mydbpoi.php</string>
+    <string name="mydbSchoolZone">http://220.233.25.75/speed/mydbSchoolZone.php</string>
     <string name="MyDbWeb">http://220.233.25.75/speed/mydb.php</string>
     <string name="myUUID">UUID</string>
 

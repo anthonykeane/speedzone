@@ -69,5 +69,17 @@
         android:layout_alignLeft="@+id/imageButton"
         android:layout_alignRight="@+id/imageButton" />
 
+    <ImageView
+        android:id="@+id/imageSZAlert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:longClickable="false"
+        android:src="@drawable/sschoolzone"
+        android:visibility="invisible"
+        android:scaleType="fitStart"
+        android:layout_alignTop="@+id/imageAlert"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

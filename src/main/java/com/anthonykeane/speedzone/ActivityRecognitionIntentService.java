@@ -105,7 +105,7 @@ public class ActivityRecognitionIntentService extends IntentService {
 
                 // If the repository contains a type
             } else if (activityChanged(activityType)       // The activity has changed from the previous activity
-                    && (confidence >= 70))                  // The confidence level for the current activity is > 50%
+                    && (confidence >= 80))                  // The confidence level for the current activity is > 50%
             {
 
                 switch( activityType)
@@ -117,8 +117,8 @@ public class ActivityRecognitionIntentService extends IntentService {
                         // todo   callIntent.putExtra("bZoneError",bZoneError);
                         startActivity(callIntent);
                         break;
-                    case DetectedActivity.STILL:
-                    case DetectedActivity.ON_BICYCLE:
+                    //case DetectedActivity.STILL:
+                    //case DetectedActivity.ON_BICYCLE:
                     case DetectedActivity.ON_FOOT:
                         sendNotification();
                         break;

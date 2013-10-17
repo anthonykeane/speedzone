@@ -137,13 +137,13 @@ public class MainActivity extends Activity implements LocationListener {
     private Location locCurrent = new Location(""); // GPS right now
     private Location locLastCallPOI = new Location("");
     private final Location locNextSpeedChange = new Location("");
-    private Location locLastCallHere = new Location("");
+    private Location locLastCallSchoolZone = new Location("");
 
     private TextToSpeech mTts;
 
     private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     private static final long minTime = 1000;                   // don't update GPS if time < mS
-    private static final float minDistanceGPS = 0;              // don't update GPS if distance < Meters
+    private static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -160,6 +160,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private int DistanceToNextSpeedChange = 0;            //any BIG number or zero
     private int DistanceToPOI = 0;
+    private int DistanceToSZ = 0;
     private int iSecondsToSpeedChange = 0;
     private static String sUUID = "";
 
@@ -170,6 +171,7 @@ public class MainActivity extends Activity implements LocationListener {
     private View vImageViewDebug;
     private View vImageViewTimeout;
     private View vImageAlert;
+    private View vImageSZAlert;
 
     private static final int itextView = R.id.textView;
     private static final int itextView2 = R.id.textView2;
@@ -179,7 +181,7 @@ public class MainActivity extends Activity implements LocationListener {
     private int fFiveValAvgSpeed = 60;
 
     //private Location me = new Location("");
-    //private Location dest = new Location("");
+    private Location poiSZ = new Location("");
     private final Location poi = new Location("");
     //private static Context context;
 
@@ -197,12 +199,13 @@ public class MainActivity extends Activity implements LocationListener {
     private int iAlertMode = 3;
     private static final int iMinAccuracy = 9;
     private int iPOIminDistance = 10;
+    private int iSZminDistance = 10;
     private boolean bPhoneActive_Hide;
     private boolean bActivityPowerKey;
     private int iTypeOfPOI;
     private int iWhenPOI;
     private static final float iShowPOIwithin = 400;
-
+    private static final float iShowSZwithin = 50;
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -242,11 +245,15 @@ public class MainActivity extends Activity implements LocationListener {
             locCurrent = location;
 
             callPOI();
+            callSchoolZone();
 
             DistanceToNextSpeedChange = (int) (locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
             if (DistanceToNextSpeedChange < 60) callWebServiceHere();
             updateAlertImage((locCurrent.distanceTo(poi) < iShowPOIwithin) && DistanceToPOI > locCurrent.distanceTo(poi));
+            updateSZAlertImage((locCurrent.distanceTo(poiSZ) < iShowSZwithin) && DistanceToSZ > locCurrent.distanceTo(poiSZ));
+
             DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
+            DistanceToSZ = (int) (locCurrent.distanceTo(poiSZ) - iDistanceOffset);
 
 
             float fMinUpdateDistance = 30;
@@ -718,7 +725,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
         iLaunchMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_launchTypeKey), "1"));
-        iAlertMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_Alert_Key), "1"));
+        iAlertMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_Alert_Key), "0"));
 
         updateDebugIcon();
     }
@@ -763,6 +770,7 @@ public class MainActivity extends Activity implements LocationListener {
             case 2:
             case 3:
             case 5:
+            case 8:
                 if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
                     return false;
                 }
@@ -771,13 +779,15 @@ public class MainActivity extends Activity implements LocationListener {
         switch (iWhenPOI) {
 
             case 1:
-                return (cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 10);
+                return (cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10);
 
             case 2:
-                return ((cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 10) || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19));
+                return ((cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10)
+                     || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19));
 
             case 3:
-                return ((cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 10) || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 20));
+                return ((cal.get(Calendar.HOUR) >= 6  && cal.get(Calendar.HOUR) < 10)
+                     || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 20));
 
             case 4:
             case 5:
@@ -786,6 +796,13 @@ public class MainActivity extends Activity implements LocationListener {
             case 6:
                 return (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19);
 
+            case 8:
+                return ((cal.get(Calendar.HOUR) ==  8)
+                     || (cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) <= 30)
+                     || (cal.get(Calendar.HOUR) ==  15)
+                     || (cal.get(Calendar.HOUR) == 14) && (cal.get(Calendar.MINUTE) <= 30)
+                );
+
         }
 
 
@@ -793,6 +810,75 @@ public class MainActivity extends Activity implements LocationListener {
 
     }
 
+    private void callSchoolZone() {
+
+        //locLastCallSchoolZone
+        // iSZminDistance
+        // DistanceToPOI
+
+
+        // iTypeOfPOI
+        // iWhenPOI
+        //
+
+        if ((locCurrent.distanceTo(locLastCallSchoolZone) > iSZminDistance) || (!locLastCallSchoolZone.hasAccuracy())) // call this is Xm distance of not init-ed
+        {
+            //Log.i(TAG, "callPOI  ");
+            locLastCallSchoolZone = locCurrent;
+            if (iSZminDistance > 100) iSZminDistance = 100;
+
+            RequestParams HTTPrpA = new RequestParams();
+            HTTPrpA.put("lat", String.valueOf(locCurrent.getLatitude()));
+            HTTPrpA.put("lon", String.valueOf(locCurrent.getLongitude()));
+
+            client.get(getString(R.string.mydbSchoolZone), HTTPrpA, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(JSONObject response) {
+                    try {
+                        poiSZ.setLatitude(response.getDouble("SchLat"));
+                        poiSZ.setLongitude(response.getDouble("SchLon"));
+                        poiSZ.setAccuracy(5);
+                        DistanceToSZ = (int) (locCurrent.distanceTo(poiSZ) - iDistanceOffset);
+                        //iTypeOfPOI = 8; //response.getInt("poiType");
+                        //iWhenPOI = 7; //response.getInt("poiWhen");
+                        iSZminDistance = (int) (DistanceToSZ * 0.8);
+                        //Log.i(TAG, "callPOI onSuccess  " + poi.getLatitude() + " " + poi.getLongitude());
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                public void onStart() {
+                    // Completed the request (either success or failure)
+                    toggleRadioButton();
+                    //Log.i(TAG, "callPOI onStart  ");
+
+                }
+
+                @Override
+                public void onFinish() {
+                    // Completed the request (either success or failure)
+                    toggleRadioButton();
+                    //Log.i(TAGd, "CallPOI onFinish  ");
+                }
+
+                @Override
+                public void onFailure(Throwable e, JSONObject errorResponse) {
+
+                    //Log.i(TAGd, "CallPOI onFailure   ");
+                    DistanceToSZ = 0;
+                    // Completed the request (either success or failure)
+                    iSZminDistance = 100;
+                    updateAlertImage(false);
+                }
+
+            });
+
+
+        }
+
+    }
 
 
     private void callPOI() {
@@ -848,47 +934,38 @@ public class MainActivity extends Activity implements LocationListener {
                     iPOIminDistance = 1000;
                     updateAlertImage(false);
                 }
-
             });
-
-
         }
-
     }
 
+
     private void updateAlertImage(boolean bShow) {
-        // ImageView img = (ImageView)  vImageAlert;
-
-
-       //todo
         if (bShow) {
-            float poiBer = locCurrent.bearingTo(poi);
-            float curBer = locCurrent.getBearing();
-
-
-            if(poiBer>180){
-                poiBer=abs(poiBer-360);
-            }
-            if(curBer>180){
-                curBer=abs(curBer-360);
-            }
-
-
-            if(  (abs(curBer-poiBer)<10)) mTts.speak("NOT", TextToSpeech.QUEUE_ADD, null);
-
-
             if ((vImageAlert.getVisibility() != View.VISIBLE))
             {
-                //noinspection ConstantConditions
-                vImageAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
-                vImageAlert.setVisibility(View.VISIBLE);
-                //iTypeOfPOI and iWhenPOI comes from callPOI() return
-                // if Speed Camera etc are active at this time of day then ...
-                // Log.i(TAG, "updateAlertImage  W" + iWhenPOI + " T" + iTypeOfPOI);
-                if (POIActive(iWhenPOI)) {
-                    String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
-                    mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_ADD, null);
+                float poiBer = abs(locCurrent.bearingTo(poi));
+                float curBer = abs(locCurrent.getBearing());
+                if(poiBer>180){poiBer=abs(poiBer-360);}
+                if(curBer>180){curBer=abs(curBer-360);}
+                Log.i(TAG, "Bearing" + (abs(curBer-poiBer)) +  " " + curBer + " " + poiBer );
+//                try {
+//                    setDebugText(itextView2, "Bearing " + (abs(curBer-poiBer)) +  " c:" + curBer + " p:" + poiBer);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+                if(  (abs(curBer-poiBer)<10))
+                {   //noinspection ConstantConditions
+                    vImageAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
+                    vImageAlert.setVisibility(View.VISIBLE);
+                    //iTypeOfPOI and iWhenPOI comes from callPOI() return
+                    // if Speed Camera etc are active at this time of day then ...
+                    if (POIActive(iWhenPOI)) {
+                        String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
+                        mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_FLUSH, null);
+                    }
                 }
+                else      //todo skipping
+                { mTts.speak("skipping", TextToSpeech.QUEUE_ADD, null); }
             }
         } else {
             if (vImageAlert.getVisibility() != View.GONE)
@@ -896,6 +973,62 @@ public class MainActivity extends Activity implements LocationListener {
                 //noinspection ConstantConditions
                 vImageAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
                 vImageAlert.setVisibility(View.GONE);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+    private void updateSZAlertImage(boolean bShow) {
+        if (bShow) {
+            if ((vImageSZAlert.getVisibility() != View.VISIBLE))
+            {
+//                float poiBer = abs(locCurrent.bearingTo(poiSZ));
+//                float curBer = abs(locCurrent.getBearing());
+//                if(poiBer>180){poiBer=abs(poiBer-360);}
+//                if(curBer>180){curBer=abs(curBer-360);}
+//                Log.i(TAG, "Bearing" + (abs(curBer-poiBer)) +  " " + curBer + " " + poiBer );
+//
+//                try {
+//                    setDebugText(itextView2, "Bearing" + (abs(curBer-poiBer)) +  " c:" + curBer + " p:" + poiBer);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//
+//                if(  (abs(curBer-poiBer)<10))
+                {
+
+                    //noinspection ConstantConditions
+                    vImageSZAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
+                    vImageSZAlert.setVisibility(View.VISIBLE);
+                    //iTypeOfPOI and iWhenPOI comes from callPOI() return
+                    // if Speed Camera etc are active at this time of day then ...
+                    //if (POIActive(iWhenPOI))
+                    {
+                        String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[8];
+                        mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_ADD, null);
+
+                    }
+                }
+//                else
+//                {                    //todo skipping
+//                    mTts.speak("skipping", TextToSpeech.QUEUE_ADD, null);
+//                }
+            }
+        } else {
+            if (vImageSZAlert.getVisibility() != View.GONE)
+            {
+                //noinspection ConstantConditions
+                vImageSZAlert.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
+                vImageSZAlert.setVisibility(View.GONE);
             }
         }
     }
@@ -976,7 +1109,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             } else {
                 setDebugText(itextView, "");
-                setDebugText(itextView2, "");
+                //setDebugText(itextView2, "");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1008,7 +1141,7 @@ public class MainActivity extends Activity implements LocationListener {
         vImageViewDebug = findViewById(R.id.imageViewDebug);
         vImageViewTimeout = findViewById(R.id.imageViewTimeout);
         vImageAlert = findViewById(R.id.imageAlert);
-
+        vImageSZAlert = findViewById(R.id.imageSZAlert);
         // Turn on the GPS.     set up GPS
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //Create an instance called gpsListener of the class I added called LocListener which is an implements ( is extra to) android.location.LocationListener
@@ -1330,20 +1463,27 @@ public void onStart() {
                 now.setToNow();
 
 
+                final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
+
+
+                for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
+                    bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
+                            || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
+                            || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
+                }
+
+                if(bPhoneActive_Hide)
+                {
+                    Log.i(TAG, "ON the PHONE   ");
+                    moveTaskToBack(isTaskRoot());
+                    return false;
+                    //callFloat();
+                }
+
                 if ((tLast.toMillis(true) + 4000) < now.toMillis(true))
                 {
 
-
-                    final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                    final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
-
-
-                    for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
-                        bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
-                                || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
-                                || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
-                    }
-                    moveTaskToBack(isTaskRoot());
                     if (!bPhoneActive_Hide)
                     {
                         LayoutInflater inflater = getLayoutInflater();

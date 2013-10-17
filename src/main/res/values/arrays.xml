@@ -11,6 +11,7 @@
     </string-array>
 
     <string-array name="pointAlert">
+        <item>I\'m reckless,Do Not Alert Me</item>
         <item>Six Points, 45Km/h over</item>
         <item>Five Points, 30Km/h over</item>
         <item>Four Points, 20Km/h over</item>
@@ -20,6 +21,7 @@
     </string-array>
 
     <string-array name="point_values">
+        <item>7</item>
         <item>6</item>
         <item>5</item>
         <item>4</item>
@@ -36,6 +38,7 @@
         <item>4,06:00–20:00</item>
         <item>5,06:00–20:00, Weekday</item>
         <item>6,15:00–19:00</item>
+        <item>7,08:00–09:30, 14:30–16:00, Weekday</item>
     </string-array>
 
 
@@ -48,5 +51,6 @@
         <item>Speed camera ahead</item>
         <item>Variable Speed camera ahead</item>
         <item>Transitway camera ahead</item>
+        <item>School Zone speed change</item>
     </string-array>
 </resources>
