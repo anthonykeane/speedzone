@@ -770,7 +770,7 @@ public class MainActivity extends Activity implements LocationListener {
             case 2:
             case 3:
             case 5:
-            case 8:
+            case 7:
                 if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
                     return false;
                 }
@@ -796,7 +796,7 @@ public class MainActivity extends Activity implements LocationListener {
             case 6:
                 return (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19);
 
-            case 8:
+            case 7:
                 return ((cal.get(Calendar.HOUR) ==  8)
                      || (cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) <= 30)
                      || (cal.get(Calendar.HOUR) ==  15)
@@ -963,9 +963,14 @@ public class MainActivity extends Activity implements LocationListener {
                         String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
                         mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_FLUSH, null);
                     }
+                    else
+                    {
+                        if(bDebug) mTts.speak("POI not Active", TextToSpeech.QUEUE_ADD, null);
+
+                    }
                 }
                 else      //todo skipping
-                { mTts.speak("skipping", TextToSpeech.QUEUE_ADD, null); }
+                {if(bDebug) mTts.speak("skipping", TextToSpeech.QUEUE_ADD, null); }
             }
         } else {
             if (vImageAlert.getVisibility() != View.GONE)
@@ -989,21 +994,17 @@ public class MainActivity extends Activity implements LocationListener {
         if (bShow) {
             if ((vImageSZAlert.getVisibility() != View.VISIBLE))
             {
-//                float poiBer = abs(locCurrent.bearingTo(poiSZ));
-//                float curBer = abs(locCurrent.getBearing());
-//                if(poiBer>180){poiBer=abs(poiBer-360);}
-//                if(curBer>180){curBer=abs(curBer-360);}
-//                Log.i(TAG, "Bearing" + (abs(curBer-poiBer)) +  " " + curBer + " " + poiBer );
-//
-//                try {
-//                    setDebugText(itextView2, "Bearing" + (abs(curBer-poiBer)) +  " c:" + curBer + " p:" + poiBer);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//
-//
-//                if(  (abs(curBer-poiBer)<10))
+                float poiBer = abs(locCurrent.bearingTo(poiSZ));
+                float curBer = abs(locCurrent.getBearing());
+                if(poiBer>180){poiBer=abs(poiBer-360);}
+                if(curBer>180){curBer=abs(curBer-360);}
+                Log.i(TAG, "Bearing " + (abs(curBer-poiBer)) +  " " + curBer + " " + poiBer );
+                try {
+                    setDebugText(itextView2, "Bearing" + (abs(curBer-poiBer)) +  " c:" + curBer + " p:" + poiBer);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(  (abs(curBer-poiBer)<30))
                 {
 
                     //noinspection ConstantConditions
@@ -1011,10 +1012,15 @@ public class MainActivity extends Activity implements LocationListener {
                     vImageSZAlert.setVisibility(View.VISIBLE);
                     //iTypeOfPOI and iWhenPOI comes from callPOI() return
                     // if Speed Camera etc are active at this time of day then ...
-                    //if (POIActive(iWhenPOI))
+                    if (POIActive(7))
                     {
                         String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[8];
                         mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_ADD, null);
+
+                    }
+                    else
+                    {
+                       if(bDebug) mTts.speak("SZ but not School time", TextToSpeech.QUEUE_ADD, null);
 
                     }
                 }
@@ -1278,7 +1284,10 @@ public void onStart() {
     @Override
     public void onStop() {
         super.onStop();
-        EasyTracker.getInstance(this).activityStop(this);  // Add this method.
+        if(!isMyServiceRunning())
+        {
+            EasyTracker.getInstance(this).activityStop(this);  // Add this method.
+        }
     }
 
     @Override
@@ -1384,7 +1393,7 @@ public void onStart() {
         //Bundle extras;
         intent = new Intent(MainActivity.this, ChatHeadService.class);
         intent.putExtra("TheOK", true);
-        intent.putExtra(sUUID, "sUUID");
+        intent.putExtra("sUUID",sUUID);
         //Log.i(TAG, "bDebug is  " + bDebug);
         intent.putExtra("bDebug", bDebug);
         intent.putExtra("bCommsTimedOut", bCommsTimedOut);

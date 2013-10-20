@@ -916,7 +916,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     }
                 }
                 else      //todo skipping
-                { mTts.speak("skipping", TextToSpeech.QUEUE_ADD, null); }
+                {if(bDebug) mTts.speak("skipping", TextToSpeech.QUEUE_ADD, null); }
             }
         } else {
             if (vImageAlert.getVisibility() != View.GONE)
