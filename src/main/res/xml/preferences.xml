@@ -32,6 +32,12 @@
             android:entries="@array/pointAlert"
             android:entryValues="@array/point_values"
             android:defaultValue="0" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="@string/settings_soundKey"
+            android:key="@string/settings_AnnoyKey"
+            android:title="@string/settings_ContiniousTitle"
+            android:summary="@string/settings_ContiniousSummary" />
 
 
         <EditTextPreference
@@ -60,6 +66,13 @@
 
     <PreferenceCategory android:title="@string/settings_Settings_title">
 
+        <ListPreference
+            android:key="@string/settings_launchTypeKey"
+            android:title="@string/settings_launchTypeTitle"
+            android:summary="@string/settings_launchTypeSummary"
+            android:entries="@array/opts"
+            android:entryValues="@array/opts_values"
+            android:defaultValue="1" />
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -74,14 +87,7 @@
             android:title="@string/settings_activityPowerTitle"
             android:summary="@string/settings_activityPowerSummary" />
 
-        <ListPreference
-            android:dependency="@string/settings_activityServicesKey"
-            android:key="@string/settings_launchTypeKey"
-            android:title="@string/settings_launchTypeTitle"
-            android:summary="@string/settings_launchTypeSummary"
-            android:entries="@array/opts"
-            android:entryValues="@array/opts_values"
-            android:defaultValue="1" />
+
 
 
         <!--<ListPreference-->

@@ -180,7 +180,9 @@
     <string name="settings_activityPowerSummary">Launch the app even if power is not connected?</string>
     <string name="settings_activityPowerTitle">Launch if no Power</string>
     <string name="GPSlost">GPS Signal Lost</string>
-
+    <string name="settings_AnnoyKey">ContiniousKey</string>
+    <string name="settings_ContiniousTitle">Continuously Alert</string>
+    <string name="settings_ContiniousSummary">Continuously Alerts overspeed (Very Annoying)</string>
 
 
 </resources>

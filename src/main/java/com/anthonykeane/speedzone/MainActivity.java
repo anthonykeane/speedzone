@@ -188,6 +188,7 @@ public class MainActivity extends Activity implements LocationListener {
     //Flags
     private boolean bZoneError = false;
     private boolean bDebug = false;
+    private boolean bAnnoy = false;
     private int iNotCommsLockedOut = 0;                   //Lock out comms until last request is serviced
     private boolean bCommsTimedOut = false;
     private boolean bMute = false;
@@ -204,7 +205,7 @@ public class MainActivity extends Activity implements LocationListener {
     private boolean bActivityPowerKey;
     private int iTypeOfPOI;
     private int iWhenPOI;
-    private static final float iShowPOIwithin = 400;
+    private static final float iShowPOIwithin = 200;
     private static final float iShowSZwithin = 50;
     @Override
     public void onDestroy() {
@@ -533,8 +534,53 @@ public class MainActivity extends Activity implements LocationListener {
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
         try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
 
-        if ((!bMute) && (iSpeed != SpeedLimit)) {
+        if ((!bMute) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
+            // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
+            switch (iAlertMode){
+                case 0:
+                    if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
+                    {
+                        mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                    }
+
+                case 1:
+                    if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
+                        break;
+                    }
+                    if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
+                        break;
+                    }
+
+                case 3:
+                    if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
+                        break;
+                    }
+
+                case 4:
+                    if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
+                        break;
+                    }
+
+                case 5:
+                    if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
+                        break;
+                    }
+
+                case 6:
+                    if (intCurrentSpeeed >= (SpeedLimit + 45)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
+                        break;
+                    }
+
+            }
+
+            /*
             if (iAlertMode <= 0) {
                 mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
             }
@@ -556,6 +602,7 @@ public class MainActivity extends Activity implements LocationListener {
             if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
                 mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
             }
+            */
             DistanceToNextSpeedChange = 0;
         }
     }
@@ -684,6 +731,9 @@ public class MainActivity extends Activity implements LocationListener {
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
+                if(bAnnoy){
+                    AlertAnnounce();
+                }
                 noGPS(!(locCurrent.hasAccuracy()));
                 if (iNotCommsLockedOut < 3) {    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebServiceHere();
@@ -710,6 +760,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), true));  // Active Low
         bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
+        bAnnoy = appSharedPrefs.getBoolean(getString(R.string.settings_AnnoyKey), true);
 //        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
 //        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
         ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
@@ -999,11 +1050,11 @@ public class MainActivity extends Activity implements LocationListener {
                 if(poiBer>180){poiBer=abs(poiBer-360);}
                 if(curBer>180){curBer=abs(curBer-360);}
                 Log.i(TAG, "Bearing " + (abs(curBer-poiBer)) +  " " + curBer + " " + poiBer );
-                try {
-                    setDebugText(itextView2, "Bearing" + (abs(curBer-poiBer)) +  " c:" + curBer + " p:" + poiBer);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    setDebugText(itextView2, "Bearing" + (abs(curBer-poiBer)) +  " c:" + curBer + " p:" + poiBer);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
                 if(  (abs(curBer-poiBer)<30))
                 {
 
