@@ -188,7 +188,8 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy) {
+        if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy)
+        {
             noGPS(false);
             //Log.i(TAG, "onLocationChanged  GOOD");
             Location locLast = locCurrent;
@@ -197,7 +198,7 @@ public class ChatHeadService extends Service implements LocationListener {
             locCurrent = location;
 
             callPOI();
-            callSchoolZone();
+            if(POIActive(7)||bDebug) callSchoolZone();
 
             DistanceToNextSpeedChange = (int) (locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
             if (DistanceToNextSpeedChange < 60) callWebServiceHere();
@@ -484,16 +485,17 @@ public class ChatHeadService extends Service implements LocationListener {
         int SpeedLimit = 0;
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
         try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
+        Log.i(TAG, "AlertAnnounce ");
+        if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
-        if ((!bMute) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
-
+            if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
+            {
+                mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+            }
             // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
             switch (iAlertMode){
                 case 0:
-                    if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
-                    {
-                        mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
-                    }
+
 
                 case 1:
                     if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
@@ -683,6 +685,7 @@ public class ChatHeadService extends Service implements LocationListener {
             @Override
             public void run() {
                 if(bAnnoy){
+                    Log.i(TAG, "Annoy ");
                     AlertAnnounce();
                 }
                 noGPS(!(locCurrent.hasAccuracy()));
@@ -1006,7 +1009,7 @@ public class ChatHeadService extends Service implements LocationListener {
 //                } catch (JSONException e) {
 //                    e.printStackTrace();
 //                }
-                if(  (abs(curBer-poiBer)<30))
+                if(  (abs(curBer-poiBer)<20))
                 {
 
                     //noinspection ConstantConditions
@@ -1022,7 +1025,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     }
                     else
                     {
-                        if(bDebug) mTts.speak("SZ but not School time", TextToSpeech.QUEUE_ADD, null);
+                        if(bDebug) mTts.speak("School Zone but not School time", TextToSpeech.QUEUE_ADD, null);
 
                     }
                 }
