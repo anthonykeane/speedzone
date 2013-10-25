@@ -496,7 +496,6 @@ public class ChatHeadService extends Service implements LocationListener {
             switch (iAlertMode){
                 case 0:
 
-
                 case 1:
                     if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
                         mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
