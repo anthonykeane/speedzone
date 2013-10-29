@@ -3,11 +3,9 @@ package com.anthonykeane.speedzone;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
-import android.graphics.Typeface;
 import android.preference.Preference;
 import android.text.Html;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -19,7 +17,7 @@ public class SeekBarPreference extends Preference
 
 
     private static final int maximum = 100;
-    private static final int interval = 5;
+    private static final int interval = 10;
 
     private float oldValue = 50;
     private TextView monitorBox;
@@ -42,48 +40,48 @@ public class SeekBarPreference extends Preference
 
         LinearLayout layout = new LinearLayout(getContext());
 
-        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params1.gravity = Gravity.LEFT;
-        params1.weight = 1.0f;
+//        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.WRAP_CONTENT,
+//                LinearLayout.LayoutParams.WRAP_CONTENT);
+//        params1.gravity = Gravity.LEFT;
+//        params1.weight = 1.0f;
 
 
-        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
-                80,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params2.gravity = Gravity.RIGHT;
+//        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+//                400,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
+//        params2.gravity = Gravity.RIGHT;
 
 
-        LinearLayout.LayoutParams params3 = new LinearLayout.LayoutParams(
-                30,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params3.gravity = Gravity.CENTER;
-
+//        LinearLayout.LayoutParams params3 = new LinearLayout.LayoutParams(
+//                30,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
+//        params3.gravity = Gravity.CENTER;
+//
 
         layout.setPadding(15, 5, 10, 5);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setOrientation(LinearLayout.VERTICAL);
         //String jjj = new String(Html.fromHtml(getString(R.string.settings_abouturl1)))
         TextView view = new TextView(getContext());
         view.setText(Html.fromHtml(getSummary().toString()));
-        view.setTextSize(18);
-        view.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        view.setGravity(Gravity.LEFT);
-        view.setLayoutParams(params1);
+        //view.setTextSize(16);
+        //view.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
+        //view.setGravity(Gravity.LEFT);
+        //view.setLayoutParams(params1);
 
 
         SeekBar bar = new SeekBar(getContext());
         bar.setMax(maximum);
         bar.setProgress((int) this.oldValue);
-        bar.setLayoutParams(params2);
+        //bar.setLayoutParams(params2);
         bar.setOnSeekBarChangeListener(this);
 
         this.monitorBox = new TextView(getContext());
-        this.monitorBox.setTextSize(12);
-        this.monitorBox.setTypeface(Typeface.MONOSPACE, Typeface.ITALIC);
-        this.monitorBox.setLayoutParams(params3);
-        this.monitorBox.setPadding(2, 5, 0, 0);
-        this.monitorBox.setText(bar.getProgress() + "");
+        //this.monitorBox.setTextSize(12);
+        //this.monitorBox.setTypeface(Typeface.MONOSPACE, Typeface.ITALIC);
+        //this.monitorBox.setLayoutParams(params3);
+        //this.monitorBox.setPadding(2, 5, 0, 0);
+        this.monitorBox.setText(bar.getProgress() + "%");
 
 
         layout.addView(view);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-   <string name="whatsnew">Welcome Please give feedback</string>
+   <string name="whatsnew">Min 5sec delay between repeat Announcement</string>
 
 
 
@@ -44,7 +44,7 @@
     <string name="settings_Reference_Summary">Choose your Reference</string>
 
     <string name="settings_aboutTitle">About</string>
-    <string name="settings_aboutSummary">Find out more about the developers</string>
+    <string name="settings_aboutSummary">Set Alert Volume</string>
 
     <string name="settings_userPrivacyTitle">Privacy Statement</string>
     <string name="settings_userPrivacySummary">We respect your right to anonymity</string>
@@ -183,6 +183,14 @@
     <string name="settings_AnnoyKey">ContiniousKey</string>
     <string name="settings_ContiniousTitle">Continuously Alert</string>
     <string name="settings_ContiniousSummary">Continuously Alerts overspeed (Very Annoying)</string>
+    <string name="settings_VolumeKey">settings_VolumeKey</string>
+    <string name="emailAddress">SpeedZoneError@anthonykeane.com</string>
+    <string name="emailSubject">Speed Zone Error Report</string>
+    <string name="emailBody">Please list the reasons for flagging an error.\n\nDelete where appropriate:\n\n
+        Wrong Speed \n
+        Missed Speed Camera\n
+        Missed School Zone\n
+        Other (please specify)</string>
 
 
 </resources>

@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static java.lang.Math.abs;
-import static java.util.UUID.randomUUID;
 
 public class ChatHeadService extends Service implements LocationListener {
 
@@ -77,6 +76,12 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
     @SuppressWarnings("All")
+
+    private final Time now = new Time();
+    private final Time tLast = new Time();
+
+
+
     private static boolean isRunning;
     //private static final int intentTTS = 3;
     private String ttsSalute;
@@ -158,6 +163,8 @@ public class ChatHeadService extends Service implements LocationListener {
     private int iWhenPOI;
     private static final float iShowPOIwithin = 200;
     private static final float iShowSZwithin = 50;
+    private int iAlertVolume = 100;
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -486,76 +493,83 @@ public class ChatHeadService extends Service implements LocationListener {
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
         try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
         Log.i(TAG, "AlertAnnounce ");
-        if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
-            if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
-            }
-            // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
-            switch (iAlertMode){
-                case 0:
+        if ((tLast.toMillis(true) + 20000) > now.toMillis(true))
+        {
+            tLast.setToNow();
 
-                case 1:
-                    if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
-                    if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
 
-                case 3:
-                    if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+            if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
-                case 4:
-                    if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+                if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
+                {
+                    mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                }
+                // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
+                switch (iAlertMode){
+                    case 0:
 
-                case 5:
-                    if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+                    case 1:
+                        if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
+                        if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
 
-                case 6:
-                    if (intCurrentSpeeed >= (SpeedLimit + 45)) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+                    case 3:
+                        if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
 
-            }
+                    case 4:
+                        if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
 
-            /*
-            if (iAlertMode <= 0) {
-                mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                    case 5:
+                        if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
+
+                    case 6:
+                        if (intCurrentSpeeed >= (SpeedLimit + 45)) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
+
+                }
+
+                /*
+                if (iAlertMode <= 0) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 2)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) && (iAlertMode <= 4)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) && (iAlertMode <= 5)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
+                }
+                */
+                DistanceToNextSpeedChange = 0;
             }
-            if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 2)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) && (iAlertMode <= 4)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) && (iAlertMode <= 5)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
-            }
-            */
-            DistanceToNextSpeedChange = 0;
         }
     }
 
@@ -698,41 +712,6 @@ public class ChatHeadService extends Service implements LocationListener {
         };
     }
 
-
-    private void RetreiveSettings() {
-
-
-        sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
-
-        if (sUUID.equals("")) {
-            sUUID = randomUUID().toString();
-            appSharedPrefs.edit().putString(getString(R.string.myUUID), sUUID).commit();
-        }
-        //Map<String, ?> xx = appSharedPrefs.getAll();
-
-
-        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), true));  // Active Low
-        bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
-        bAnnoy = appSharedPrefs.getBoolean(getString(R.string.settings_AnnoyKey), true);
-//        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
-//        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
-        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
-//        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
-//        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
-//        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
-        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), true);
-
-        if (appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)) {
-            onStartUpdates();
-        } else {
-            onStopUpdates();
-        }
-
-        iLaunchMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_launchTypeKey), "1"));
-        iAlertMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_Alert_Key), "0"));
-
-        updateDebugIcon();
-    }
 
 
     void NeedToResetDisplay() {

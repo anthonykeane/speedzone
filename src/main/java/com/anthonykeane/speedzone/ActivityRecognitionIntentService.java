@@ -120,7 +120,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                     //case DetectedActivity.STILL:
                     //case DetectedActivity.ON_BICYCLE:
                     case DetectedActivity.ON_FOOT:
-                        sendNotification();
+                        //sendNotification();
                         break;
 
                 }

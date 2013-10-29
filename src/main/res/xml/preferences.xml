@@ -2,6 +2,8 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+
+
     <!--<PreferenceCategory-->
     <!--android:title="@string/settings_aboutTitle">-->
     <!--<PreferenceScreen-->
@@ -23,6 +25,14 @@
             android:key="@string/settings_soundKey"
             android:title="@string/settings_soundTitle"
             android:summary="@string/settings_soundSummary" />
+
+        <com.anthonykeane.speedzone.SeekBarPreference
+            android:dependency="@string/settings_soundKey"
+            android:key="@string/settings_VolumeKey"
+            android:defaultValue="50"
+            android:title="@string/settings_aboutTitle"
+            android:summary="@string/settings_aboutSummary"/>
+
 
         <ListPreference
             android:dependency="@string/settings_soundKey"
@@ -182,11 +192,6 @@
     <!--</PreferenceScreen>-->
 
 
-    <!--<com.anthonykeane.speedzone.SeekBarPreference-->
-    <!--android:key="customPref"-->
-    <!--android:defaultValue="32"-->
-    <!--android:title="@string/settings_aboutTitle"-->
-    <!--android:summary="@string/settings_aboutSummary"/>-->
 
     <!--<EditTextPreference-->
     <!--android:key="@string/settings_VersionKey"-->

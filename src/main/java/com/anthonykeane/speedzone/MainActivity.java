@@ -5,6 +5,9 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ApplicationErrorReport;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +16,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -104,9 +108,6 @@ public class MainActivity extends Activity implements LocationListener {
 
     // The activty recognition update removal object
     private DetectionRemover mDetectionRemover;
-
-    private final Time now = new Time();
-    private final Time tLast = new Time();
     private boolean Floating = true;
 
 
@@ -124,6 +125,9 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // code below this line is same in MainActivity and Service
 
+
+    private final Time now = new Time();
+    private final Time tLast = new Time();
 
     @SuppressWarnings("All")
     private static boolean isRunning;
@@ -207,6 +211,8 @@ public class MainActivity extends Activity implements LocationListener {
     private int iWhenPOI;
     private static final float iShowPOIwithin = 200;
     private static final float iShowSZwithin = 50;
+    private int iAlertVolume = 100;
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -535,76 +541,83 @@ public class MainActivity extends Activity implements LocationListener {
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
         try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
         Log.i(TAG, "AlertAnnounce ");
-        if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
-            if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
-            {
-                mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
-            }
-            // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
-            switch (iAlertMode){
-                case 0:
+        if ((tLast.toMillis(true) + 20000) > now.toMillis(true))
+        {
+            tLast.setToNow();
 
-                case 1:
-                    if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
-                    if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
 
-                case 3:
-                    if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+            if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
-                case 4:
-                    if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+                if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
+                {
+                    mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                }
+                // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
+                switch (iAlertMode){
+                    case 0:
 
-                case 5:
-                    if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+                    case 1:
+                        if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
+                        if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
 
-                case 6:
-                    if (intCurrentSpeeed >= (SpeedLimit + 45)) {
-                        mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
-                        break;
-                    }
+                    case 3:
+                        if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
 
-            }
+                    case 4:
+                        if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
 
-            /*
-            if (iAlertMode <= 0) {
-                mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                    case 5:
+                        if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
+
+                    case 6:
+                        if (intCurrentSpeeed >= (SpeedLimit + 45)) {
+                            mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
+                            break;
+                        }
+
+                }
+
+                /*
+                if (iAlertMode <= 0) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 2)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) && (iAlertMode <= 4)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) && (iAlertMode <= 5)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
+                }
+                if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
+                    mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
+                }
+                */
+                DistanceToNextSpeedChange = 0;
             }
-            if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 2)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) && (iAlertMode <= 4)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) && (iAlertMode <= 5)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
-            }
-            if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
-                mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
-            }
-            */
-            DistanceToNextSpeedChange = 0;
         }
     }
 
@@ -747,41 +760,6 @@ public class MainActivity extends Activity implements LocationListener {
         };
     }
 
-
-    private void RetreiveSettings() {
-
-
-        sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
-
-        if (sUUID.equals("")) {
-            sUUID = randomUUID().toString();
-            appSharedPrefs.edit().putString(getString(R.string.myUUID), sUUID).commit();
-        }
-        //Map<String, ?> xx = appSharedPrefs.getAll();
-
-
-        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), true));  // Active Low
-        bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
-        bAnnoy = appSharedPrefs.getBoolean(getString(R.string.settings_AnnoyKey), true);
-//        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
-//        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
-        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
-//        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
-//        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
-//        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
-        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), true);
-
-        if (appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)) {
-            onStartUpdates();
-        } else {
-            onStopUpdates();
-        }
-
-        iLaunchMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_launchTypeKey), "1"));
-        iAlertMode = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_Alert_Key), "0"));
-
-        updateDebugIcon();
-    }
 
 
     void NeedToResetDisplay() {
@@ -1106,6 +1084,53 @@ public class MainActivity extends Activity implements LocationListener {
 //////////MAIN - END  OF COMMON CODE//////////////////////////////////////////////////////////
 
 
+    private void RetreiveSettings() {
+
+
+        sUUID = appSharedPrefs.getString(getString(R.string.myUUID), "");
+
+        if (sUUID.equals("")) {
+            sUUID = randomUUID().toString();
+            appSharedPrefs.edit().putString(getString(R.string.myUUID), sUUID).commit();
+        }
+//        Map<String, ?> xx = appSharedPrefs.getAll();
+
+        bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), true));  // Active Low
+        bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
+        bAnnoy = appSharedPrefs.getBoolean(getString(R.string.settings_AnnoyKey), true);
+//        alertOnGreenLightEnabled = appSharedPrefs.getBoolean(getString(R.string.settings_alertOnGreenLightEnabledKey), false);
+//        userEmail = appSharedPrefs.getString(getString(R.string.settings_userEmailKey), "");
+        ttsSalute = appSharedPrefs.getString(getString(R.string.settings_ttsSaluteKey), getString(R.string.ttsSalute));
+//        ttsSignFound = appSharedPrefs.getString(getString(R.string.settings_ttsSignFoundKey), getString(R.string.ttsSignFound));
+//        bExperimental = appSharedPrefs.getBoolean(getString(R.string.settings_bExperimentalKey), false);
+//        debugVerbosity = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_debugVerbosityKey), "0"));
+        bActivityPowerKey = appSharedPrefs.getBoolean(getString(R.string.settings_activityPowerKey), true);
+
+        iLaunchMode  = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_launchTypeKey), "1"));
+        iAlertMode   = Integer.parseInt(appSharedPrefs.getString(getString(R.string.settings_Alert_Key), "0"));
+        iAlertVolume = appSharedPrefs.getInt(getString(R.string.settings_VolumeKey), 100);
+
+        if (appSharedPrefs.getBoolean(getString(R.string.settings_activityServicesKey), false)) {
+            onStartUpdates();
+        } else {
+            onStopUpdates();
+        }
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        AudioManager am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        int amStreamMusicMaxVol = am.getStreamMaxVolume(am.STREAM_MUSIC);
+        am.setStreamVolume(am.STREAM_MUSIC, (iAlertVolume*amStreamMusicMaxVol)/100,0 );
+
+
+        updateDebugIcon();
+    }
+
+
+
+
+
+
+
+
     private void noGPS(boolean bNoGps) {
 
         TextView textView = (TextView) findViewById(itextViewGPSlost);
@@ -1165,7 +1190,7 @@ public class MainActivity extends Activity implements LocationListener {
                         + "\tmin:" + iPOIminDistance
 //                        + "\nLat:" + locCurrent.getLatitude()
 //                        + "\nLon:" + locCurrent.getLongitude()
-                        + "\nSpe:" + locCurrent.getSpeed();
+                        + "\nSpe:" + locCurrent.getSpeed()*3.6;
                 setDebugText(itextView, x);
 
             } else {
@@ -1218,6 +1243,7 @@ public class MainActivity extends Activity implements LocationListener {
 
                 //Send human reported speed error to server
                 bZoneError = true;
+                createNotification(vErrorButton);
                 ImageButton imgerr = (ImageButton) vErrorButton;
                 imgerr.setVisibility(View.VISIBLE);
                 callWebServiceHere();
@@ -1872,12 +1898,40 @@ public void onStart() {
     }
 
 
-//private Location populateLoc(Location x){
-//
-//
-//
-//}
 
+    static boolean isSDK17() {
+        return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void createNotification(View view) {
+        // Prepare intent which is triggered if the
+        // notification is selected
+        Intent intent = new Intent(this, NotificationReceiverActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        // Build notification
+
+            Notification.Builder builder = new Notification.Builder(this);
+            builder.setContentTitle("Speed Zone");
+            builder.setContentText("Error Logged Click to send, swipe to cancel");
+            builder.setSmallIcon(R.drawable.ic_launcher);
+            if (isSDK17()) {
+                builder.setContentIntent(pIntent);
+                builder.addAction(R.drawable.stat_notify_email_generic, "Click here to send data", pIntent);
+
+            } else {
+                builder.setContentIntent(pIntent);
+            }
+        Notification noti = builder.build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Hide the notification after its selected
+        noti.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        notificationManager.notify(0, noti);
+
+
+    }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
