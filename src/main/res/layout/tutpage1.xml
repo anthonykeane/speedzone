@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="false"
+        android:gravity="center|clip_horizontal|clip_vertical"
+        android:orientation="vertical"
+        android:background="@color/black_overlay"
+        android:clipChildren="false">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="false"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="0dp"
+            android:adjustViewBounds="false"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="Current Speed"
+            android:longClickable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/b100"
+            tools:ignore="HardcodedText" />
+
+
+        <ImageButton
+            android:id="@+id/imageBtnSmall"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignBottom="@+id/imageButton"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@android:color/transparent"
+            android:contentDescription="Next Speed"
+            android:scaleType="fitCenter"
+            android:scrollbarAlwaysDrawVerticalTrack="false"
+            android:soundEffectsEnabled="false"
+            android:src="@drawable/g80"
+            tools:ignore="HardcodedText"
+            android:focusableInTouchMode="false" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="false"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:indeterminate="false"
+            android:max="1000"
+            android:maxHeight="10dip"
+            android:minHeight="10dip"
+            android:progress="410"
+            android:progressDrawable="@drawable/greenprogress"
+            android:secondaryProgress="410" />
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:animateLayoutChanges="false"
+            android:background="@android:color/background_dark"
+            android:clipChildren="true"
+            android:alpha=".7">
+
+        </FrameLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView2"
+            android:src="@drawable/floatmode"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="30dp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:src="@drawable/longclick"
+            android:layout_above="@+id/imageBtnSmall"
+            android:layout_gravity="left|center_vertical" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView3"
+            android:src="@android:drawable/ic_menu_revert"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:padding="30dp" />
+
+        <!--<ProgressBar-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/progressBar"-->
+        <!--android:progress="220" android:max="1000" android:layout_alignParentEnd="false" android:layout_alignParentStart="false" android:secondaryProgress="410" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"/>-->
+
+        <!--<Button-->
+        <!--style="?android:attr/buttonStyleSmall"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="New Button"-->
+        <!--android:id="@+id/button1" android:layout_gravity="left|center_vertical"/>-->
+
+    </RelativeLayout>
+
+
+</LinearLayout>

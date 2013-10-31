@@ -79,6 +79,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     private final Time now = new Time();
     private final Time tLast = new Time();
+    private final Time tLast2 = new Time();
 
 
 
@@ -494,9 +495,9 @@ public class ChatHeadService extends Service implements LocationListener {
         try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
         Log.i(TAG, "AlertAnnounce ");
 
-        if ((tLast.toMillis(true) + 20000) > now.toMillis(true))
+        if ((tLast2.toMillis(true) + 20000) > now.toMillis(true))
         {
-            tLast.setToNow();
+            tLast2.setToNow();
 
 
             if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {

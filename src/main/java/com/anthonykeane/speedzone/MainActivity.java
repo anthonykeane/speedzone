@@ -51,6 +51,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -128,7 +129,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private final Time now = new Time();
     private final Time tLast = new Time();
-
+    private final Time tLast2 = new Time();
     @SuppressWarnings("All")
     private static boolean isRunning;
     //private static final int intentTTS = 3;
@@ -143,7 +144,7 @@ public class MainActivity extends Activity implements LocationListener {
     private final Location locNextSpeedChange = new Location("");
     private Location locLastCallSchoolZone = new Location("");
 
-    private TextToSpeech mTts;
+    public static TextToSpeech mTts;
 
     private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     private static final long minTime = 1000;                   // don't update GPS if time < mS
@@ -542,9 +543,9 @@ public class MainActivity extends Activity implements LocationListener {
         try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
         Log.i(TAG, "AlertAnnounce ");
 
-        if ((tLast.toMillis(true) + 20000) > now.toMillis(true))
+        if ((tLast2.toMillis(true) + 20000) > now.toMillis(true))
         {
-            tLast.setToNow();
+            tLast2.setToNow();
 
 
             if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
@@ -1095,6 +1096,10 @@ public class MainActivity extends Activity implements LocationListener {
         }
 //        Map<String, ?> xx = appSharedPrefs.getAll();
 
+        //1:5URLshortener("https://www.google.com/maps?q=http:%2F%2Fanthonykeane.com%2Fspeed%2FkmlMaps.php%3FUUID%3D".concat(sUUID).concat("%26x%3D3&hl=en&sll=-32.010396,135.119128&sspn=122.532413,259.101562&t=m&z=12"));
+
+
+
         bMute = !(appSharedPrefs.getBoolean(getString(R.string.settings_soundKey), true));  // Active Low
         bDebug = appSharedPrefs.getBoolean(getString(R.string.settings_debugKey), false);
         bAnnoy = appSharedPrefs.getBoolean(getString(R.string.settings_AnnoyKey), true);
@@ -1319,7 +1324,7 @@ public class MainActivity extends Activity implements LocationListener {
         // Receive Settings
         RetreiveSettings();
         // if launch
-        if(LaunchOrKill()); // needs a preference so must be AFTER RetreiveSettings()
+        if(LaunchOrKill()) // needs a preference so must be AFTER RetreiveSettings()
         {
             EasyTracker.getInstance(this).activityStart(this);  // Add this method.
 
@@ -1430,6 +1435,24 @@ public void onStart() {
             return true;
 
 
+
+
+            case R.id.menu_tut:
+
+                Intent ii = new Intent(this, tut1.class);
+                startActivityForResult(ii, intentSettings);
+
+
+                return true;
+
+
+
+
+
+
+
+
+
             case R.id.settings:
                 // Settings Menu
 
@@ -1507,27 +1530,29 @@ public void onStart() {
         super.onResume();
 
 
-        LaunchOrKill(); // needs a preference so must be AFTER RetreiveSettings()
+        if(LaunchOrKill()){
 
 
-        //Log.i(TAG, "onResume  ");
+            //Log.i(TAG, "onResume  ");
 
-        handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);
-        //Log.i(TAG, "onResume  START TIMER");
-        //Start the GPS listener
-        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
+            handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);
+            //Log.i(TAG, "onResume  START TIMER");
+            //Start the GPS listener
+            locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistanceGPS, this);
 
 
-        // Register the broadcast receiver
-        mBroadcastManager.registerReceiver(
-                updateListReceiver,
-                mBroadcastFilter);
+            // Register the broadcast receiver
+            mBroadcastManager.registerReceiver(
+                    updateListReceiver,
+                    mBroadcastFilter);
+
+        }
 
 
     }
-
+    // return false to exit
     private boolean LaunchOrKill() {
-
+    boolean rtn = true;
         // if not called by Float
         if(!didFloatCallNotmal())
         {
@@ -1537,7 +1562,7 @@ public void onStart() {
             {
                 Log.i(TAG, "isMyServiceRunning   ");
                 moveTaskToBack(isTaskRoot());
-                return false;
+                rtn = false;
                 //callFloat();
             }
 
@@ -1567,11 +1592,11 @@ public void onStart() {
                 {
                     Log.i(TAG, "ON the PHONE   ");
                     moveTaskToBack(isTaskRoot());
-                    return false;
+                    rtn =  false;
                     //callFloat();
                 }
 
-                if ((tLast.toMillis(true) + 4000) < now.toMillis(true))
+                if ((tLast.toMillis(true) + 3000) < now.toMillis(true))
                 {
 
                     if (!bPhoneActive_Hide)
@@ -1582,9 +1607,9 @@ public void onStart() {
 
                         assert layout != null;
                         ImageView image = (ImageView) layout.findViewById(R.id.image);
-                        image.setImageResource(R.drawable.ic_launcher);
-                        TextView text = (TextView) layout.findViewById(R.id.text);
-                        text.setText("CLICK THE ICON AGAIN NOW\nnot this frame!.\nSee Power in Settings");
+                        image.setImageResource(R.drawable.powermessage);
+                        //TextView text = (TextView) layout.findViewById(R.id.text);
+                        //text.setText("CLICK THE ICON AGAIN NOW\nnot this frame!.\nSee Power in Settings");
 
                         Toast toast = new Toast(getApplicationContext());
                         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
@@ -1593,18 +1618,11 @@ public void onStart() {
                         toast.show();
 
                         tLast.setToNow();
+                        moveTaskToBack(isTaskRoot());
+                        rtn =  false;
                     }
                     //Toast.makeText(this, "<CENTER>'SpeedZone NSW'\n\nDisabled while on battery, \nConnect Power to Launch or\n\n CLICK AGAIN \n\nthen See Settings</CENTER>" , Toast.LENGTH_LONG).show();
                 }
-//                else
-//                {
-//                    if (iLaunchMode == 2) {
-//                        Log.i(TAG, "iLaunchMode      ");
-//                        callFloat();
-//                    }
-//
-//                }
-                Floating = false;
             }
             else
             {
@@ -1614,9 +1632,9 @@ public void onStart() {
                 }
 
             }
-            return false;
+            rtn =  false;
         }
-        return true;
+        return rtn;
     }
 
     /**
@@ -1934,8 +1952,132 @@ public void onStart() {
     }
 
 
+
+
+
+    public void URLshortener(String url)
+    {
+        RequestParams HTTPrpC = new RequestParams();
+        HTTPrpC.put("longUrl", url);
+
+        client.addHeader("Content-Type", "application/json");
+        client.post(getString(R.string.goo_gl), HTTPrpC, new JsonHttpResponseHandler() {
+
+            @Override
+            public void onFailure(Throwable e, JSONObject errorResponse) {
+                System.out.println(e);
+                //Log.i(TAG, "onFailure MyDbWeb");
+                bCommsTimedOut = false;
+                //Clear the display if we don't know the value
+                // Skip is too slow to matter
+                if (locCurrent.getSpeed() >= 7) {
+                    NeedToResetDisplay();
+                }
+            }
+
+
+            @Override
+            public void onSuccess(String response) {
+                System.out.println(response);
+            }
+
+            @Override
+            public void onSuccess(JSONArray response) {
+                bCommsTimedOut = false;
+
+            }
+
+            @Override
+            public void onSuccess(JSONObject response) {
+                bCommsTimedOut = false;
+
+                try {
+                    String sUrl = response.getString("id");
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onStart() {
+                bCommsTimedOut = true;
+                iNotCommsLockedOut++;
+            }
+
+            @Override
+            public void onFinish() {
+                iNotCommsLockedOut--;
+                if (iNotCommsLockedOut <= 2) iNotCommsLockedOut = 0;
+                updateTimeoutIcon();
+                if (bCommsTimedOut) {
+                    setDisplay(0);
+                }
+            }
+        });
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 } //END OF CODE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //SELECT `RE` , `reLat` , `reLon` , `reBearing` , `reSpeedLimit` , `RdNo` , `rePrescribed` , `reRoadName`
