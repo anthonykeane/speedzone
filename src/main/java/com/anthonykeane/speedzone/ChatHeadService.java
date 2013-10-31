@@ -298,7 +298,8 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy() <= iMinAccuracy) && (locCurrent.hasAccuracy())) {
+        //if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy() <= iMinAccuracy) && (locCurrent.hasAccuracy())) {
+        if ((iDisplayingS != iSpeed) && (bSmall == !bThisIsMainActivity)) {
             iDisplayingS = iSpeed;
             switch (iSpeed) {
                 case 40:
@@ -336,7 +337,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ((iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy() > iMinAccuracy) || (!locCurrent.hasAccuracy()))) {
+        if ((iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity)) {
 
             iDisplayingG = iSpeed;
 
@@ -1138,6 +1139,9 @@ public class ChatHeadService extends Service implements LocationListener {
                 sUUID = intent.getStringExtra("sUUID");
                 bDebug = intent.getBooleanExtra("bDebug", false);
                 bCommsTimedOut = intent.getBooleanExtra("bCommsTimedOut", false);
+                iSpeed = intent.getIntExtra("iSpeed",50);
+
+
                 // Log.i(TAG, "2.2 bCommsTimedOut is  " + bCommsTimedOut);
                 // Log.i(TAG, "2.2 bDebug is  " + bDebug);
                 updateTimeoutIcon();
@@ -1162,7 +1166,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
             // got iSpeed above
-            setGraphicBtnV(vImageButton, 50, true);
+            setGraphicBtnV(vImageButton, iSpeed, true);
 
 
             handler.postDelayed(timedGPSqueue, delayBetweenGPS_Records);   //Start timer

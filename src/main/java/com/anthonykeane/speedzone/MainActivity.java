@@ -1501,7 +1501,7 @@ public void onStart() {
         //Log.i(TAG, "bDebug is  " + bDebug);
         intent.putExtra("bDebug", bDebug);
         intent.putExtra("bCommsTimedOut", bCommsTimedOut);
-        //intent.putExtra("iSpeed",iSpeed);
+        intent.putExtra("iSpeed",iSpeed);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         handler.removeCallbacks(timedGPSqueue);
         moveTaskToBack(true);
