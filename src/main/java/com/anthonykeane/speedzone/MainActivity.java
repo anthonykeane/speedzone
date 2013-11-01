@@ -144,7 +144,7 @@ public class MainActivity extends Activity implements LocationListener {
     private final Location locNextSpeedChange = new Location("");
     private Location locLastCallSchoolZone = new Location("");
 
-    public static TextToSpeech mTts;
+    public TextToSpeech mTts;
 
     private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     private static final long minTime = 1000;                   // don't update GPS if time < mS
@@ -1624,15 +1624,14 @@ public void onStart() {
                     //Toast.makeText(this, "<CENTER>'SpeedZone NSW'\n\nDisabled while on battery, \nConnect Power to Launch or\n\n CLICK AGAIN \n\nthen See Settings</CENTER>" , Toast.LENGTH_LONG).show();
                 }
             }
-            else
-            {
-                if (iLaunchMode == 2 && Floating) {
-                    Log.i(TAG, "iLaunchMode      ");
-                    callFloat();
-                }
-
-            }
-            rtn =  false;
+//            else
+//            {
+//                if (iLaunchMode == 2 && Floating) {
+//                    Log.i(TAG, "iLaunchMode      ");
+//                    callFloat();
+//                }
+//
+//            }
         }
         return rtn;
     }

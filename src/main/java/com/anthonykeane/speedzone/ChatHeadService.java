@@ -1294,7 +1294,7 @@ public class ChatHeadService extends Service implements LocationListener {
                             // Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
 
 
-                            bYouMovedIt = ((StrictMath.abs(params.x - didwemove) > 10));
+                            bYouMovedIt = ((StrictMath.abs(params.x - didwemove) > 30));
                             //return true;
                             break;
                     }
