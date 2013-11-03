@@ -540,7 +540,7 @@ public class MainActivity extends Activity implements LocationListener {
     private void AlertAnnounce() {
         int SpeedLimit = 0;
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
-        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
+        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");
         Log.i(TAG, "AlertAnnounce ");
 
         if ((tLast2.toMillis(true) + 20000) > now.toMillis(true))
@@ -620,6 +620,7 @@ public class MainActivity extends Activity implements LocationListener {
                 DistanceToNextSpeedChange = 0;
             }
         }
+        } catch (JSONException e) {e.printStackTrace();}
     }
 
 
@@ -1069,6 +1070,42 @@ public class MainActivity extends Activity implements LocationListener {
                 vImageSZAlert.setVisibility(View.GONE);
             }
         }
+    }
+
+
+
+    static boolean isSDK17() {
+        return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void createNotification(View view) {
+        // Prepare intent which is triggered if the
+        // notification is selected
+        Intent intent = new Intent(this, NotificationReceiverActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        // Build notification
+
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("Speed Zone");
+        builder.setContentText("Error Logged Click to send, swipe to cancel");
+        builder.setSmallIcon(R.drawable.ic_launcher);
+        if (isSDK17()) {
+            builder.setContentIntent(pIntent);
+            builder.addAction(R.drawable.stat_notify_email_generic, "Click here to send data", pIntent);
+
+        } else {
+            builder.setContentIntent(pIntent);
+        }
+        Notification noti = builder.build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Hide the notification after its selected
+        noti.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        notificationManager.notify(0, noti);
+
+
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1915,40 +1952,6 @@ public void onStart() {
     }
 
 
-
-    static boolean isSDK17() {
-        return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public void createNotification(View view) {
-        // Prepare intent which is triggered if the
-        // notification is selected
-        Intent intent = new Intent(this, NotificationReceiverActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        // Build notification
-
-            Notification.Builder builder = new Notification.Builder(this);
-            builder.setContentTitle("Speed Zone");
-            builder.setContentText("Error Logged Click to send, swipe to cancel");
-            builder.setSmallIcon(R.drawable.ic_launcher);
-            if (isSDK17()) {
-                builder.setContentIntent(pIntent);
-                builder.addAction(R.drawable.stat_notify_email_generic, "Click here to send data", pIntent);
-
-            } else {
-                builder.setContentIntent(pIntent);
-            }
-        Notification noti = builder.build();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Hide the notification after its selected
-        noti.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        notificationManager.notify(0, noti);
-
-
-    }
 
 
 

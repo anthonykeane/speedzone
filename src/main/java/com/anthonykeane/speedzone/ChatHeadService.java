@@ -1,5 +1,9 @@
 package com.anthonykeane.speedzone;
 
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +14,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -299,7 +304,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
         //noinspection PointlessBooleanExpression,ConstantConditions
         //if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy() <= iMinAccuracy) && (locCurrent.hasAccuracy())) {
-        if ((iDisplayingS != iSpeed) && (bSmall == !bThisIsMainActivity)) {
+        if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity)) {
             iDisplayingS = iSpeed;
             switch (iSpeed) {
                 case 40:
@@ -337,7 +342,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ((iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity)) {
+        if ((iDisplayingG != iSpeed) && (bSmall == !bThisIsMainActivity)) {
 
             iDisplayingG = iSpeed;
 
@@ -493,7 +498,7 @@ public class ChatHeadService extends Service implements LocationListener {
     private void AlertAnnounce() {
         int SpeedLimit = 0;
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
-        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");} catch (JSONException e) {e.printStackTrace();}
+        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");
         Log.i(TAG, "AlertAnnounce ");
 
         if ((tLast2.toMillis(true) + 20000) > now.toMillis(true))
@@ -573,6 +578,7 @@ public class ChatHeadService extends Service implements LocationListener {
                 DistanceToNextSpeedChange = 0;
             }
         }
+        } catch (JSONException e) {e.printStackTrace();}
     }
 
 
@@ -629,10 +635,10 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
             //todo is this line needed?
-            //if (bThisIsMainActivity)
+            if (bThisIsMainActivity){
             if (!bCommsTimedOut)
                 setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
-
+            }
             fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
             iSecondsToSpeedChange = (DistanceToNextSpeedChange / (fFiveValAvgSpeed + 1));
             //updateDebugText();
@@ -1024,6 +1030,43 @@ public class ChatHeadService extends Service implements LocationListener {
         }
     }
 
+
+
+    static boolean isSDK17() {
+        return android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void createNotification(View view) {
+        // Prepare intent which is triggered if the
+        // notification is selected
+        Intent intent = new Intent(this, NotificationReceiverActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        // Build notification
+
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("Speed Zone");
+        builder.setContentText("Error Logged Click to send, swipe to cancel");
+        builder.setSmallIcon(R.drawable.ic_launcher);
+        if (isSDK17()) {
+            builder.setContentIntent(pIntent);
+            builder.addAction(R.drawable.stat_notify_email_generic, "Click here to send data", pIntent);
+
+        } else {
+            builder.setContentIntent(pIntent);
+        }
+        Notification noti = builder.build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Hide the notification after its selected
+        noti.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        notificationManager.notify(0, noti);
+
+
+    }
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1179,6 +1222,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
                     if (!bYouMovedIt) {
                         // Send Error to URL
+                        createNotification(vErrorButton);
                         bZoneError = true;
                         ImageButton imgerr = (ImageButton) vErrorButton;
                         imgerr.setVisibility(View.VISIBLE);
@@ -1294,7 +1338,7 @@ public class ChatHeadService extends Service implements LocationListener {
                             // Log.i(TAG, String.valueOf(didwemove) + "    " + String.valueOf(params.x));
 
 
-                            bYouMovedIt = ((StrictMath.abs(params.x - didwemove) > 30));
+                            bYouMovedIt = ((StrictMath.abs(params.x - didwemove) > 60));
                             //return true;
                             break;
                     }
