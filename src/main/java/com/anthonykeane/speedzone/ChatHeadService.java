@@ -32,6 +32,7 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -40,7 +41,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -174,6 +174,7 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        EasyTracker.getInstance(this).set("Where","FloatStop");
         isRunning = false;
         //Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
@@ -211,7 +212,7 @@ public class ChatHeadService extends Service implements LocationListener {
             locCurrent = location;
 
             callPOI();
-            if(POIActive(7)||bDebug) callSchoolZone();
+            if(MainActivity.POIActive(7)||bDebug) callSchoolZone();
 
             DistanceToNextSpeedChange = (int) (locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
             if (DistanceToNextSpeedChange < 60) callWebServiceHere();
@@ -732,9 +733,10 @@ public class ChatHeadService extends Service implements LocationListener {
         }
     }
 
-    private boolean POIActive(int iWhenPOI) {
+/*
+private boolean POIActive(int iWhenPOI) {
 
-        Calendar cal = Calendar.getInstance();
+Calendar cal = Calendar.getInstance();
 //
 //        int millisecond = cal.get(Calendar.MILLISECOND);
 //        int second = cal.get(Calendar.SECOND);
@@ -753,53 +755,54 @@ public class ChatHeadService extends Service implements LocationListener {
 //
 
 
-        //check day of week
-        switch (iWhenPOI) {
-            case 0:
-                return true;
-            case 1:
-            case 2:
-            case 3:
-            case 5:
-            case 7:
-                if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-                    return false;
-                }
-        }
-        // check time
-        switch (iWhenPOI) {
+//check day of week
+switch (iWhenPOI) {
+case 0:
+return true;
+case 1:
+case 2:
+case 3:
+case 5:
+case 7:
+if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+return false;
+}
+}
+// check time
+switch (iWhenPOI) {
 
-            case 1:
-                return (cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10);
+case 1:
+return (cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10);
 
-            case 2:
-                return ((cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10)
-                        || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19));
+case 2:
+return ((cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10)
+|| (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19));
 
-            case 3:
-                return ((cal.get(Calendar.HOUR) >= 6  && cal.get(Calendar.HOUR) < 10)
-                        || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 20));
+case 3:
+return ((cal.get(Calendar.HOUR) >= 6  && cal.get(Calendar.HOUR) < 10)
+|| (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 20));
 
-            case 4:
-            case 5:
-                return (cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 20);
+case 4:
+case 5:
+return (cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 20);
 
-            case 6:
-                return (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19);
+case 6:
+return (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19);
 
-            case 7:
-                return ((cal.get(Calendar.HOUR) ==  8)
-                        || (cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) <= 30)
-                        || (cal.get(Calendar.HOUR) ==  15)
-                        || (cal.get(Calendar.HOUR) == 14) && (cal.get(Calendar.MINUTE) <= 30)
-                );
+case 7:
+return ((cal.get(Calendar.HOUR) ==  8)
+|| (cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) >= 30)
+|| (cal.get(Calendar.HOUR) ==  15)
+|| (cal.get(Calendar.HOUR) == 14) && (cal.get(Calendar.MINUTE) >= 30)
+);
 
-        }
+}
 
 
-        return true;
+return true;
 
-    }
+}
+*/
 
     private void callSchoolZone() {
 
@@ -950,7 +953,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     vImageAlert.setVisibility(View.VISIBLE);
                     //iTypeOfPOI and iWhenPOI comes from callPOI() return
                     // if Speed Camera etc are active at this time of day then ...
-                    if (POIActive(iWhenPOI)) {
+                    if (MainActivity.POIActive(iWhenPOI)) {
                         String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
                         mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_FLUSH, null);
                     }
@@ -1003,7 +1006,7 @@ public class ChatHeadService extends Service implements LocationListener {
                     vImageSZAlert.setVisibility(View.VISIBLE);
                     //iTypeOfPOI and iWhenPOI comes from callPOI() return
                     // if Speed Camera etc are active at this time of day then ...
-                    if (POIActive(7))
+                    if (MainActivity.POIActive(7))
                     {
                         String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[8];
                         mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_ADD, null);
@@ -1125,6 +1128,8 @@ public class ChatHeadService extends Service implements LocationListener {
 
     @Override
     public void onCreate() {
+
+        EasyTracker.getInstance(this).set("Where","FloatStart");
         super.onCreate();
 
         // Log.i(TAG, "onCreate  1");

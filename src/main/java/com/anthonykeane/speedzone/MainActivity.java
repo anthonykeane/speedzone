@@ -254,7 +254,7 @@ public class MainActivity extends Activity implements LocationListener {
             locCurrent = location;
 
             callPOI();
-            if(POIActive(7)||bDebug) callSchoolZone();
+            if(MainActivity.POIActive(7)||bDebug) callSchoolZone();
 
             DistanceToNextSpeedChange = (int) (locCurrent.distanceTo(locNextSpeedChange) - iDistanceOffset);
             if (DistanceToNextSpeedChange < 60) callWebServiceHere();
@@ -263,7 +263,7 @@ public class MainActivity extends Activity implements LocationListener {
 
             DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
             DistanceToSZ = (int) (locCurrent.distanceTo(poiSZ) - iDistanceOffset);
-
+            AlertAnnounce();
 
             float fMinUpdateDistance = 30;
             if (iNotCommsLockedOut == 0 && ((abs(locLast.getSpeed() - locCurrent.getSpeed()) > 2.0)
@@ -538,7 +538,7 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
     private void AlertAnnounce() {
-        int SpeedLimit = 0;
+        int SpeedLimit = 50;
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
         try { SpeedLimit = jHereResult.getInt("reSpeedLimit");
         Log.i(TAG, "AlertAnnounce ");
@@ -768,13 +768,14 @@ public class MainActivity extends Activity implements LocationListener {
         iNeedToResetDisplay++;
         //Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
         if (iNeedToResetDisplay > 1) {
-            setDisplay(50);
+            iSpeed = 50;
+            setDisplay(iSpeed);
             iNeedToResetDisplay = 0;
 
         }
     }
 
-    private boolean POIActive(int iWhenPOI) {
+    public static boolean POIActive(int iWhenPOI) {
 
         Calendar cal = Calendar.getInstance();
 //
@@ -831,9 +832,9 @@ public class MainActivity extends Activity implements LocationListener {
 
             case 7:
                 return ((cal.get(Calendar.HOUR) ==  8)
-                     || (cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) <= 30)
+                     || (cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) >= 30)
                      || (cal.get(Calendar.HOUR) ==  15)
-                     || (cal.get(Calendar.HOUR) == 14) && (cal.get(Calendar.MINUTE) <= 30)
+                     || (cal.get(Calendar.HOUR) == 14) && (cal.get(Calendar.MINUTE) >= 30)
                 );
 
         }
@@ -992,7 +993,7 @@ public class MainActivity extends Activity implements LocationListener {
                     vImageAlert.setVisibility(View.VISIBLE);
                     //iTypeOfPOI and iWhenPOI comes from callPOI() return
                     // if Speed Camera etc are active at this time of day then ...
-                    if (POIActive(iWhenPOI)) {
+                    if (MainActivity.POIActive(iWhenPOI)) {
                         String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[iTypeOfPOI];
                         mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_FLUSH, null);
                     }
@@ -1045,7 +1046,7 @@ public class MainActivity extends Activity implements LocationListener {
                     vImageSZAlert.setVisibility(View.VISIBLE);
                     //iTypeOfPOI and iWhenPOI comes from callPOI() return
                     // if Speed Camera etc are active at this time of day then ...
-                    if (POIActive(7))
+                    if (MainActivity.POIActive(7))
                     {
                         String poiAlertMessage = getResources().getStringArray(R.array.poiTypeArray)[8];
                         mTts.speak(poiAlertMessage, TextToSpeech.QUEUE_ADD, null);
@@ -1603,6 +1604,24 @@ public void onStart() {
                 //callFloat();
             }
 
+            final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
+
+
+            for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
+                bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
+                        || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
+                        || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
+            }
+
+            if(bPhoneActive_Hide)
+            {
+                Log.i(TAG, "ON the PHONE   ");
+                moveTaskToBack(isTaskRoot());
+                rtn =  false;
+                //callFloat();
+            }
+
             // Are we Connected to external power?
             Intent inPower = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
             int status = inPower.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
@@ -1614,24 +1633,6 @@ public void onStart() {
 
                 now.setToNow();
 
-
-                final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(2);
-
-
-                for (ActivityManager.RunningTaskInfo recentTask : recentTasks) {
-                    bPhoneActive_Hide = recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.DialtactsActivity}")
-                            || recentTask.baseActivity.toShortString().equals("{com.android.contacts/com.android.contacts.activities.PeopleActivity}")
-                            || recentTask.baseActivity.toShortString().equals("{com.android.phone/com.android.phone.InCallScreen}");
-                }
-
-                if(bPhoneActive_Hide)
-                {
-                    Log.i(TAG, "ON the PHONE   ");
-                    moveTaskToBack(isTaskRoot());
-                    rtn =  false;
-                    //callFloat();
-                }
 
                 if ((tLast.toMillis(true) + 3000) < now.toMillis(true))
                 {
