@@ -2,7 +2,7 @@ speedzone
 =========
 # SpeedZone NSW 
 
-![Icon](https://lh5.googleusercontent.com/-F4Ce0_EUWZ0/Ukk70DNkdwI/AAAAAAAAnGs/DyuDMqBx5vA/s384-no/512x512.png)
+![Icon](https://lh4.googleusercontent.com/-txEgUKuR5Sk/Un8DWbQTixI/AAAAAAAAn1Y/QPYLZgS6MPQ/s512-no/512x512.png)
 
 ## The [Big Hairy Audacious Goal (BHAG)](http://en.wikipedia.org/wiki/Big_Hairy_Audacious_Goal)
 ### The B.H.A.G. here is to create a Crowd Sourced [Polynomial Chaos](http://en.wikipedia.org/wiki/Polynomial_chaos) control system for traffic, starting in NSW.
