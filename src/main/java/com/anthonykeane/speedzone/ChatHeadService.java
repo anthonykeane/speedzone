@@ -224,13 +224,15 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
             float fMinUpdateDistance = 30;
-            if (iNotCommsLockedOut == 0 && ((abs(locLast.getSpeed() - locCurrent.getSpeed()) > 2.0)
-                    || (abs(locLast.getBearing() - locCurrent.getBearing()) > 7.0)
-                    || (locLast.distanceTo(locCurrent) > fMinUpdateDistance))) {
-                callWebServiceHere();
+            if ((iNotCommsLockedOut == 0) && (locLast.distanceTo(locCurrent) > fMinUpdateDistance))
+            {
+                AlertAnnounce();
+                if(abs(locLast.getSpeed() - locCurrent.getSpeed()) > (locLast.getSpeed()*0.15))
+                { callWebServiceHere();}
+
+                if(abs(locLast.getBearing() - locCurrent.getBearing()) > 7.0)
+                { callWebServiceHere();}
             }
-        } else {
-            //Log.i(TAG, "onLocationChanged  BAD");
         }
         noGPS(!(location.hasAccuracy() && location.getAccuracy() < iMinAccuracy));
         updateDebugText();
@@ -497,91 +499,97 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
     private void AlertAnnounce() {
-        int SpeedLimit = 0;
+        int SpeedLimit = 50;
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
-        try { SpeedLimit = jHereResult.getInt("reSpeedLimit");
-        Log.i(TAG, "AlertAnnounce ");
-
-        if ((tLast2.toMillis(true) + 20000) > now.toMillis(true))
+        try
         {
-            tLast2.setToNow();
+            SpeedLimit = jHereResult.getInt("reSpeedLimit");
+            Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true)  -  tLast2.toMillis(true) ));
+            now.setToNow();
+            if ((tLast2.toMillis(true) + 20000) < now.toMillis(true))
+            {
 
+                Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true) + " - " +  tLast2.toMillis(true) ));
+                tLast2.setToNow();
 
-            if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
+                if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
-                if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
-                {
-                    mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                    if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
+                    {
+                        mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
+                    switch (iAlertMode){
+                        case 0:
+
+                        case 1:
+                            if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
+                                mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
+                                break;
+                            }
+                            if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
+                                mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
+                                break;
+                            }
+
+                        case 3:
+                            if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
+                                mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
+                                break;
+                            }
+
+                        case 4:
+                            if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
+                                mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
+                                break;
+                            }
+
+                        case 5:
+                            if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
+                                mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
+                                break;
+                            }
+
+                        case 6:
+                            if (intCurrentSpeeed >= (SpeedLimit + 45)) {
+                                mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
+                                break;
+                            }
+
+                    }
+
+                    /*
+                    if (iAlertMode <= 0) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 2)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) && (iAlertMode <= 4)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) && (iAlertMode <= 5)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
+                        mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
+                    }
+                    */
+                    DistanceToNextSpeedChange = 0;
                 }
-                // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
-                switch (iAlertMode){
-                    case 0:
-
-                    case 1:
-                        if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
-                            mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
-                            break;
-                        }
-                        if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
-                            mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
-                            break;
-                        }
-
-                    case 3:
-                        if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
-                            mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
-                            break;
-                        }
-
-                    case 4:
-                        if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
-                            mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
-                            break;
-                        }
-
-                    case 5:
-                        if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
-                            mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
-                            break;
-                        }
-
-                    case 6:
-                        if (intCurrentSpeeed >= (SpeedLimit + 45)) {
-                            mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
-                            break;
-                        }
-
-                }
-
-                /*
-                if (iAlertMode <= 0) {
-                    mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
-                }
-                if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3) && (iAlertMode <= 1)) {
-                    mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
-                }
-                if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10) && (iAlertMode <= 2)) {
-                    mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
-                }
-                if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) && (iAlertMode <= 3)) {
-                    mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
-                }
-                if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) && (iAlertMode <= 4)) {
-                    mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
-                }
-                if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) && (iAlertMode <= 5)) {
-                    mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
-                }
-                if (intCurrentSpeeed >= (SpeedLimit + 45) && (iAlertMode <= 6)) {
-                    mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
-                }
-                */
-                DistanceToNextSpeedChange = 0;
             }
         }
-        } catch (JSONException e) {e.printStackTrace();}
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
-
 
     private void MyNextWebService() {
 
