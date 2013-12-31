@@ -85,13 +85,13 @@
             android:defaultValue="1" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="@string/settings_activityServicesKey"
             android:title="@string/settings_activityServicesTitle"
             android:summary="@string/settings_activityServicesSummary" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:dependency="@string/settings_activityServicesKey"
             android:key="@string/settings_activityPowerKey"
             android:title="@string/settings_activityPowerTitle"

@@ -41,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -80,14 +81,10 @@ public class ChatHeadService extends Service implements LocationListener {
 // code below this line is same in MainActivity and Service
 
 
-    @SuppressWarnings("All")
-
     private final Time now = new Time();
     private final Time tLast = new Time();
     private final Time tLast2 = new Time();
-
-
-
+    @SuppressWarnings("All")
     private static boolean isRunning;
     //private static final int intentTTS = 3;
     private String ttsSalute;
@@ -101,11 +98,12 @@ public class ChatHeadService extends Service implements LocationListener {
     private final Location locNextSpeedChange = new Location("");
     private Location locLastCallSchoolZone = new Location("");
 
-    private TextToSpeech mTts;
+    public TextToSpeech mTts;
+    private final int iDelayBetweenAnnouncements = 10000;
 
     private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     private static final long minTime = 1000;                   // don't update GPS if time < mS
-    private static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
+    private static final float minDistanceGPS = 13;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -174,7 +172,6 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EasyTracker.getInstance(this).set("Where","FloatStop");
         isRunning = false;
         //Log.i(TAG, "onDestroy  5");
         handler.removeCallbacks(timedGPSqueue);
@@ -221,12 +218,12 @@ public class ChatHeadService extends Service implements LocationListener {
 
             DistanceToPOI = (int) (locCurrent.distanceTo(poi) - iDistanceOffset);
             DistanceToSZ = (int) (locCurrent.distanceTo(poiSZ) - iDistanceOffset);
-
+            AlertAnnounce();
 
             float fMinUpdateDistance = 30;
             if ((iNotCommsLockedOut == 0) && (locLast.distanceTo(locCurrent) > fMinUpdateDistance))
             {
-                AlertAnnounce();
+
                 if(abs(locLast.getSpeed() - locCurrent.getSpeed()) > (locLast.getSpeed()*0.15))
                 { callWebServiceHere();}
 
@@ -306,8 +303,7 @@ public class ChatHeadService extends Service implements LocationListener {
         }
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        //if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy() <= iMinAccuracy) && (locCurrent.hasAccuracy())) {
-        if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity)) {
+        if ((iDisplayingS != iSpeed) && (bSmall == bThisIsMainActivity) && (locCurrent.getAccuracy() <= iMinAccuracy) && (locCurrent.hasAccuracy())) {
             iDisplayingS = iSpeed;
             switch (iSpeed) {
                 case 40:
@@ -345,7 +341,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
         //noinspection PointlessBooleanExpression,ConstantConditions
-        if ((iDisplayingG != iSpeed) && (bSmall == !bThisIsMainActivity)) {
+        if ((iDisplayingG != iSpeed) && (bSmall == bThisIsMainActivity) && ((locCurrent.getAccuracy() > iMinAccuracy) || (!locCurrent.hasAccuracy()))) {
 
             iDisplayingG = iSpeed;
 
@@ -438,6 +434,11 @@ public class ChatHeadService extends Service implements LocationListener {
                             //Clear the display if we don't know the value
                             // Skip is too slow to matter
                             if (locCurrent.getSpeed() >= 7) {
+                                try {
+                                    jHereResult.put("reSpeedLimit",50);
+                                } catch (JSONException e1) {
+                                    e1.printStackTrace();
+                                }
                                 NeedToResetDisplay();
                             }
                         }
@@ -506,17 +507,17 @@ public class ChatHeadService extends Service implements LocationListener {
             SpeedLimit = jHereResult.getInt("reSpeedLimit");
             Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true)  -  tLast2.toMillis(true) ));
             now.setToNow();
-            if ((tLast2.toMillis(true) + 20000) < now.toMillis(true))
+            if ((tLast2.toMillis(true) + iDelayBetweenAnnouncements ) < now.toMillis(true))
             {
 
                 Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true) + " - " +  tLast2.toMillis(true) ));
-                tLast2.setToNow();
 
                 if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
                     if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
                     {
                         mTts.speak(getString(R.string.SpeakAlertSpeedChange) + String.valueOf(SpeedLimit), TextToSpeech.QUEUE_ADD, null);
+                        tLast2.setToNow();
                     }
                     // don't get confused....this code iterates through all cases , the breaks are INSIDE the IF statement.
                     switch (iAlertMode){
@@ -524,34 +525,40 @@ public class ChatHeadService extends Service implements LocationListener {
 
                         case 1:
                             if (intCurrentSpeeed > (SpeedLimit) && intCurrentSpeeed < (SpeedLimit + 3)) {
+                                tLast2.setToNow();
                                 mTts.speak(getString(R.string.SpeakAlertSpeedChangeSpeeding), TextToSpeech.QUEUE_ADD, null);
                                 break;
                             }
                             if (intCurrentSpeeed >= (SpeedLimit + 3) && intCurrentSpeeed < (SpeedLimit + 10)) {
+                                tLast2.setToNow();
                                 mTts.speak(getString(R.string.SpeakAlertSpeed1point), TextToSpeech.QUEUE_ADD, null);
                                 break;
                             }
 
                         case 3:
                             if (intCurrentSpeeed >= (SpeedLimit + 10) && intCurrentSpeeed < (SpeedLimit + 20) ) {
+                                tLast2.setToNow();
                                 mTts.speak(getString(R.string.SpeakAlertSpeed3points), TextToSpeech.QUEUE_ADD, null);
                                 break;
                             }
 
                         case 4:
                             if (intCurrentSpeeed >= (SpeedLimit + 20) && intCurrentSpeeed < (SpeedLimit + 30) ) {
+                                tLast2.setToNow();
                                 mTts.speak(getString(R.string.SpeakAlertSpeed4points), TextToSpeech.QUEUE_ADD, null);
                                 break;
                             }
 
                         case 5:
                             if (intCurrentSpeeed >= (SpeedLimit + 30) && intCurrentSpeeed < (SpeedLimit + 45) ) {
+                                tLast2.setToNow();
                                 mTts.speak(getString(R.string.SpeakAlertSpeed5points), TextToSpeech.QUEUE_ADD, null);
                                 break;
                             }
 
                         case 6:
                             if (intCurrentSpeeed >= (SpeedLimit + 45)) {
+                                tLast2.setToNow();
                                 mTts.speak(getString(R.string.SpeakAlertSpeed6points), TextToSpeech.QUEUE_ADD, null);
                                 break;
                             }
@@ -644,10 +651,10 @@ public class ChatHeadService extends Service implements LocationListener {
 
 
             //todo is this line needed?
-            if (bThisIsMainActivity){
+            //if (bThisIsMainActivity)
             if (!bCommsTimedOut)
                 setGraphicBtnV(vImageBtnSmall, jThereResult.getInt("reSpeedLimit"), true);
-            }
+
             fFiveValAvgSpeed = (int) (((fFiveValAvgSpeed * 4) + locCurrent.getSpeed()) / 5);
             iSecondsToSpeedChange = (DistanceToNextSpeedChange / (fFiveValAvgSpeed + 1));
             //updateDebugText();
@@ -714,10 +721,7 @@ public class ChatHeadService extends Service implements LocationListener {
         timedGPSqueue = new Runnable() {
             @Override
             public void run() {
-                if(bAnnoy){
-                    Log.i(TAG, "Annoy ");
-                    AlertAnnounce();
-                }
+
                 noGPS(!(locCurrent.hasAccuracy()));
                 if (iNotCommsLockedOut < 3) {    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebServiceHere();
@@ -735,16 +739,16 @@ public class ChatHeadService extends Service implements LocationListener {
         iNeedToResetDisplay++;
         //Log.i(TAG, "NeedToResetDisplay  " + iNeedToResetDisplay);
         if (iNeedToResetDisplay > 1) {
-            setDisplay(50);
+            iSpeed = 50;
+            setDisplay(iSpeed);
             iNeedToResetDisplay = 0;
 
         }
     }
 
-/*
-private boolean POIActive(int iWhenPOI) {
+    public static boolean POIActive(int iWhenPOI) {
 
-Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
 //
 //        int millisecond = cal.get(Calendar.MILLISECOND);
 //        int second = cal.get(Calendar.SECOND);
@@ -763,54 +767,53 @@ Calendar cal = Calendar.getInstance();
 //
 
 
-//check day of week
-switch (iWhenPOI) {
-case 0:
-return true;
-case 1:
-case 2:
-case 3:
-case 5:
-case 7:
-if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-return false;
-}
-}
-// check time
-switch (iWhenPOI) {
+        //check day of week
+        switch (iWhenPOI) {
+            case 0:
+                return true;
+            case 1:
+            case 2:
+            case 3:
+            case 5:
+            case 7:
+                if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    return false;
+                }
+        }
+        // check time
+        switch (iWhenPOI) {
 
-case 1:
-return (cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10);
+            case 1:
+                return (cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10);
 
-case 2:
-return ((cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10)
-|| (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19));
+            case 2:
+                return ((cal.get(Calendar.HOUR) >=  6 && cal.get(Calendar.HOUR) < 10)
+                        || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19));
 
-case 3:
-return ((cal.get(Calendar.HOUR) >= 6  && cal.get(Calendar.HOUR) < 10)
-|| (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 20));
+            case 3:
+                return ((cal.get(Calendar.HOUR) >= 6  && cal.get(Calendar.HOUR) < 10)
+                        || (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 20));
 
-case 4:
-case 5:
-return (cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 20);
+            case 4:
+            case 5:
+                return (cal.get(Calendar.HOUR) >= 6 && cal.get(Calendar.HOUR) < 20);
 
-case 6:
-return (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19);
+            case 6:
+                return (cal.get(Calendar.HOUR) >= 15 && cal.get(Calendar.HOUR) < 19);
 
-case 7:
-return ((cal.get(Calendar.HOUR) ==  8)
-|| (cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) >= 30)
-|| (cal.get(Calendar.HOUR) ==  15)
-|| (cal.get(Calendar.HOUR) == 14) && (cal.get(Calendar.MINUTE) >= 30)
-);
+            case 7:
+                return ((cal.get(Calendar.HOUR) ==  8)
+                        || ((cal.get(Calendar.HOUR) == 9) && (cal.get(Calendar.MINUTE) <= 30))
+                        || (cal.get(Calendar.HOUR) ==  15)
+                        || ((cal.get(Calendar.HOUR) == 14) && (cal.get(Calendar.MINUTE) >= 30))
+                );
 
-}
+        }
 
 
-return true;
+        return true;
 
-}
-*/
+    }
 
     private void callSchoolZone() {
 
@@ -1055,28 +1058,32 @@ return true;
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         // Build notification
-
-        Notification.Builder builder = new Notification.Builder(this);
-        builder.setContentTitle("Speed Zone");
-        builder.setContentText("Error Logged Click to send, swipe to cancel");
-        builder.setSmallIcon(R.drawable.ic_launcher);
         if (isSDK17()) {
-            builder.setContentIntent(pIntent);
-            builder.addAction(R.drawable.stat_notify_email_generic, "Click here to send data", pIntent);
+            Notification noti = new Notification.Builder(this)
+                    .setContentTitle("Speed Sign Finder")
+                    .setContentText("Data ready to send").setSmallIcon(R.drawable.ic_launcher)
+                    .setContentIntent(pIntent)
+                            //.addAction(R.drawable.debug, "Call", pIntent)
+                            //.addAction(R.drawable.debug, "More", pIntent)
+                    .addAction(R.drawable.stat_notify_email_generic, "Click here to send data", pIntent).build();
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            // Hide the notification after its selected
+            noti.flags |= Notification.FLAG_AUTO_CANCEL;
+
+            notificationManager.notify(0, noti);
 
         } else {
-            builder.setContentIntent(pIntent);
+            Notification noti = new Notification.Builder(this)
+                    .setContentTitle("Speed Sign Finder")
+                    .setContentText("Data ready to send").setSmallIcon(R.drawable.ic_launcher)
+                    .setContentIntent(pIntent).build();
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            // Hide the notification after its selected
+            noti.flags |= Notification.FLAG_AUTO_CANCEL;
+
+            notificationManager.notify(0, noti);
         }
-        Notification noti = builder.build();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Hide the notification after its selected
-        noti.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        notificationManager.notify(0, noti);
-
-
     }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
