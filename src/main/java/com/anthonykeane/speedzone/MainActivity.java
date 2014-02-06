@@ -148,7 +148,7 @@ public class MainActivity extends Activity implements LocationListener {
     private final int iDelayBetweenAnnouncements = 10000;
 
     private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
-    private static final long minTime = 1000;                   // don't update GPS if time < mS
+    private static final long minTime = 100;                   // don't update GPS if time < mS
     private static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
@@ -181,6 +181,7 @@ public class MainActivity extends Activity implements LocationListener {
 
     private static final int itextView = R.id.textView;
     private static final int itextView2 = R.id.textView2;
+    private static final int itextViewCurrentSpeed = R.id.textViewCurrentSpeed;
 
 
     private int iSpeed = 50;
@@ -253,7 +254,11 @@ public class MainActivity extends Activity implements LocationListener {
 
 
             locCurrent = location;
-
+            try {
+                setDebugText(itextViewCurrentSpeed, String.format(" %s", (int)(locCurrent.getSpeed()*3.6)));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             callPOI();
             if(MainActivity.POIActive(7)||bDebug) callSchoolZone();
 
@@ -481,10 +486,12 @@ public class MainActivity extends Activity implements LocationListener {
                             // Skip is too slow to matter
                             if (locCurrent.getSpeed() >= 7) {
                                 try {
-                                    jHereResult.put("reSpeedLimit",50);
+                                    jHereResult.put("reSpeedLimit", 50);
                                 } catch (JSONException e1) {
                                     e1.printStackTrace();
                                 }
+
+                                setGraphicBtnV(vImageButton, 50, false);
                                 NeedToResetDisplay();
                             }
                         }
@@ -546,11 +553,11 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
     private void AlertAnnounce() {
-        int SpeedLimit = 50;
+
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
         try
        {
-            SpeedLimit = jHereResult.getInt("reSpeedLimit");
+            int SpeedLimit = jHereResult.getInt("reSpeedLimit");
             Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true)  -  tLast2.toMillis(true) ));
             now.setToNow();
             if ((tLast2.toMillis(true) + iDelayBetweenAnnouncements ) < now.toMillis(true))
@@ -559,7 +566,7 @@ public class MainActivity extends Activity implements LocationListener {
                 Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true) + " - " +  tLast2.toMillis(true) ));
 
 
-                if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
+                if ((!bMute) && (SpeedLimit > 50) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
                     if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
                     {

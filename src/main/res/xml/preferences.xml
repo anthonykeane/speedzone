@@ -29,7 +29,7 @@
         <com.anthonykeane.speedzone.SeekBarPreference
             android:dependency="@string/settings_soundKey"
             android:key="@string/settings_VolumeKey"
-            android:defaultValue="50"
+            android:defaultValue="100"
             android:title="@string/settings_aboutTitle"
             android:summary="@string/settings_aboutSummary"/>
 

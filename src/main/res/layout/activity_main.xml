@@ -19,6 +19,28 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="0"
+            android:id="@+id/textViewCurrentSpeed"
+            android:textAlignment="center"
+            android:singleLine="true"
+            android:autoText="false"
+            android:gravity="center"
+            android:textColor="#ffff"
+            android:textSize="34dp"
+            android:textStyle="bold"
+            android:typeface="sans"
+            android:textIsSelectable="false"
+            android:layout_alignParentTop="false"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentBottom="false"
+            android:layout_alignWithParentIfMissing="false" />
+
     </RelativeLayout>
 
     <RadioButton
@@ -85,7 +107,7 @@
         android:scaleType="fitCenter"
         android:scrollbarAlwaysDrawVerticalTrack="false"
         android:soundEffectsEnabled="false"
-        android:src="@drawable/gerror"
+        android:src="@drawable/bblank"
         tools:ignore="HardcodedText" />
 
     <TextView
