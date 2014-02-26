@@ -148,7 +148,7 @@ public class MainActivity extends Activity implements LocationListener {
     private final int iDelayBetweenAnnouncements = 10000;
 
     private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
-    private static final long minTime = 100;                   // don't update GPS if time < mS
+    private static final long minTime = 1000;                   // don't update GPS if time < mS
     private static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
@@ -246,9 +246,9 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy)
+        if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() ); // && location.getAccuracy() < iMinAccuracy)
         {
-            noGPS(false);
+            //noGPS(false);
             //Log.i(TAG, "onLocationChanged  GOOD");
             Location locLast = locCurrent;
 
@@ -271,7 +271,7 @@ public class MainActivity extends Activity implements LocationListener {
             DistanceToSZ = (int) (locCurrent.distanceTo(poiSZ) - iDistanceOffset);
             AlertAnnounce();
 
-            float fMinUpdateDistance = 30;
+            float fMinUpdateDistance = 10;
             if ((iNotCommsLockedOut == 0) && (locLast.distanceTo(locCurrent) > fMinUpdateDistance))
             {
 
@@ -777,7 +777,7 @@ public class MainActivity extends Activity implements LocationListener {
             @Override
             public void run() {
 
-                noGPS(!(locCurrent.hasAccuracy()));
+                noGPS(!(locCurrent.hasAccuracy() && locCurrent.getAccuracy() < iMinAccuracy));
                 if (iNotCommsLockedOut < 3) {    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebServiceHere();
                 }
@@ -1152,6 +1152,7 @@ public class MainActivity extends Activity implements LocationListener {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////MAIN - END  OF COMMON CODE//////////////////////////////////////////////////////////
+
 
 
     private void RetreiveSettings() {

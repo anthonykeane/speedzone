@@ -103,7 +103,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     private static final int delayBetweenGPS_Records = 60000;    //every 500mS log Geo date in Queue.
     private static final long minTime = 1000;                   // don't update GPS if time < mS
-    private static final float minDistanceGPS = 13;              // don't update GPS if distance < Meters
+    private static final float minDistanceGPS = 10;              // don't update GPS if distance < Meters
 
     private final Handler handler = new Handler();                // used for timers
 
@@ -135,6 +135,7 @@ public class ChatHeadService extends Service implements LocationListener {
 
     private static final int itextView = R.id.textView;
     private static final int itextView2 = R.id.textView2;
+    private static final int itextViewCurrentSpeed = R.id.textViewCurrentSpeed;
 
 
     private int iSpeed = 50;
@@ -199,9 +200,9 @@ public class ChatHeadService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() && location.getAccuracy() < iMinAccuracy)
+        if (location.hasAccuracy() && location.hasBearing() && location.hasSpeed() ); // && location.getAccuracy() < iMinAccuracy)
         {
-            noGPS(false);
+            //noGPS(false);
             //Log.i(TAG, "onLocationChanged  GOOD");
             Location locLast = locCurrent;
 
@@ -435,10 +436,12 @@ public class ChatHeadService extends Service implements LocationListener {
                             // Skip is too slow to matter
                             if (locCurrent.getSpeed() >= 7) {
                                 try {
-                                    jHereResult.put("reSpeedLimit",50);
+                                    jHereResult.put("reSpeedLimit", 50);
                                 } catch (JSONException e1) {
                                     e1.printStackTrace();
                                 }
+
+                                setGraphicBtnV(vImageButton, 50, false);
                                 NeedToResetDisplay();
                             }
                         }
@@ -500,11 +503,11 @@ public class ChatHeadService extends Service implements LocationListener {
     }
 
     private void AlertAnnounce() {
-        int SpeedLimit = 50;
+
         int intCurrentSpeeed = (int) (locCurrent.getSpeed() * 3.6);
         try
         {
-            SpeedLimit = jHereResult.getInt("reSpeedLimit");
+            int SpeedLimit = jHereResult.getInt("reSpeedLimit");
             Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true)  -  tLast2.toMillis(true) ));
             now.setToNow();
             if ((tLast2.toMillis(true) + iDelayBetweenAnnouncements ) < now.toMillis(true))
@@ -512,7 +515,8 @@ public class ChatHeadService extends Service implements LocationListener {
 
                 Log.i(TAG, "AlertAnnounce "+  (now.toMillis(true) + " - " +  tLast2.toMillis(true) ));
 
-                if ((!bMute) && (SpeedLimit != 0) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
+
+                if ((!bMute) && (SpeedLimit > 50) && ((iSpeed != SpeedLimit) || bAnnoy) ) {
 
                     if ((intCurrentSpeeed > SpeedLimit) || (iSpeed != SpeedLimit))
                     {
@@ -597,6 +601,7 @@ public class ChatHeadService extends Service implements LocationListener {
             e.printStackTrace();
         }
     }
+
 
     private void MyNextWebService() {
 
@@ -722,7 +727,7 @@ public class ChatHeadService extends Service implements LocationListener {
             @Override
             public void run() {
 
-                noGPS(!(locCurrent.hasAccuracy()));
+                noGPS(!(locCurrent.hasAccuracy() && locCurrent.getAccuracy() < iMinAccuracy));
                 if (iNotCommsLockedOut < 3) {    // DON'T LET THE COMMS QUEUE GET TO BUG
                     callWebServiceHere();
                 }
